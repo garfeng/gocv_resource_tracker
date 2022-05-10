@@ -24,30 +24,6 @@ func (g *GoCVResourceTracker) NewMatWithSize(rows, cols int, matType gocv.MatTyp
 	return mat
 }
 
-func (g *GoCVResourceTracker) NewPointVectorFromPoints(pts []image.Point) gocv.PointVector {
-	pv := gocv.NewPointVectorFromPoints(pts)
-	g.TrackCloser(&pv)
-	return pv
-}
-
-func (g *GoCVResourceTracker) NewPointVectorFromMat(mat gocv.Mat) gocv.PointVector {
-	pv := gocv.NewPointVectorFromMat(mat)
-	g.TrackCloser(&pv)
-	return pv
-}
-
-func (g *GoCVResourceTracker) NewPointsVectorFromPoints(pts [][]image.Point) gocv.PointsVector {
-	pvs := gocv.NewPointsVectorFromPoints(pts)
-	g.TrackCloser(&pvs)
-	return pvs
-}
-
-func (g *GoCVResourceTracker) FindContours(src gocv.Mat, mode gocv.RetrievalMode, method gocv.ContourApproximationMode) gocv.PointsVector {
-	pvs := gocv.FindContours(src, mode, method)
-	g.TrackCloser(&pvs)
-	return pvs
-}
-
 func (g *GoCVResourceTracker) Clone(src gocv.Mat) gocv.Mat {
 	dst := src.Clone()
 	g.TrackCloseError(&dst)
@@ -166,4 +142,56 @@ func (g *GoCVResourceTracker) FromPtr(src gocv.Mat, rows int, cols int, mt gocv.
 	mat, err := src.FromPtr(rows, cols, mt, prow, pcol)
 	g.TrackCloseError(&mat)
 	return mat, err
+}
+
+func (g *GoCVResourceTracker) NewPointVector() gocv.PointVector {
+	pv := gocv.NewPointVector()
+	g.TrackCloser(&pv)
+	return pv
+}
+
+func (g *GoCVResourceTracker) NewPointVectorFromPoints(pts []image.Point) gocv.PointVector {
+	pv := gocv.NewPointVectorFromPoints(pts)
+	g.TrackCloser(&pv)
+	return pv
+}
+
+func (g *GoCVResourceTracker) NewPointVectorFromMat(mat gocv.Mat) gocv.PointVector {
+	pv := gocv.NewPointVectorFromMat(mat)
+	g.TrackCloser(&pv)
+	return pv
+}
+
+func (g *GoCVResourceTracker) FindContours(src gocv.Mat, mode gocv.RetrievalMode, method gocv.ContourApproximationMode) gocv.PointsVector {
+	pvs := gocv.FindContours(src, mode, method)
+	g.TrackCloser(&pvs)
+	return pvs
+}
+
+func (g *GoCVResourceTracker) NewPointsVector() gocv.PointsVector {
+	pv := gocv.NewPointsVector()
+	g.TrackCloser(&pv)
+	return pv
+}
+
+func (g *GoCVResourceTracker) NewPointsVectorFromPoints(pts [][]image.Point) gocv.PointsVector {
+	pvs := gocv.NewPointsVectorFromPoints(pts)
+	g.TrackCloser(&pvs)
+	return pvs
+}
+
+func (g *GoCVResourceTracker) NewPoint2fVector() gocv.Point2fVector {
+	pvs := gocv.NewPoint2fVector()
+	g.TrackCloser(&pvs)
+	return pvs
+}
+func (g *GoCVResourceTracker) NewPoint2fVectorFromPoints(pts []gocv.Point2f) gocv.Point2fVector {
+	pvs := gocv.NewPoint2fVectorFromPoints(pts)
+	g.TrackCloser(&pvs)
+	return pvs
+}
+func (g *GoCVResourceTracker) NewPoint2fVectorFromMat(mat gocv.Mat) gocv.Point2fVector {
+	pvs := gocv.NewPoint2fVectorFromMat(mat)
+	g.TrackCloser(&pvs)
+	return pvs
 }
