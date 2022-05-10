@@ -1,7 +1,6 @@
 package tracker
 
 import (
-	"fmt"
 	"runtime"
 	"sync"
 )
@@ -10,6 +9,28 @@ type ResourceTracker struct {
 	dataList             []Closer
 	dataListCloseWithErr []CloserWithError
 	mutex                sync.Mutex
+}
+
+// NewResourceTracker Returns a ResourceTracker, you should call Close() by manual.
+func NewResourceTracker() *ResourceTracker {
+	rt := &ResourceTracker{
+		dataList:             []Closer{},
+		dataListCloseWithErr: []CloserWithError{},
+	}
+
+	return rt
+}
+
+// NewAutoGCResourceTracker Returns a ResourceTracker with runtime.SetFinalizer,
+// Close() is not required, but you should be careful when deal with it.
+func NewAutoGCResourceTracker() *ResourceTracker {
+	rt := NewResourceTracker()
+
+	runtime.SetFinalizer(rt, func(r *ResourceTracker) {
+		r.Close()
+	})
+
+	return rt
 }
 
 func (r *ResourceTracker) Close() {
@@ -26,7 +47,6 @@ func (r *ResourceTracker) Close() {
 	r.dataListCloseWithErr = r.dataListCloseWithErr[:0]
 
 	r.mutex.Unlock()
-	fmt.Println("all closed")
 }
 
 func (r *ResourceTracker) TrackCloser(data ...Closer) {
@@ -59,17 +79,6 @@ func (r *ResourceTracker) Track(data ...any) {
 	r.dataListCloseWithErr = append(r.dataListCloseWithErr, errClosers...)
 	r.dataList = append(r.dataList, closers...)
 	r.mutex.Unlock()
-}
-
-func NewResourceTracker() *ResourceTracker {
-	rt := &ResourceTracker{
-		dataList:             []Closer{},
-		dataListCloseWithErr: []CloserWithError{},
-	}
-	runtime.SetFinalizer(rt, func(r *ResourceTracker) {
-		r.Close()
-	})
-	return rt
 }
 
 type CloserWithError interface {

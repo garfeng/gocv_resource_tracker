@@ -2,6 +2,7 @@ package gocv_resource_tracker
 
 import (
 	"fmt"
+	"image"
 	"runtime"
 	"testing"
 	"time"
@@ -26,4 +27,17 @@ func TestNewTracker(t *testing.T) {
 	}
 	runtime.GC()
 	<-time.After(time.Second)
+}
+
+func Example() {
+	rt := NewTracker()
+	defer rt.Close() // only one time close here
+
+	mat := rt.NewMat()
+	// ...
+	// do something with mat
+	kernel := rt.GetStructuringElement(gocv.MorphRect, image.Pt(10, 10))
+	dst := rt.NewMat()
+
+	gocv.Erode(mat, &dst, kernel)
 }

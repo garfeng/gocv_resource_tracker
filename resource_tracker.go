@@ -11,10 +11,25 @@ type GoCVResourceTracker struct {
 	*tracker.ResourceTracker
 }
 
+// NewAutoGCTracker returns a GoCVResourceTracker, you should call Close() by manual.
+func NewAutoGCTracker() *GoCVResourceTracker {
+	return &GoCVResourceTracker{
+		ResourceTracker: tracker.NewAutoGCResourceTracker(),
+	}
+}
+
+// NewTracker Returns a GoCVResourceTracker with runtime.SetFinalizer,
+// Close() is not required, but you should be careful when deal with it.
 func NewTracker() *GoCVResourceTracker {
 	return &GoCVResourceTracker{
 		ResourceTracker: tracker.NewResourceTracker(),
 	}
+}
+
+func (g *GoCVResourceTracker) IMRead(name string, flag gocv.IMReadFlag) gocv.Mat {
+	mat := gocv.IMRead(name, flag)
+	g.TrackCloseError(&mat)
+	return mat
 }
 
 func (g *GoCVResourceTracker) NewMat() gocv.Mat {
@@ -29,8 +44,8 @@ func (g *GoCVResourceTracker) NewMatWithSize(rows, cols int, matType gocv.MatTyp
 	return mat
 }
 
-func (g *GoCVResourceTracker) NewPointVectorFromPoints(points []image.Point) gocv.PointVector {
-	pv := gocv.NewPointVectorFromPoints(points)
+func (g *GoCVResourceTracker) NewPointVectorFromPoints(pts []image.Point) gocv.PointVector {
+	pv := gocv.NewPointVectorFromPoints(pts)
 	g.TrackCloser(&pv)
 	return pv
 }
@@ -39,6 +54,12 @@ func (g *GoCVResourceTracker) NewPointVectorFromMat(mat gocv.Mat) gocv.PointVect
 	pv := gocv.NewPointVectorFromMat(mat)
 	g.TrackCloser(&pv)
 	return pv
+}
+
+func (g *GoCVResourceTracker) NewPointsVectorFromPoints(pts [][]image.Point) gocv.PointsVector {
+	pvs := gocv.NewPointsVectorFromPoints(pts)
+	g.TrackCloser(&pvs)
+	return pvs
 }
 
 func (g *GoCVResourceTracker) FindContours(src gocv.Mat, mode gocv.RetrievalMode, method gocv.ContourApproximationMode) gocv.PointsVector {
