@@ -43,7 +43,7 @@ func GOCVExample() {
 ``` go
 func ResourceTrackerExample() {
 	rt := gocv_resource_tracker.NewTracker()
-	// defer rt.Close()
+	defer rt.Close()
 
 	mat := rt.IMRead("test.png", gocv.IMReadGrayScale)
 

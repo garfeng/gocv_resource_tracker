@@ -17,10 +17,18 @@ func NewResourceTracker() *ResourceTracker {
 		dataList:             []Closer{},
 		dataListCloseWithErr: []CloserWithError{},
 	}
-	runtime.SetFinalizer(rt, func(r *ResourceTracker) {
+	/*
+		runtime.SetFinalizer(rt, func(r *ResourceTracker) {
+			r.Close()
+		})
+	*/
+	return rt
+}
+
+func (r *ResourceTracker) SetFinalizerClose() {
+	runtime.SetFinalizer(r, func(r *ResourceTracker) {
 		r.Close()
 	})
-	return rt
 }
 
 func (r *ResourceTracker) Close() {
