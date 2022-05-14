@@ -41,3 +41,18 @@ func Example() {
 
 	gocv.Erode(mat, &dst, kernel)
 }
+
+func CreateThenAutoGC() {
+	rt := NewTracker()
+
+	for i := 0; i < 15; i++ {
+		rt.NewMatWithSize(5120, 1024, gocv.MatTypeCV8UC1)
+	}
+}
+
+func TestAutoGC(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		CreateThenAutoGC()
+		<-time.After(time.Second * 5)
+	}
+}
