@@ -11,36 +11,27 @@ type ResourceTracker struct {
 	mutex                sync.Mutex
 }
 
-// NewResourceTracker Returns a ResourceTracker, you should call Close() by manual.
+// NewResourceTracker Returns a ResourceTracker, Close() by manual is not required.
 func NewResourceTracker() *ResourceTracker {
 	rt := &ResourceTracker{
 		dataList:             []Closer{},
 		dataListCloseWithErr: []CloserWithError{},
 	}
-
-	return rt
-}
-
-// NewAutoGCResourceTracker Returns a ResourceTracker with runtime.SetFinalizer,
-// Close() is not required, but you should be careful when deal with it.
-func NewAutoGCResourceTracker() *ResourceTracker {
-	rt := NewResourceTracker()
-
 	runtime.SetFinalizer(rt, func(r *ResourceTracker) {
 		r.Close()
 	})
-
 	return rt
 }
 
 func (r *ResourceTracker) Close() {
 	r.mutex.Lock()
-
+	removeHeap(len(r.dataList))
 	for _, v := range r.dataList {
 		v.Close()
 	}
 	r.dataList = r.dataList[:0]
 
+	removeHeap(len(r.dataListCloseWithErr))
 	for _, v := range r.dataListCloseWithErr {
 		v.Close()
 	}
@@ -50,12 +41,14 @@ func (r *ResourceTracker) Close() {
 }
 
 func (r *ResourceTracker) TrackCloser(data ...Closer) {
+	addHeap(len(data))
 	r.mutex.Lock()
 	r.dataList = append(r.dataList, data...)
 	r.mutex.Unlock()
 }
 
 func (r *ResourceTracker) TrackCloseError(data ...CloserWithError) {
+	addHeap(len(data))
 	r.mutex.Lock()
 	r.dataListCloseWithErr = append(r.dataListCloseWithErr, data...)
 	r.mutex.Unlock()
@@ -75,6 +68,7 @@ func (r *ResourceTracker) Track(data ...any) {
 		}
 	}
 
+	addHeap(len(data))
 	r.mutex.Lock()
 	r.dataListCloseWithErr = append(r.dataListCloseWithErr, errClosers...)
 	r.dataList = append(r.dataList, closers...)
