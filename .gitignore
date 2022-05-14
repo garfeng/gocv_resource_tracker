@@ -46,3 +46,5 @@ vendor/
 !image/second_screen.png
 build
 cmake-build-debug
+
+!*.md
