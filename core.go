@@ -19,6 +19,8 @@ func (g *GoCVResourceTracker) NewMatWithSizes(sizes []int, mt gocv.MatType) gocv
 }
 
 func (g *GoCVResourceTracker) NewMatWithSize(rows, cols int, matType gocv.MatType) gocv.Mat {
+	Must(rows > 0 && cols > 0, "rows > 0 && cols > 0")
+
 	mat := gocv.NewMatWithSize(rows, cols, matType)
 	g.TrackCloseError(&mat)
 	return mat
@@ -31,18 +33,28 @@ func (g *GoCVResourceTracker) Clone(src gocv.Mat) gocv.Mat {
 }
 
 func (g *GoCVResourceTracker) Region(src gocv.Mat, rect image.Rectangle) gocv.Mat {
+
+	Must(rect.In(image.Rect(0, 0, src.Cols(), src.Rows())),
+		"rect inside src.Bounds()")
+
 	region := src.Region(rect)
 	g.TrackCloseError(&region)
 	return region
 }
 
 func (g *GoCVResourceTracker) CloneRegion(src gocv.Mat, rect image.Rectangle) gocv.Mat {
+	Must(rect.In(image.Rect(0, 0, src.Cols(), src.Rows())),
+		"rect inside src.Bounds()")
+
 	region := src.Region(rect)
 	defer region.Close()
+
 	return g.Clone(region)
 }
 
 func (g *GoCVResourceTracker) GetStructuringElement(morphShape gocv.MorphShape, size image.Point) gocv.Mat {
+	Must(size.X > 0 && size.Y > 0, "size.X > 0 && size.Y > 0")
+
 	kernel := gocv.GetStructuringElement(morphShape, size)
 	g.TrackCloseError(&kernel)
 	return kernel
@@ -61,6 +73,8 @@ func (g *GoCVResourceTracker) NewMatFromScalar(s gocv.Scalar, mt gocv.MatType) g
 }
 
 func (g *GoCVResourceTracker) NewMatWithSizeFromScalar(s gocv.Scalar, rows int, cols int, mt gocv.MatType) gocv.Mat {
+	Must(rows > 0 && cols > 0, "rows > 0 && cols > 0")
+
 	mat := gocv.NewMatWithSizeFromScalar(s, rows, cols, mt)
 	g.TrackCloseError(&mat)
 	return mat
@@ -132,7 +146,29 @@ func (g *GoCVResourceTracker) NewMatWithSizesFromBytes(sizes []int, mt gocv.MatT
 	return mat, err
 }
 
+var (
+	matTypeSizeMap = map[gocv.MatType]int{
+		gocv.MatTypeCV8U:  1,
+		gocv.MatTypeCV8S:  1,
+		gocv.MatTypeCV16U: 2,
+		gocv.MatTypeCV16S: 2,
+		gocv.MatTypeCV32S: 4,
+		gocv.MatTypeCV32F: 4,
+		gocv.MatTypeCV64F: 8,
+	}
+)
+
+func sizeOfMatType(mt gocv.MatType) int {
+	sz := matTypeSizeMap[mt]
+	channelNum := int(mt)/8 + 1
+	return sz * channelNum
+}
+
 func (g *GoCVResourceTracker) NewMatFromBytes(rows int, cols int, mt gocv.MatType, data []byte) (gocv.Mat, error) {
+	Must(rows > 0 && cols > 0, "rows > 0 && cols > 0")
+	pixSize := sizeOfMatType(mt)
+	MustEqual(pixSize*rows*cols, len(data), "sizeof(%v) * rows * cols != len(data)", mt)
+
 	mat, err := gocv.NewMatFromBytes(rows, cols, mt, data)
 	g.TrackCloseError(&mat)
 	return mat, err
@@ -151,12 +187,21 @@ func (g *GoCVResourceTracker) NewPointVector() gocv.PointVector {
 }
 
 func (g *GoCVResourceTracker) NewPointVectorFromPoints(pts []image.Point) gocv.PointVector {
+	if len(pts) == 0 {
+		return g.NewPointVector()
+	}
+
 	pv := gocv.NewPointVectorFromPoints(pts)
 	g.TrackCloser(&pv)
 	return pv
 }
 
 func (g *GoCVResourceTracker) NewPointVectorFromMat(mat gocv.Mat) gocv.PointVector {
+
+	if mat.Rows() == 0 {
+		return g.NewPointVector()
+	}
+
 	pv := gocv.NewPointVectorFromMat(mat)
 	g.TrackCloser(&pv)
 	return pv
@@ -175,6 +220,10 @@ func (g *GoCVResourceTracker) NewPointsVector() gocv.PointsVector {
 }
 
 func (g *GoCVResourceTracker) NewPointsVectorFromPoints(pts [][]image.Point) gocv.PointsVector {
+	if len(pts) == 0 {
+		return g.NewPointsVector()
+	}
+
 	pvs := gocv.NewPointsVectorFromPoints(pts)
 	g.TrackCloser(&pvs)
 	return pvs
@@ -186,11 +235,19 @@ func (g *GoCVResourceTracker) NewPoint2fVector() gocv.Point2fVector {
 	return pvs
 }
 func (g *GoCVResourceTracker) NewPoint2fVectorFromPoints(pts []gocv.Point2f) gocv.Point2fVector {
+	if len(pts) == 0 {
+		return g.NewPoint2fVector()
+	}
+
 	pvs := gocv.NewPoint2fVectorFromPoints(pts)
 	g.TrackCloser(&pvs)
 	return pvs
 }
 func (g *GoCVResourceTracker) NewPoint2fVectorFromMat(mat gocv.Mat) gocv.Point2fVector {
+	if mat.Rows() == 0 {
+		return g.NewPoint2fVector()
+	}
+
 	pvs := gocv.NewPoint2fVectorFromMat(mat)
 	g.TrackCloser(&pvs)
 	return pvs

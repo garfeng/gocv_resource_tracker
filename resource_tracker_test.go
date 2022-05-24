@@ -56,3 +56,22 @@ func TestAutoGC(t *testing.T) {
 		<-time.After(time.Second * 5)
 	}
 }
+
+func TestPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+		}
+	}()
+
+	f := NewTracker()
+
+	mat := f.NewMatWithSize(100, 100, gocv.MatTypeCV8UC1)
+	region := f.CloneRegion(mat, image.Rect(0, 0, 200, 200))
+
+	fmt.Println(region.Cols())
+
+	f.GetStructuringElement(gocv.MorphRect, image.Pt(0, 0))
+	f.NewMatFromBytes(100, 100, gocv.MatTypeCV8UC1, make([]byte, 10))
+
+}
