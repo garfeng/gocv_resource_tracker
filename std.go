@@ -37,8 +37,8 @@ func MustEqual(a any, b any, format string, i ...interface{}) {
 		PanicWithCaller(1, fmt.Sprintf("%v != %v", a, b))
 	} else {
 		s1 := fmt.Sprintf(format, i...)
-		s2 := fmt.Sprintf("(%v != %v)", a, b)
-		PanicWithCaller(1, s2+" -> "+s1)
+		//	s2 := fmt.Sprintf("(%v != %v)", a, b)
+		PanicWithCaller(1, s1)
 	}
 }
 
