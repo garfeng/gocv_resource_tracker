@@ -17,11 +17,9 @@ func NewResourceTracker() *ResourceTracker {
 		dataList:             []Closer{},
 		dataListCloseWithErr: []CloserWithError{},
 	}
-	/*
-		runtime.SetFinalizer(rt, func(r *ResourceTracker) {
-			r.Close()
-		})
-	*/
+	runtime.SetFinalizer(rt, func(r *ResourceTracker) {
+		r.Close()
+	})
 	return rt
 }
 
