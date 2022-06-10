@@ -3,28 +3,46 @@ package main
 import (
 	"fmt"
 	"image"
+	"image/color"
+
+	"gocv.io/x/gocv"
 
 	tracker "github.com/garfeng/gocv_resource_tracker"
 )
 
 func main() {
-	tr := tracker.NewTracker()
-	defer tr.Close()
+	rt := tracker.NewTracker()
+	defer rt.Close()
 
-	contours := tr.NewPointsVectorFromPoints([][]image.Point{
-		{{1, 1}, {1, 2}, {1, 3}, {1, 1}},
-		{{5, 5}, {5, 2}, {5, 3}, {5, 5}},
-		{{5, 5}, {5, 2}, {5, 3}, {5, 5}},
-		{{5, 5}, {5, 2}, {5, 3}, {5, 1}},
-	})
+	mat := rt.NewMatWithSize(1000, 1000, gocv.MatTypeCV8UC1)
+	for i := 0; i < 10; i++ {
+		rt.Rectangle(&mat, image.Rect(i*100, i*100, i*100+50, i*100+50),
+			color.RGBA{255, 255, 255, 255}, -1)
+	}
+
+	kernel := rt.GetStructuringElement(gocv.MorphEllipse, image.Pt(5, 5))
+	erode := rt.NewMat()
+	rt.Erode(mat, &erode, kernel)
+	rt.IMWrite("hello.png", erode)
+
+	thres := rt.NewMat()
+	rt.Threshold(erode, &thres, 0, 255, gocv.ThresholdOtsu)
+
+	contours := rt.FindContours(erode, gocv.RetrievalList, gocv.ChainApproxNone)
+
 	number := contours.Size()
 	for i := 0; i < number; i++ {
 		c := contours.At(i)
-		fmt.Println(c.Size())
+		fmt.Println("contourSize :", c.Size())
 		//c.Close()
 	}
-	//gocv.NewMat().Close()
-	contours.Close()
+	fmt.Println("contourNumber: ", contours.Size())
+	contours.Append(rt.NewPointVectorFromPoints([]image.Point{{1, 2},
+		{5, 5}, {1, 2}}))
+	fmt.Println("contourNumber2: ", contours.Size())
+
+	c := contours.At(4)
+	fmt.Println(c.Size())
 
 }
 
