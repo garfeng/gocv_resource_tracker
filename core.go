@@ -102,6 +102,7 @@ func (g *GoCVResourceTracker) NewMat() Mat {
 }
 
 func (g *GoCVResourceTracker) NewMatWithSize(rows int, cols int, mt MatType) Mat {
+	Must(rows > 0 && cols > 0, "rows > 0 && cols > 0")
 	rs0 := gocv.NewMatWithSize(rows, cols, mt)
 	g.TrackCloseError(&rs0)
 	pkg0 := Mat{
@@ -152,6 +153,7 @@ func (g *GoCVResourceTracker) NewMatFromScalar(s Scalar, mt MatType) Mat {
 }
 
 func (g *GoCVResourceTracker) NewMatWithSizeFromScalar(s Scalar, rows int, cols int, mt MatType) Mat {
+	Must(rows > 0 && cols > 0, "rows > 0 && cols > 0")
 	rs0 := gocv.NewMatWithSizeFromScalar(s, rows, cols, mt)
 	g.TrackCloseError(&rs0)
 	pkg0 := Mat{
@@ -162,6 +164,10 @@ func (g *GoCVResourceTracker) NewMatWithSizeFromScalar(s Scalar, rows int, cols 
 }
 
 func (g *GoCVResourceTracker) NewMatFromBytes(rows int, cols int, mt MatType, data []byte) (Mat, error) {
+	Must(rows > 0 && cols > 0, "rows > 0 && cols > 0")
+	pixSize := sizeOfMatType(mt)
+	MustEqual(pixSize*rows*cols, len(data), "sizeof(%v) * rows * cols != len(data)", mt)
+
 	rs0, rs1 := gocv.NewMatFromBytes(rows, cols, mt, data)
 	g.TrackCloseError(&rs0)
 	pkg0 := Mat{
@@ -552,6 +558,10 @@ func (g *GoCVResourceTracker) NewPointVector() PointVector {
 }
 
 func (g *GoCVResourceTracker) NewPointVectorFromPoints(pts []image.Point) PointVector {
+	if len(pts) == 0 {
+		return g.NewPointVector()
+	}
+
 	rs0 := gocv.NewPointVectorFromPoints(pts)
 	g.TrackCloser(rs0)
 	pkg0 := PointVector{
@@ -562,6 +572,10 @@ func (g *GoCVResourceTracker) NewPointVectorFromPoints(pts []image.Point) PointV
 }
 
 func (g *GoCVResourceTracker) NewPointVectorFromMat(mat Mat) PointVector {
+	if mat.Rows() == 0 {
+		return g.NewPointVector()
+	}
+
 	rs0 := gocv.NewPointVectorFromMat(*(mat.Mat))
 	g.TrackCloser(rs0)
 	pkg0 := PointVector{
@@ -582,6 +596,10 @@ func (g *GoCVResourceTracker) NewPointsVector() PointsVector {
 }
 
 func (g *GoCVResourceTracker) NewPointsVectorFromPoints(pts [][]image.Point) PointsVector {
+	if len(pts) == 0 {
+		return g.NewPointsVector()
+	}
+
 	rs0 := gocv.NewPointsVectorFromPoints(pts)
 	g.TrackCloser(rs0)
 	pkg0 := PointsVector{
@@ -602,6 +620,9 @@ func (g *GoCVResourceTracker) NewPoint2fVector() Point2fVector {
 }
 
 func (g *GoCVResourceTracker) NewPoint2fVectorFromPoints(pts []Point2f) Point2fVector {
+	if len(pts) == 0 {
+		return g.NewPoint2fVector()
+	}
 	rs0 := gocv.NewPoint2fVectorFromPoints(pts)
 	g.TrackCloser(rs0)
 	pkg0 := Point2fVector{
@@ -612,6 +633,10 @@ func (g *GoCVResourceTracker) NewPoint2fVectorFromPoints(pts []Point2f) Point2fV
 }
 
 func (g *GoCVResourceTracker) NewPoint2fVectorFromMat(mat Mat) Point2fVector {
+	if mat.Rows() == 0 {
+		return g.NewPoint2fVector()
+	}
+
 	rs0 := gocv.NewPoint2fVectorFromMat(*(mat.Mat))
 	g.TrackCloser(rs0)
 	pkg0 := Point2fVector{
@@ -667,6 +692,9 @@ func (g *GoCVResourceTracker) NewPoints2fVector() Points2fVector {
 }
 
 func (g *GoCVResourceTracker) NewPoints2fVectorFromPoints(pts [][]Point2f) Points2fVector {
+	if len(pts) == 0 {
+		return g.NewPoints2fVector()
+	}
 	rs0 := gocv.NewPoints2fVectorFromPoints(pts)
 	g.TrackCloser(rs0)
 	pkg0 := Points2fVector{
@@ -692,6 +720,9 @@ func (g *GoCVResourceTracker) NewPoint3fVector() Point3fVector {
 }
 
 func (g *GoCVResourceTracker) NewPoint3fVectorFromPoints(pts []Point3f) Point3fVector {
+	if len(pts) == 0 {
+		return g.NewPoint3fVector()
+	}
 	rs0 := gocv.NewPoint3fVectorFromPoints(pts)
 	g.TrackCloser(rs0)
 	pkg0 := Point3fVector{
@@ -702,6 +733,10 @@ func (g *GoCVResourceTracker) NewPoint3fVectorFromPoints(pts []Point3f) Point3fV
 }
 
 func (g *GoCVResourceTracker) NewPoint3fVectorFromMat(mat Mat) Point3fVector {
+	if mat.Rows() == 0 {
+		return g.NewPoint3fVector()
+	}
+
 	rs0 := gocv.NewPoint3fVectorFromMat(*(mat.Mat))
 	g.TrackCloser(rs0)
 	pkg0 := Point3fVector{
@@ -722,6 +757,10 @@ func (g *GoCVResourceTracker) NewPoints3fVector() Points3fVector {
 }
 
 func (g *GoCVResourceTracker) NewPoints3fVectorFromPoints(pts [][]Point3f) Points3fVector {
+	if len(pts) == 0 {
+		return g.NewPoints3fVector()
+	}
+
 	rs0 := gocv.NewPoints3fVectorFromPoints(pts)
 	g.TrackCloser(rs0)
 	pkg0 := Points3fVector{
@@ -787,6 +826,8 @@ func (m *Mat) MultiplyMatrix(x Mat) Mat {
 }
 
 func (m *Mat) Region(rio image.Rectangle) Mat {
+	Must(rio.In(image.Rect(0, 0, m.Cols(), m.Rows())),
+		"rio inside mat.Bounds()")
 	rs0 := m.Mat.Region(rio)
 
 	m.ResourceTracker.TrackCloseError(&rs0)
@@ -820,11 +861,53 @@ func (m *Mat) T() Mat {
 	m.ResourceTracker.TrackCloseError(&rs0)
 	return Mat{&rs0, m.ResourceTracker}
 }
+
+func (m *Mat) SetVecbAt(row int, col int, data Vecb) {
+	Must(row < m.Rows() && col < m.Cols(), "row < m.rows && col < m.cols")
+	ch := m.Channels()
+	Must(len(data) <= ch, "len(data) < m.channels")
+
+	for i, c := range data {
+		m.SetUCharAt(row, col*ch+i, c)
+	}
+}
+
+func (m *Mat) SetVecfAt(row int, col int, data Vecf) {
+	Must(row < m.Rows() && col < m.Cols(), "row < m.rows && col < m.cols")
+	ch := m.Channels()
+	Must(len(data) <= ch, "len(data) < m.channels")
+
+	for i, c := range data {
+		m.SetFloatAt(row, col*ch+i, c)
+	}
+}
+
+func (m *Mat) SetVeciAt(row int, col int, data Veci) {
+	Must(row < m.Rows() && col < m.Cols(), "row < m.rows && col < m.cols")
+	ch := m.Channels()
+	Must(len(data) <= ch, "len(data) < m.channels")
+
+	for i, c := range data {
+		m.SetIntAt(row, col*ch+i, c)
+	}
+}
+
+func (m *Mat) SetVecdAt(row int, col int, data Vecd) {
+	Must(row < m.Rows() && col < m.Cols(), "row < m.rows && col < m.cols")
+	ch := m.Channels()
+	Must(len(data) <= ch, "len(data) < m.channels")
+
+	for i, c := range data {
+		m.SetDoubleAt(row, col*ch+i, c)
+	}
+}
+
 func (pvs PointsVector) Append(pv PointVector) {
 	pvs.PointsVector.Append(*(pv.PointVector))
 }
 
 func (pvs PointsVector) At(idx int) PointVector {
+	Must(idx < pvs.Size(), "idx < pvs.Size()")
 	rs0 := pvs.PointsVector.At(idx)
 
 	//	pvs.ResourceTracker.TrackCloser(rs0)
@@ -835,6 +918,7 @@ func (pvs Points2fVector) Append(pv Point2fVector) {
 }
 
 func (pvs Points2fVector) At(idx int) Point2fVector {
+	Must(idx < pvs.Size(), "idx < pvs.Size()")
 	rs0 := pvs.Points2fVector.At(idx)
 
 	//pvs.ResourceTracker.TrackCloser(rs0)
@@ -845,6 +929,7 @@ func (pvs Points3fVector) Append(pv Point3fVector) {
 }
 
 func (pvs Points3fVector) At(idx int) Point3fVector {
+	Must(idx < pvs.Size(), "idx < pvs.Size()")
 	rs0 := pvs.Points3fVector.At(idx)
 
 	//pvs.ResourceTracker.TrackCloser(rs0)
