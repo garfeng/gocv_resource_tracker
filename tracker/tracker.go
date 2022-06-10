@@ -11,15 +11,12 @@ type ResourceTracker struct {
 	mutex                sync.Mutex
 }
 
-// NewResourceTracker Returns a ResourceTracker, Close() by manual is not required.
+// NewResourceTracker Returns a ResourceTracker, Close() by manual is required.
 func NewResourceTracker() *ResourceTracker {
 	rt := &ResourceTracker{
 		dataList:             []Closer{},
 		dataListCloseWithErr: []CloserWithError{},
 	}
-	runtime.SetFinalizer(rt, func(r *ResourceTracker) {
-		r.Close()
-	})
 	return rt
 }
 
