@@ -44,6 +44,12 @@ func (g *GoCVResourceTracker) GetOptimalNewCameraMatrixWithParams(cameraMatrix M
 }
 
 
+func (g *GoCVResourceTracker) CalibrateCamera(objectPoints Points3fVector, imagePoints Points2fVector, imageSize image.Point,	cameraMatrix *Mat, distCoeffs *Mat, rvecs *Mat, tvecs *Mat, calibFlag CalibFlag) float64 {
+    rs0 := gocv.CalibrateCamera(*(objectPoints.Points3fVector), *(imagePoints.Points2fVector), imageSize, (	cameraMatrix.Mat), (distCoeffs.Mat), (rvecs.Mat), (tvecs.Mat), calibFlag)
+    return rs0
+}
+
+
 func (g *GoCVResourceTracker) Undistort(src Mat, dst *Mat, cameraMatrix Mat, distCoeffs Mat, newCameraMatrix Mat) {
     gocv.Undistort(*(src.Mat), (dst.Mat), *(cameraMatrix.Mat), *(distCoeffs.Mat), *(newCameraMatrix.Mat))
 }
@@ -56,6 +62,18 @@ func (g *GoCVResourceTracker) UndistortPoints(src Mat, dst *Mat, cameraMatrix, d
 
 func (g *GoCVResourceTracker) FindChessboardCorners(image Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag) bool {
     rs0 := gocv.FindChessboardCorners(*(image.Mat), patternSize, (corners.Mat), flags)
+    return rs0
+}
+
+
+func (g *GoCVResourceTracker) FindChessboardCornersSB(image Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag) bool {
+    rs0 := gocv.FindChessboardCornersSB(*(image.Mat), patternSize, (corners.Mat), flags)
+    return rs0
+}
+
+
+func (g *GoCVResourceTracker) FindChessboardCornersSBWithMeta(image Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag, meta *Mat) bool {
+    rs0 := gocv.FindChessboardCornersSBWithMeta(*(image.Mat), patternSize, (corners.Mat), flags, (meta.Mat))
     return rs0
 }
 

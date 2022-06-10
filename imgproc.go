@@ -12,6 +12,7 @@ type DistanceTransformMasks = gocv.DistanceTransformMasks
 type RetrievalMode = gocv.RetrievalMode
 type ContourApproximationMode = gocv.ContourApproximationMode
 type RotatedRect = gocv.RotatedRect
+type ShapeMatchModes = gocv.ShapeMatchModes
 type ConnectedComponentsAlgorithmType = gocv.ConnectedComponentsAlgorithmType
 type ConnectedComponentsTypes = gocv.ConnectedComponentsTypes
 type TemplateMatchMode = gocv.TemplateMatchMode
@@ -156,6 +157,12 @@ func (g *GoCVResourceTracker) ContourArea(contour PointVector) float64 {
 }
 
 
+func (g *GoCVResourceTracker) MatchShapes(contour1, contour2 PointVector, method ShapeMatchModes, param float64) float64 {
+    rs0 := gocv.MatchShapes(*(contour1.PointVector), *(contour2.PointVector), method, param)
+    return rs0
+}
+
+
 func (g *GoCVResourceTracker) MinAreaRect(points PointVector) RotatedRect {
     rs0 := gocv.MinAreaRect(*(points.PointVector))
     return rs0
@@ -171,6 +178,17 @@ func (g *GoCVResourceTracker) FitEllipse(pts PointVector) RotatedRect {
 func (g *GoCVResourceTracker) MinEnclosingCircle(pts PointVector) (x, y, radius float32) {
     rs0, rs1, rs2 := gocv.MinEnclosingCircle(*(pts.PointVector))
     return rs0, rs1, rs2
+}
+
+
+func (g *GoCVResourceTracker) MinEnclosingTriangle(pts PointVector) (triangle Point2fVector) {
+    rs0 := gocv.MinEnclosingTriangle(*(pts.PointVector))
+    g.TrackCloser(rs0)
+    pkg0 := Point2fVector{
+	    &rs0,
+	    g,
+    }
+    return pkg0
 }
 
 

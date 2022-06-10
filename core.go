@@ -63,6 +63,33 @@ type NativeByteBuffer struct {
 
 func (n *NativeByteBuffer) Close() {}
 
+type Points2fVector struct {
+	*gocv.Points2fVector
+	ResourceTracker *GoCVResourceTracker
+}
+
+func (p *Points2fVector) Close() {}
+
+type Point3f = gocv.Point3f
+type Point3fVector struct {
+	*gocv.Point3fVector
+	ResourceTracker *GoCVResourceTracker
+}
+
+func (p *Point3fVector) Close() {}
+
+type Points3fVector struct {
+	*gocv.Points3fVector
+	ResourceTracker *GoCVResourceTracker
+}
+
+func (p *Points3fVector) Close() {}
+
+func (g *GoCVResourceTracker) NewPoint2f(x, y float32) Point2f {
+	rs0 := gocv.NewPoint2f(x, y)
+	return rs0
+}
+
 func (g *GoCVResourceTracker) NewMat() Mat {
 	rs0 := gocv.NewMat()
 	g.TrackCloseError(&rs0)
@@ -627,6 +654,81 @@ func (g *GoCVResourceTracker) RandShuffleWithParams(mat *Mat, iterFactor float64
 func (g *GoCVResourceTracker) RandU(mat *Mat, low, high Scalar) {
 	gocv.RandU((mat.Mat), low, high)
 }
+
+func (g *GoCVResourceTracker) NewPoints2fVector() Points2fVector {
+	rs0 := gocv.NewPoints2fVector()
+	g.TrackCloser(rs0)
+	pkg0 := Points2fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
+
+func (g *GoCVResourceTracker) NewPoints2fVectorFromPoints(pts [][]Point2f) Points2fVector {
+	rs0 := gocv.NewPoints2fVectorFromPoints(pts)
+	g.TrackCloser(rs0)
+	pkg0 := Points2fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
+
+func (g *GoCVResourceTracker) NewPoint3f(x, y, z float32) Point3f {
+	rs0 := gocv.NewPoint3f(x, y, z)
+	return rs0
+}
+
+func (g *GoCVResourceTracker) NewPoint3fVector() Point3fVector {
+	rs0 := gocv.NewPoint3fVector()
+	g.TrackCloser(rs0)
+	pkg0 := Point3fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
+
+func (g *GoCVResourceTracker) NewPoint3fVectorFromPoints(pts []Point3f) Point3fVector {
+	rs0 := gocv.NewPoint3fVectorFromPoints(pts)
+	g.TrackCloser(rs0)
+	pkg0 := Point3fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
+
+func (g *GoCVResourceTracker) NewPoint3fVectorFromMat(mat Mat) Point3fVector {
+	rs0 := gocv.NewPoint3fVectorFromMat(*(mat.Mat))
+	g.TrackCloser(rs0)
+	pkg0 := Point3fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
+
+func (g *GoCVResourceTracker) NewPoints3fVector() Points3fVector {
+	rs0 := gocv.NewPoints3fVector()
+	g.TrackCloser(rs0)
+	pkg0 := Points3fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
+
+func (g *GoCVResourceTracker) NewPoints3fVectorFromPoints(pts [][]Point3f) Points3fVector {
+	rs0 := gocv.NewPoints3fVectorFromPoints(pts)
+	g.TrackCloser(rs0)
+	pkg0 := Points3fVector{
+		&rs0,
+		g,
+	}
+	return pkg0
+}
 func (m *Mat) Clone() Mat {
 	rs0 := m.Mat.Clone()
 
@@ -726,4 +828,24 @@ func (pvs PointsVector) At(idx int) PointVector {
 
 	//pvs.ResourceTracker.TrackCloser(rs0)
 	return PointVector{&rs0, pvs.ResourceTracker}
+}
+func (pvs Points2fVector) Append(pv Point2fVector) {
+	pvs.Points2fVector.Append(*(pv.Point2fVector))
+}
+
+func (pvs Points2fVector) At(idx int) Point2fVector {
+	rs0 := pvs.Points2fVector.At(idx)
+
+	//pvs.ResourceTracker.TrackCloser(rs0)
+	return Point2fVector{&rs0, pvs.ResourceTracker}
+}
+func (pvs Points3fVector) Append(pv Point3fVector) {
+	pvs.Points3fVector.Append(*(pv.Point3fVector))
+}
+
+func (pvs Points3fVector) At(idx int) Point3fVector {
+	rs0 := pvs.Points3fVector.At(idx)
+
+	//pvs.ResourceTracker.TrackCloser(rs0)
+	return Point3fVector{&rs0, pvs.ResourceTracker}
 }
