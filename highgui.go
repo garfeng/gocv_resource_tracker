@@ -41,7 +41,7 @@ func (g *GoCVResourceTracker) WaitKey(delay int) int {
     return rs0
 }
 func (w *Window) IMShow(img Mat) {
-w.Window.IMShow(img.Mat)
+    w.Window.IMShow(img.Mat)
 }
 
 func (w *Window) SelectROI(img Mat) image.Rectangle {

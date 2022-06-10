@@ -91,10 +91,10 @@ func (g *GoCVResourceTracker) NewTrackerMIL() Tracker {
     return pkg0
 }
 func (b *BackgroundSubtractorMOG2) Apply(src Mat, dst *Mat) {
-b.BackgroundSubtractorMOG2.Apply(src.Mat, &(dst.Mat))
+    b.BackgroundSubtractorMOG2.Apply(src.Mat, &(dst.Mat))
 }
 func (k *BackgroundSubtractorKNN) Apply(src Mat, dst *Mat) {
-k.BackgroundSubtractorKNN.Apply(src.Mat, &(dst.Mat))
+    k.BackgroundSubtractorKNN.Apply(src.Mat, &(dst.Mat))
 }
 func (trk TrackerMIL) Init(img Mat, boundingBox image.Rectangle) bool {
     rs0 := trk.TrackerMIL.Init(img.Mat, boundingBox)

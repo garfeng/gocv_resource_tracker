@@ -88,5 +88,5 @@ func (g *GoCVResourceTracker) NewAlignMTBWithParams(max_bits int, exclude_range 
     return pkg0
 }
 func (b *MergeMertens) Process(src []Mat, dst *Mat) {
-b.MergeMertens.Process(SliceToGoCVCloser(src), &(dst.Mat))
+    b.MergeMertens.Process(SliceToGoCVCloser(src), &(dst.Mat))
 }

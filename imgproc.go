@@ -713,5 +713,5 @@ func (g *GoCVResourceTracker) AccumulatedWeightedWithMask(src Mat, dst *Mat, alp
     gocv.AccumulatedWeightedWithMask(src.Mat, &(dst.Mat), alpha, mask.Mat)
 }
 func (c *CLAHE) Apply(src Mat, dst *Mat) {
-c.CLAHE.Apply(src.Mat, &(dst.Mat))
+    c.CLAHE.Apply(src.Mat, &(dst.Mat))
 }

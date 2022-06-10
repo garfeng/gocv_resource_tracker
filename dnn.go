@@ -188,5 +188,5 @@ func (net *Net) GetLayer(layer int) Layer {
 }
 
 func (net *Net) SetInput(blob Mat, name string) {
-net.Net.SetInput(blob.Mat, name)
+    net.Net.SetInput(blob.Mat, name)
 }

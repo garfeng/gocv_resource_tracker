@@ -405,7 +405,7 @@ func ReWriteFunc(typeName string, fn reflect.Method) (string, bool, error) {
 	fnCore += ")"
 
 	if fn.Type.NumOut() == 0 {
-
+		fnCore = "    " + fnCore
 	} else {
 		outNames := []string{}
 		for i := 0; i < fn.Type.NumOut(); i++ {

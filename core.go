@@ -741,19 +741,19 @@ func (m *Mat) ConvertFp16() Mat {
 }
 
 func (m *Mat) ConvertTo(dst *Mat, mt MatType) {
-m.Mat.ConvertTo(&(dst.Mat), mt)
+    m.Mat.ConvertTo(&(dst.Mat), mt)
 }
 
 func (m *Mat) ConvertToWithParams(dst *Mat, mt MatType, alpha, beta float32) {
-m.Mat.ConvertToWithParams(&(dst.Mat), mt, alpha, beta)
+    m.Mat.ConvertToWithParams(&(dst.Mat), mt, alpha, beta)
 }
 
 func (m *Mat) CopyTo(dst *Mat) {
-m.Mat.CopyTo(&(dst.Mat))
+    m.Mat.CopyTo(&(dst.Mat))
 }
 
 func (m *Mat) CopyToWithMask(dst *Mat, mask Mat) {
-m.Mat.CopyToWithMask(&(dst.Mat), mask.Mat)
+    m.Mat.CopyToWithMask(&(dst.Mat), mask.Mat)
 }
 
 func (m *Mat) FromPtr(rows int, cols int, mt MatType, prow int, pcol int) (Mat, error) {
@@ -810,7 +810,7 @@ func (m *Mat) T() Mat {
     return Mat{rs0, m.ResourceTracker}
 }
 func (pvs PointsVector) Append(pv PointVector) {
-pvs.PointsVector.Append(pv.PointVector)
+    pvs.PointsVector.Append(pv.PointVector)
 }
 
 func (pvs PointsVector) At(idx int) PointVector {
