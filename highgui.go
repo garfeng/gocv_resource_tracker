@@ -6,7 +6,7 @@ import (
 )
 
 type Window struct {
-    gocv.Window
+    *gocv.Window
 	ResourceTracker *GoCVResourceTracker
 }
 type WindowFlag = gocv.WindowFlag
@@ -17,7 +17,7 @@ func (g *GoCVResourceTracker) NewWindow(name string) *Window {
     rs0 := gocv.NewWindow(name)
     g.TrackCloseError(rs0)
     pkg0 := &Window{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0
@@ -25,13 +25,13 @@ func (g *GoCVResourceTracker) NewWindow(name string) *Window {
 
 
 func (g *GoCVResourceTracker) SelectROI(name string, img Mat) image.Rectangle {
-    rs0 := gocv.SelectROI(name, img.Mat)
+    rs0 := gocv.SelectROI(name, *(img.Mat))
     return rs0
 }
 
 
 func (g *GoCVResourceTracker) SelectROIs(name string, img Mat) []image.Rectangle {
-    rs0 := gocv.SelectROIs(name, img.Mat)
+    rs0 := gocv.SelectROIs(name, *(img.Mat))
     return rs0
 }
 
@@ -41,15 +41,15 @@ func (g *GoCVResourceTracker) WaitKey(delay int) int {
     return rs0
 }
 func (w *Window) IMShow(img Mat) {
-    w.Window.IMShow(img.Mat)
+    w.Window.IMShow(*(img.Mat))
 }
 
 func (w *Window) SelectROI(img Mat) image.Rectangle {
-    rs0 := w.Window.SelectROI(img.Mat)
+    rs0 := w.Window.SelectROI(*(img.Mat))
     return rs0
 }
 
 func (w *Window) SelectROIs(img Mat) []image.Rectangle {
-    rs0 := w.Window.SelectROIs(img.Mat)
+    rs0 := w.Window.SelectROIs(*(img.Mat))
     return rs0
 }

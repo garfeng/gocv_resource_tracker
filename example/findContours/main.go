@@ -17,12 +17,21 @@ func main() {
 		{{5, 5}, {5, 2}, {5, 3}, {5, 5}},
 		{{5, 5}, {5, 2}, {5, 3}, {5, 1}},
 	})
-
 	number := contours.Size()
 	for i := 0; i < number; i++ {
 		c := contours.At(i)
 		fmt.Println(c.Size())
-		c.Close()
+		//c.Close()
 	}
-	//	contours.Close()
+	//gocv.NewMat().Close()
+	//contours.Close()
+
+}
+
+type ABC struct {
+	P P2
+}
+
+type P2 struct {
+	ID int
 }

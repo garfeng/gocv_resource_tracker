@@ -1,3 +1,4 @@
+//go:build !customenv && !static
 // +build !customenv,!static
 
 

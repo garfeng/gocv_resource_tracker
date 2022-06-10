@@ -21,7 +21,7 @@ func SliceToGoCVCloser(slice []Mat) []gocv.Mat {
 	res := make([]gocv.Mat, len(slice))
 
 	for i, v := range slice {
-		res[i] = v.Mat
+		res[i] = *v.Mat
 	}
 	return res
 }
@@ -32,7 +32,7 @@ func GoCVCloserToSlice(slice []gocv.Mat, g *GoCVResourceTracker) []Mat {
 	for i, v := range slice {
 		g.TrackCloseError(&v)
 		res[i] = Mat{
-			Mat:             v,
+			Mat:             &v,
 			ResourceTracker: g,
 		}
 	}

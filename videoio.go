@@ -7,11 +7,11 @@ import (
 type VideoCaptureAPI = gocv.VideoCaptureAPI
 type VideoCaptureProperties = gocv.VideoCaptureProperties
 type VideoCapture struct {
-    gocv.VideoCapture
+    *gocv.VideoCapture
 	ResourceTracker *GoCVResourceTracker
 }
 type VideoWriter struct {
-    gocv.VideoWriter
+    *gocv.VideoWriter
 	ResourceTracker *GoCVResourceTracker
 }
 
@@ -19,7 +19,7 @@ func (g *GoCVResourceTracker) VideoCaptureFile(uri string) (vc *VideoCapture, er
     rs0, rs1 := gocv.VideoCaptureFile(uri)
     g.TrackCloseError(rs0)
     pkg0 := &VideoCapture{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
@@ -30,7 +30,7 @@ func (g *GoCVResourceTracker) VideoCaptureFileWithAPI(uri string, apiPreference 
     rs0, rs1 := gocv.VideoCaptureFileWithAPI(uri, apiPreference)
     g.TrackCloseError(rs0)
     pkg0 := &VideoCapture{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
@@ -41,7 +41,7 @@ func (g *GoCVResourceTracker) VideoCaptureDevice(device int) (vc *VideoCapture, 
     rs0, rs1 := gocv.VideoCaptureDevice(device)
     g.TrackCloseError(rs0)
     pkg0 := &VideoCapture{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
@@ -52,7 +52,7 @@ func (g *GoCVResourceTracker) VideoCaptureDeviceWithAPI(device int, apiPreferenc
     rs0, rs1 := gocv.VideoCaptureDeviceWithAPI(device, apiPreference)
     g.TrackCloseError(rs0)
     pkg0 := &VideoCapture{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
@@ -63,7 +63,7 @@ func (g *GoCVResourceTracker) VideoWriterFile(name string, codec string, fps flo
     rs0, rs1 := gocv.VideoWriterFile(name, codec, fps, width, height, isColor)
     g.TrackCloseError(rs0)
     pkg0 := &VideoWriter{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
@@ -74,7 +74,7 @@ func (g *GoCVResourceTracker) OpenVideoCapture(v interface{}) (*VideoCapture, er
     rs0, rs1 := gocv.OpenVideoCapture(v)
     g.TrackCloseError(rs0)
     pkg0 := &VideoCapture{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
@@ -85,16 +85,16 @@ func (g *GoCVResourceTracker) OpenVideoCaptureWithAPI(v interface{}, apiPreferen
     rs0, rs1 := gocv.OpenVideoCaptureWithAPI(v, apiPreference)
     g.TrackCloseError(rs0)
     pkg0 := &VideoCapture{
-	    *rs0,
+	    &*rs0,
 	    g,
     }
     return pkg0, rs1
 }
 func (v *VideoCapture) Read(m *Mat) bool {
-    rs0 := v.VideoCapture.Read(&(m.Mat))
+    rs0 := v.VideoCapture.Read((m.Mat))
     return rs0
 }
 func (vw *VideoWriter) Write(img Mat) error {
-    rs0 := vw.VideoWriter.Write(img.Mat)
+    rs0 := vw.VideoWriter.Write(*(img.Mat))
     return rs0
 }

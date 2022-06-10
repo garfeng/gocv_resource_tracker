@@ -66,9 +66,9 @@ func WriteFuncsTo(funcs []FuncParam, types []string, methodOfTypes []string, pre
 
 				//fmt.Println(shouldPtr, param.Name, param.Type, "||||", param.Type.Name())
 				if !isPtr {
-					ins = append(ins, fmt.Sprintf("%s.%s", param.Name, param.Type.Name()))
+					ins = append(ins, fmt.Sprintf("*(%s.%s)", param.Name, param.Type.Name()))
 				} else {
-					ins = append(ins, fmt.Sprintf("&(%s.%s)",
+					ins = append(ins, fmt.Sprintf("(%s.%s)",
 						param.Name, param.Type.Elem().Name()))
 				}
 			} else {
@@ -129,7 +129,7 @@ func WriteFuncsTo(funcs []FuncParam, types []string, methodOfTypes []string, pre
 					}
 
 					s += "    " + pkgDataName + " := " + structName + fmt.Sprintf(`{
-	    %s,
+	    &%s,
 	    g,
     }
 `, returnData[i])
@@ -274,7 +274,7 @@ func ReadFuncsFromGoFile(fnGroup reflect.Type,
 		_, _, isCloser := GetCloseFunc(typeInfo)
 		if isCloser {
 			typesStr = append(typesStr, fmt.Sprintf(`type %s struct {
-    gocv.%s
+    *gocv.%s
 	ResourceTracker *GoCVResourceTracker
 }`, typeName, typeName))
 		} else {
@@ -392,11 +392,11 @@ func ReWriteFunc(typeName string, fn reflect.Method) (string, bool, error) {
 				fnPrefix += fmt.Sprintf("param%d := SliceToGoCVCloser(*%s)", i, paramName)
 				params = append(params, fmt.Sprintf("&param%d", i))
 			} else if inInfo.IsPtr {
-				params = append(params, "&("+paramName+"."+inInfo.TypeName+")")
+				params = append(params, "("+paramName+"."+inInfo.TypeName+")")
 			} else if inInfo.IsSlice {
 				params = append(params, fmt.Sprintf("SliceToGoCVCloser(%s)", paramName))
 			} else {
-				params = append(params, paramName+"."+inInfo.TypeName)
+				params = append(params, "*("+paramName+"."+inInfo.TypeName+")")
 			}
 		}
 	}
@@ -443,7 +443,7 @@ func ReWriteFunc(typeName string, fn reflect.Method) (string, bool, error) {
 						trackers = append(trackers, fmt.Sprintf("    %s.ResourceTracker.TrackCloseError(%s%s)", entryName, at, outInfo.ParamName))
 					}
 
-					returnedData = append(returnedData, fmt.Sprintf("&%s{%s, %s.ResourceTracker}", outInfo.TypeName, outInfo.ParamName, entryName))
+					returnedData = append(returnedData, fmt.Sprintf("&%s{&%s, %s.ResourceTracker}", outInfo.TypeName, outInfo.ParamName, entryName))
 				} else if outInfo.IsSlice {
 					returnedData = append(returnedData, fmt.Sprintf("GoCVCloserToSlice(%s)", outInfo.ParamName))
 				} else {
@@ -459,7 +459,7 @@ func ReWriteFunc(typeName string, fn reflect.Method) (string, bool, error) {
 						trackers = append(trackers, fmt.Sprintf("    %s.ResourceTracker.TrackCloseError(%s%s)", entryName, at, outInfo.ParamName))
 					}
 
-					returnedData = append(returnedData, fmt.Sprintf("%s{%s, %s.ResourceTracker}", outInfo.TypeName, outInfo.ParamName, entryName))
+					returnedData = append(returnedData, fmt.Sprintf("%s{&%s, %s.ResourceTracker}", outInfo.TypeName, outInfo.ParamName, entryName))
 				}
 			}
 		}
