@@ -48,10 +48,15 @@ func monitor() {
 	}
 }
 
-func init() {
+func SetupGCMonitor() {
 	go monitor()
-
 	runtime.SetFinalizer(&monitorStopped, func(stopped *int64) {
 		atomic.StoreInt64(stopped, 1)
 	})
 }
+
+/*
+func init() {
+	SetupGCMonitor()
+}
+*/
