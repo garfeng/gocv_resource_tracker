@@ -32,6 +32,8 @@ type CLAHE struct {
     *gocv.CLAHE
 	ResourceTracker *GoCVResourceTracker
 }
+func (c *CLAHE) Close(){}
+
 
 func (g *GoCVResourceTracker) ArcLength(curve PointVector, isClosed bool) float64 {
     rs0 := gocv.ArcLength(*(curve.PointVector), isClosed)

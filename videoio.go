@@ -10,10 +10,14 @@ type VideoCapture struct {
     *gocv.VideoCapture
 	ResourceTracker *GoCVResourceTracker
 }
+func (v *VideoCapture) Close(){}
+
 type VideoWriter struct {
     *gocv.VideoWriter
 	ResourceTracker *GoCVResourceTracker
 }
+func (v *VideoWriter) Close(){}
+
 
 func (g *GoCVResourceTracker) VideoCaptureFile(uri string) (vc *VideoCapture, err error) {
     rs0, rs1 := gocv.VideoCaptureFile(uri)

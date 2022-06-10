@@ -1,9 +1,10 @@
 package gocv_resource_tracker
 
 import (
-	"gocv.io/x/gocv"
 	"image"
 	"image/color"
+
+	"gocv.io/x/gocv"
 )
 
 type MatType = gocv.MatType
@@ -13,6 +14,9 @@ type Mat struct {
 	*gocv.Mat
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (m *Mat) Close() {}
+
 type CovarFlags = gocv.CovarFlags
 type DftFlags = gocv.DftFlags
 type RotateFlag = gocv.RotateFlag
@@ -34,33 +38,53 @@ type PointVector struct {
 	*gocv.PointVector
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (p *PointVector) Close() {}
+
 type PointsVector struct {
 	*gocv.PointsVector
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (p *PointsVector) Close() {}
+
 type Point2fVector struct {
 	*gocv.Point2fVector
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (p *Point2fVector) Close() {}
+
 type RNG = gocv.RNG
 type RNGDistType = gocv.RNGDistType
 type NativeByteBuffer struct {
 	*gocv.NativeByteBuffer
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (n *NativeByteBuffer) Close() {}
+
 type Points2fVector struct {
 	*gocv.Points2fVector
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (p *Points2fVector) Close() {}
+
 type Point3f = gocv.Point3f
 type Point3fVector struct {
 	*gocv.Point3fVector
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (p *Point3fVector) Close() {}
+
 type Points3fVector struct {
 	*gocv.Points3fVector
 	ResourceTracker *GoCVResourceTracker
 }
+
+func (p *Points3fVector) Close() {}
 
 func (g *GoCVResourceTracker) NewPoint2f(x, y float32) Point2f {
 	rs0 := gocv.NewPoint2f(x, y)
@@ -803,7 +827,7 @@ func (pvs PointsVector) Append(pv PointVector) {
 func (pvs PointsVector) At(idx int) PointVector {
 	rs0 := pvs.PointsVector.At(idx)
 
-	//  pvs.ResourceTracker.TrackCloser(rs0)
+	//	pvs.ResourceTracker.TrackCloser(rs0)
 	return PointVector{&rs0, pvs.ResourceTracker}
 }
 func (pvs Points2fVector) Append(pv Point2fVector) {
@@ -813,7 +837,7 @@ func (pvs Points2fVector) Append(pv Point2fVector) {
 func (pvs Points2fVector) At(idx int) Point2fVector {
 	rs0 := pvs.Points2fVector.At(idx)
 
-	pvs.ResourceTracker.TrackCloser(rs0)
+	//pvs.ResourceTracker.TrackCloser(rs0)
 	return Point2fVector{&rs0, pvs.ResourceTracker}
 }
 func (pvs Points3fVector) Append(pv Point3fVector) {
@@ -823,6 +847,6 @@ func (pvs Points3fVector) Append(pv Point3fVector) {
 func (pvs Points3fVector) At(idx int) Point3fVector {
 	rs0 := pvs.Points3fVector.At(idx)
 
-	pvs.ResourceTracker.TrackCloser(rs0)
+	//pvs.ResourceTracker.TrackCloser(rs0)
 	return Point3fVector{&rs0, pvs.ResourceTracker}
 }

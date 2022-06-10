@@ -10,10 +10,14 @@ type MergeMertens struct {
     *gocv.MergeMertens
 	ResourceTracker *GoCVResourceTracker
 }
+func (m *MergeMertens) Close(){}
+
 type AlignMTB struct {
     *gocv.AlignMTB
 	ResourceTracker *GoCVResourceTracker
 }
+func (a *AlignMTB) Close(){}
+
 type EdgeFilter = gocv.EdgeFilter
 
 func (g *GoCVResourceTracker) ColorChange(src, mask Mat, dst *Mat, red_mul, green_mul, blue_mul float32) {

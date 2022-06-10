@@ -9,54 +9,78 @@ type AKAZE struct {
     *gocv.AKAZE
 	ResourceTracker *GoCVResourceTracker
 }
+func (a *AKAZE) Close(){}
+
 type AgastFeatureDetector struct {
     *gocv.AgastFeatureDetector
 	ResourceTracker *GoCVResourceTracker
 }
+func (a *AgastFeatureDetector) Close(){}
+
 type BRISK struct {
     *gocv.BRISK
 	ResourceTracker *GoCVResourceTracker
 }
+func (b *BRISK) Close(){}
+
 type FastFeatureDetectorType = gocv.FastFeatureDetectorType
 type FastFeatureDetector struct {
     *gocv.FastFeatureDetector
 	ResourceTracker *GoCVResourceTracker
 }
+func (f *FastFeatureDetector) Close(){}
+
 type GFTTDetector struct {
     *gocv.GFTTDetector
 	ResourceTracker *GoCVResourceTracker
 }
+func (g *GFTTDetector) Close(){}
+
 type KAZE struct {
     *gocv.KAZE
 	ResourceTracker *GoCVResourceTracker
 }
+func (k *KAZE) Close(){}
+
 type MSER struct {
     *gocv.MSER
 	ResourceTracker *GoCVResourceTracker
 }
+func (m *MSER) Close(){}
+
 type ORB struct {
     *gocv.ORB
 	ResourceTracker *GoCVResourceTracker
 }
+func (o *ORB) Close(){}
+
 type ORBScoreType = gocv.ORBScoreType
 type SimpleBlobDetector struct {
     *gocv.SimpleBlobDetector
 	ResourceTracker *GoCVResourceTracker
 }
+func (s *SimpleBlobDetector) Close(){}
+
 type SimpleBlobDetectorParams = gocv.SimpleBlobDetectorParams
 type BFMatcher struct {
     *gocv.BFMatcher
 	ResourceTracker *GoCVResourceTracker
 }
+func (b *BFMatcher) Close(){}
+
 type FlannBasedMatcher struct {
     *gocv.FlannBasedMatcher
 	ResourceTracker *GoCVResourceTracker
 }
+func (f *FlannBasedMatcher) Close(){}
+
 type DrawMatchesFlag = gocv.DrawMatchesFlag
 type SIFT struct {
     *gocv.SIFT
 	ResourceTracker *GoCVResourceTracker
 }
+func (s *SIFT) Close(){}
+
 
 func (g *GoCVResourceTracker) NewAKAZE() AKAZE {
     rs0 := gocv.NewAKAZE()

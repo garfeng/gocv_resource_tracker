@@ -9,14 +9,20 @@ type CascadeClassifier struct {
     *gocv.CascadeClassifier
 	ResourceTracker *GoCVResourceTracker
 }
+func (c *CascadeClassifier) Close(){}
+
 type HOGDescriptor struct {
     *gocv.HOGDescriptor
 	ResourceTracker *GoCVResourceTracker
 }
+func (h *HOGDescriptor) Close(){}
+
 type QRCodeDetector struct {
     *gocv.QRCodeDetector
 	ResourceTracker *GoCVResourceTracker
 }
+func (q *QRCodeDetector) Close(){}
+
 
 func (g *GoCVResourceTracker) NewCascadeClassifier() CascadeClassifier {
     rs0 := gocv.NewCascadeClassifier()

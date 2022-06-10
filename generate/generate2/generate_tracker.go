@@ -123,16 +123,21 @@ func WriteFuncsTo(funcs []FuncParam, types []string, methodOfTypes []string, pre
 
 					structName := v.Out[i].Type.Name()
 
+					at := "&"
+					if v.Out[i].Type.Kind() == reflect.Interface {
+						at = ""
+					}
+
 					if v.Out[i].Type.Kind() == reflect.Ptr {
 						structName = "&" + v.Out[i].Type.Elem().Name()
 						returnData[i] = "*" + returnData[i]
 					}
 
 					s += "    " + pkgDataName + " := " + structName + fmt.Sprintf(`{
-	    &%s,
+	    %s%s,
 	    g,
     }
-`, returnData[i])
+`, at, returnData[i])
 
 					//s += "    " + returnData[i] + ".Close()\r\n"
 				} else {
@@ -272,11 +277,21 @@ func ReadFuncsFromGoFile(fnGroup reflect.Type,
 		}
 		typeInfo := typeFunc.Type.Out(0)
 		_, _, isCloser := GetCloseFunc(typeInfo)
+
+		addr := "*"
+		if typeInfo.Kind() == reflect.Interface {
+			addr = ""
+		}
+
+		firstLetter := strings.ToLower(typeName[:1])
+
 		if isCloser {
 			typesStr = append(typesStr, fmt.Sprintf(`type %s struct {
-    *gocv.%s
+    %sgocv.%s
 	ResourceTracker *GoCVResourceTracker
-}`, typeName, typeName))
+}
+func (%s *%s) Close(){}
+`, typeName, addr, typeName, firstLetter, typeName))
 		} else {
 			typesStr = append(typesStr, types[i][0])
 		}
@@ -453,13 +468,19 @@ func ReWriteFunc(typeName string, fn reflect.Method) (string, bool, error) {
 					if shouldPtr {
 						at = "&"
 					}
+
+					at2 := "&"
+					if outInfo.IsInterface {
+						at2 = ""
+					}
+
 					if closeFn.Type.NumOut() == 0 {
 						trackers = append(trackers, fmt.Sprintf("    %s.ResourceTracker.TrackCloser(%s%s)", entryName, at, outInfo.ParamName))
 					} else {
 						trackers = append(trackers, fmt.Sprintf("    %s.ResourceTracker.TrackCloseError(%s%s)", entryName, at, outInfo.ParamName))
 					}
 
-					returnedData = append(returnedData, fmt.Sprintf("%s{&%s, %s.ResourceTracker}", outInfo.TypeName, outInfo.ParamName, entryName))
+					returnedData = append(returnedData, fmt.Sprintf("%s{%s%s, %s.ResourceTracker}", outInfo.TypeName, at2, outInfo.ParamName, entryName))
 				}
 			}
 		}
@@ -491,6 +512,8 @@ func GetTypeNameAndParamName(name string, v reflect.Type) TypeNameAndParamName {
 		} else {
 			inInfo.TypeName = v.Name()
 			inInfo.IsPtr = false
+
+			inInfo.IsInterface = v.Kind() == reflect.Interface
 		}
 	} else {
 		isSlice := v.Kind() == reflect.Slice
@@ -519,11 +542,12 @@ func GetTypeNameAndParamName(name string, v reflect.Type) TypeNameAndParamName {
 }
 
 type TypeNameAndParamName struct {
-	TypeName  string
-	ParamName string
-	IsPtr     bool
-	IsSlice   bool
-	IsCloser  bool
+	TypeName    string
+	ParamName   string
+	IsPtr       bool
+	IsSlice     bool
+	IsCloser    bool
+	IsInterface bool
 }
 
 func ParseTypesMethod(data reflect.Type, rewritedMap map[string]bool) []string {

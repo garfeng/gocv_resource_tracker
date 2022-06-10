@@ -9,6 +9,8 @@ type Window struct {
     *gocv.Window
 	ResourceTracker *GoCVResourceTracker
 }
+func (w *Window) Close(){}
+
 type WindowFlag = gocv.WindowFlag
 type WindowPropertyFlag = gocv.WindowPropertyFlag
 type Trackbar = gocv.Trackbar

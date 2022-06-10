@@ -9,12 +9,16 @@ type Net struct {
     *gocv.Net
 	ResourceTracker *GoCVResourceTracker
 }
+func (n *Net) Close(){}
+
 type NetBackendType = gocv.NetBackendType
 type NetTargetType = gocv.NetTargetType
 type Layer struct {
     *gocv.Layer
 	ResourceTracker *GoCVResourceTracker
 }
+func (l *Layer) Close(){}
+
 
 func (g *GoCVResourceTracker) ParseNetBackend(backend string) NetBackendType {
     rs0 := gocv.ParseNetBackend(backend)

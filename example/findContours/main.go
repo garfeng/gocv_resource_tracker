@@ -24,7 +24,7 @@ func main() {
 		//c.Close()
 	}
 	//gocv.NewMat().Close()
-	//contours.Close()
+	contours.Close()
 
 }
 
