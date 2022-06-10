@@ -10,7 +10,7 @@ import (
 	"gocv.io/x/gocv"
 )
 
-func CreateOneTrackerAndMat() gocv.Mat {
+func CreateOneTrackerAndMat() Mat {
 	rt := NewTracker()
 	mat := rt.NewMatWithSize(100, 100, gocv.MatTypeCV8UC1)
 
@@ -20,7 +20,7 @@ func CreateOneTrackerAndMat() gocv.Mat {
 }
 
 func TestNewTracker(t *testing.T) {
-	matList := []gocv.Mat{}
+	matList := []Mat{}
 	for i := 0; i < 100; i++ {
 		mat := CreateOneTrackerAndMat()
 		matList = append(matList, mat)
@@ -39,7 +39,7 @@ func Example() {
 	kernel := rt.GetStructuringElement(gocv.MorphRect, image.Pt(10, 10))
 	dst := rt.NewMat()
 
-	gocv.Erode(mat, &dst, kernel)
+	rt.Erode(mat, &dst, kernel)
 }
 
 func CreateThenAutoGC() {

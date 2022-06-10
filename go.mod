@@ -4,4 +4,4 @@ go 1.18
 
 require gocv.io/x/gocv v0.28.0
 
-require github.com/go-playground/assert/v2 v2.0.1
+replace gocv.io/x/gocv v0.28.0 => github.com/garfeng/gocv v0.28.10

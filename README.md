@@ -49,17 +49,17 @@ func ResourceTrackerExample() {
 
 	kernel := rt.GetStructuringElement(gocv.MorphEllipse, image.Pt(5, 5))
 	erode := rt.NewMat()
-	gocv.Erode(mat, &erode, kernel)
+	rt.Erode(mat, &erode, kernel)
 
 	thres := rt.NewMat()
-	gocv.Threshold(erode, &thres, 0, 255, gocv.ThresholdOtsu)
+	rt.Threshold(erode, &thres, 0, 255, gocv.ThresholdOtsu)
 
 	contours := rt.FindContours(thres, gocv.RetrievalList, gocv.ChainApproxNone)
 
 	contoursNum := contours.Size()
 	for i := 0; i < contoursNum; i++ {
 		c := contours.At(i)
-		area := gocv.ContourArea(c)
+		area := rt.ContourArea(c)
 		if area > 10 {
 			// do something
 		}
@@ -67,7 +67,7 @@ func ResourceTrackerExample() {
 }
 ```
 
-
+More examples go to [example](./example)
 
 
 

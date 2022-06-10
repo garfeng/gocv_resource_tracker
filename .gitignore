@@ -48,3 +48,4 @@ build
 cmake-build-debug
 
 !*.md
+generate/gocv_tracker
