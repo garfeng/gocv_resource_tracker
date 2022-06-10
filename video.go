@@ -89,12 +89,6 @@ func (g *GoCVResourceTracker) CalcOpticalFlowPyrLKWithParams(prevImg Mat, nextIm
 }
 
 
-func (g *GoCVResourceTracker) FindTransformECC(templateImage Mat, inputImage Mat, warpMatrix *Mat, motionType int, criteria TermCriteria, inputMask Mat, gaussFiltSize int) float64 {
-    rs0 := gocv.FindTransformECC(*(templateImage.Mat), *(inputImage.Mat), (warpMatrix.Mat), motionType, criteria, *(inputMask.Mat), gaussFiltSize)
-    return rs0
-}
-
-
 func (g *GoCVResourceTracker) NewTrackerMIL() Tracker {
     rs0 := gocv.NewTrackerMIL()
     g.TrackCloseError(rs0)

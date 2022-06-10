@@ -44,12 +44,6 @@ func (g *GoCVResourceTracker) GetOptimalNewCameraMatrixWithParams(cameraMatrix M
 }
 
 
-func (g *GoCVResourceTracker) CalibrateCamera(objectPoints Points3fVector, imagePoints Points2fVector, imageSize image.Point,	cameraMatrix *Mat, distCoeffs *Mat, rvecs *Mat, tvecs *Mat, calibFlag CalibFlag) float64 {
-    rs0 := gocv.CalibrateCamera(*(objectPoints.Points3fVector), *(imagePoints.Points2fVector), imageSize, (	cameraMatrix.Mat), (distCoeffs.Mat), (rvecs.Mat), (tvecs.Mat), calibFlag)
-    return rs0
-}
-
-
 func (g *GoCVResourceTracker) Undistort(src Mat, dst *Mat, cameraMatrix Mat, distCoeffs Mat, newCameraMatrix Mat) {
     gocv.Undistort(*(src.Mat), (dst.Mat), *(cameraMatrix.Mat), *(distCoeffs.Mat), *(newCameraMatrix.Mat))
 }
@@ -66,18 +60,6 @@ func (g *GoCVResourceTracker) FindChessboardCorners(image Mat, patternSize image
 }
 
 
-func (g *GoCVResourceTracker) FindChessboardCornersSB(image Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag) bool {
-    rs0 := gocv.FindChessboardCornersSB(*(image.Mat), patternSize, (corners.Mat), flags)
-    return rs0
-}
-
-
-func (g *GoCVResourceTracker) FindChessboardCornersSBWithMeta(image Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag, meta *Mat) bool {
-    rs0 := gocv.FindChessboardCornersSBWithMeta(*(image.Mat), patternSize, (corners.Mat), flags, (meta.Mat))
-    return rs0
-}
-
-
 func (g *GoCVResourceTracker) DrawChessboardCorners(image *Mat, patternSize image.Point, corners Mat, patternWasFound bool) {
     gocv.DrawChessboardCorners((image.Mat), patternSize, *(corners.Mat), patternWasFound)
 }
@@ -85,28 +67,6 @@ func (g *GoCVResourceTracker) DrawChessboardCorners(image *Mat, patternSize imag
 
 func (g *GoCVResourceTracker) EstimateAffinePartial2D(from, to Point2fVector) Mat {
     rs0 := gocv.EstimateAffinePartial2D(*(from.Point2fVector), *(to.Point2fVector))
-    g.TrackCloseError(&rs0)
-    pkg0 := Mat{
-	    &rs0,
-	    g,
-    }
-    return pkg0
-}
-
-
-func (g *GoCVResourceTracker) EstimateAffine2D(from, to Point2fVector) Mat {
-    rs0 := gocv.EstimateAffine2D(*(from.Point2fVector), *(to.Point2fVector))
-    g.TrackCloseError(&rs0)
-    pkg0 := Mat{
-	    &rs0,
-	    g,
-    }
-    return pkg0
-}
-
-
-func (g *GoCVResourceTracker) EstimateAffine2DWithParams(from Point2fVector, to Point2fVector, inliers Mat, method int, ransacReprojThreshold float64, maxIters uint, confidence float64, refineIters uint) Mat {
-    rs0 := gocv.EstimateAffine2DWithParams(*(from.Point2fVector), *(to.Point2fVector), *(inliers.Mat), method, ransacReprojThreshold, maxIters, confidence, refineIters)
     g.TrackCloseError(&rs0)
     pkg0 := Mat{
 	    &rs0,

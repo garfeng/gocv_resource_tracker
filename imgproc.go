@@ -505,11 +505,6 @@ func (g *GoCVResourceTracker) WarpPerspective(src Mat, dst *Mat, m Mat, sz image
 }
 
 
-func (g *GoCVResourceTracker) WarpPerspectiveWithParams(src Mat, dst *Mat, m Mat, sz image.Point, flags InterpolationFlags, borderType BorderType, borderValue color.RGBA) {
-    gocv.WarpPerspectiveWithParams(*(src.Mat), (dst.Mat), *(m.Mat), sz, flags, borderType, borderValue)
-}
-
-
 func (g *GoCVResourceTracker) Watershed(image Mat, markers *Mat) {
     gocv.Watershed(*(image.Mat), (markers.Mat))
 }
@@ -582,11 +577,6 @@ func (g *GoCVResourceTracker) FindHomography(srcPoints Mat, dstPoints *Mat, meth
 
 func (g *GoCVResourceTracker) DrawContours(img *Mat, contours PointsVector, contourIdx int, c color.RGBA, thickness int) {
     gocv.DrawContours((img.Mat), *(contours.PointsVector), contourIdx, c, thickness)
-}
-
-
-func (g *GoCVResourceTracker) DrawContoursWithParams(img *Mat, contours PointsVector, contourIdx int, c color.RGBA, thickness int, lineType LineType, hierarchy Mat, maxLevel int, offset image.Point) {
-    gocv.DrawContoursWithParams((img.Mat), *(contours.PointsVector), contourIdx, c, thickness, lineType, *(hierarchy.Mat), maxLevel, offset)
 }
 
 

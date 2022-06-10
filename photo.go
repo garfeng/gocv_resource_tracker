@@ -18,7 +18,6 @@ type AlignMTB struct {
 }
 func (a *AlignMTB) Close(){}
 
-type EdgeFilter = gocv.EdgeFilter
 
 func (g *GoCVResourceTracker) ColorChange(src, mask Mat, dst *Mat, red_mul, green_mul, blue_mul float32) {
     gocv.ColorChange(*(src.Mat), *(mask.Mat), (dst.Mat), red_mul, green_mul, blue_mul)
@@ -91,46 +90,6 @@ func (g *GoCVResourceTracker) NewAlignMTBWithParams(max_bits int, exclude_range 
 	    g,
     }
     return pkg0
-}
-
-
-func (g *GoCVResourceTracker) FastNlMeansDenoising(src Mat, dst *Mat) {
-    gocv.FastNlMeansDenoising(*(src.Mat), (dst.Mat))
-}
-
-
-func (g *GoCVResourceTracker) FastNlMeansDenoisingWithParams(src Mat, dst *Mat, h float32, templateWindowSize int, searchWindowSize int) {
-    gocv.FastNlMeansDenoisingWithParams(*(src.Mat), (dst.Mat), h, templateWindowSize, searchWindowSize)
-}
-
-
-func (g *GoCVResourceTracker) FastNlMeansDenoisingColored(src Mat, dst *Mat) {
-    gocv.FastNlMeansDenoisingColored(*(src.Mat), (dst.Mat))
-}
-
-
-func (g *GoCVResourceTracker) FastNlMeansDenoisingColoredWithParams(src Mat, dst *Mat, h float32, hColor float32, templateWindowSize int, searchWindowSize int) {
-    gocv.FastNlMeansDenoisingColoredWithParams(*(src.Mat), (dst.Mat), h, hColor, templateWindowSize, searchWindowSize)
-}
-
-
-func (g *GoCVResourceTracker) DetailEnhance(src Mat, dst *Mat, sigma_s, sigma_r float32) {
-    gocv.DetailEnhance(*(src.Mat), (dst.Mat), sigma_s, sigma_r)
-}
-
-
-func (g *GoCVResourceTracker) EdgePreservingFilter(src Mat, dst *Mat, filter EdgeFilter, sigma_s, sigma_r float32) {
-    gocv.EdgePreservingFilter(*(src.Mat), (dst.Mat), filter, sigma_s, sigma_r)
-}
-
-
-func (g *GoCVResourceTracker) PencilSketch(src Mat, dst1, dst2 *Mat, sigma_s, sigma_r, shade_factor float32) {
-    gocv.PencilSketch(*(src.Mat), (dst1.Mat), (dst2.Mat), sigma_s, sigma_r, shade_factor)
-}
-
-
-func (g *GoCVResourceTracker) Stylization(src Mat, dst *Mat, sigma_s, sigma_r float32) {
-    gocv.Stylization(*(src.Mat), (dst.Mat), sigma_s, sigma_r)
 }
 func (b *MergeMertens) Process(src []Mat, dst *Mat) {
     b.MergeMertens.Process(SliceToGoCVCloser(src), (dst.Mat))
