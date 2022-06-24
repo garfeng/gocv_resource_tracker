@@ -17,6 +17,11 @@ func NewTracker() *GoCVResourceTracker {
 	}
 }
 
+type Mat struct {
+	*gocv.Mat
+	ResourceTracker *GoCVResourceTracker
+}
+
 func SliceToGoCVCloser(slice []Mat) []gocv.Mat {
 	res := make([]gocv.Mat, len(slice))
 

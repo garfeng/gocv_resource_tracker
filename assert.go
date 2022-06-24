@@ -59,7 +59,7 @@ func MustNot(a bool, format string, i ...interface{}) {
 }
 
 var (
-	matTypeSizeMap = map[MatType]int{
+	matTypeSizeMap = map[gocv.MatType]int{
 		gocv.MatTypeCV8U:  1,
 		gocv.MatTypeCV8S:  1,
 		gocv.MatTypeCV16U: 2,
@@ -70,7 +70,7 @@ var (
 	}
 )
 
-func sizeOfMatType(mt MatType) int {
+func sizeOfMatType(mt gocv.MatType) int {
 	sz := matTypeSizeMap[mt]
 	channelNum := (int(mt) >> 3) + 1
 	return sz * channelNum
