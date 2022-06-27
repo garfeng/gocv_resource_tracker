@@ -56,7 +56,7 @@ func SetupGCMonitor() {
 }
 
 /*
-func init() {
+func.tmpl init() {
 	SetupGCMonitor()
 }
 */
