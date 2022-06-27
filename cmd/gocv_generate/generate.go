@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/wzshiming/gotype"
 	"go/ast"
 	"path/filepath"
 	"strings"
+
+	"github.com/wzshiming/gotype"
 )
 
 type Importer struct {
@@ -159,10 +160,22 @@ func NewType(one gotype.Type) *Type {
 			method := NewMethod(m)
 			method.ReceverTypeName = one.Name()
 			t.Methods = append(t.Methods, method)
+
+			hasCloserInOrOut := false
+
 			for _, v := range method.Outs {
 				if v.IsCloser() || v.IsRealElemCloser() {
-					t.MethodsReturnsCloser = append(t.MethodsReturnsCloser, method)
+					hasCloserInOrOut = true
 				}
+			}
+			for _, v := range method.Ins {
+				if v.IsCloser() || v.IsRealElemCloser() {
+					hasCloserInOrOut = true
+				}
+			}
+
+			if hasCloserInOrOut {
+				t.MethodsReturnsCloser = append(t.MethodsReturnsCloser, method)
 			}
 		}
 	}

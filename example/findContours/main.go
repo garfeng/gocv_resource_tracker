@@ -16,17 +16,17 @@ func main() {
 
 	mat := rt.NewMatWithSize(1000, 1000, gocv.MatTypeCV8UC1)
 	for i := 0; i < 10; i++ {
-		rt.Rectangle(&mat, image.Rect(i*100, i*100, i*100+50, i*100+50),
+		rt.Rectangle(mat, image.Rect(i*100, i*100, i*100+50, i*100+50),
 			color.RGBA{255, 255, 255, 255}, -1)
 	}
 
 	kernel := rt.GetStructuringElement(gocv.MorphEllipse, image.Pt(5, 5))
 	erode := rt.NewMat()
-	rt.Erode(mat, &erode, kernel)
+	rt.Erode(mat, erode, kernel)
 	rt.IMWrite("hello.png", erode)
 
 	thres := rt.NewMat()
-	rt.Threshold(erode, &thres, 0, 255, gocv.ThresholdOtsu)
+	rt.Threshold(erode, thres, 0, 255, gocv.ThresholdOtsu)
 
 	contours := rt.FindContours(erode, gocv.RetrievalList, gocv.ChainApproxNone)
 
@@ -37,8 +37,10 @@ func main() {
 		//c.Close()
 	}
 	fmt.Println("contourNumber: ", contours.Size())
-	contours.Append(rt.NewPointVectorFromPoints([]image.Point{{1, 2},
-		{5, 5}, {1, 2}}))
+
+	v := rt.NewPointVectorFromPoints([]image.Point{{1, 2},
+		{5, 5}, {1, 2}})
+	contours.Append(v)
 	fmt.Println("contourNumber2: ", contours.Size())
 
 	c := contours.At(4)
