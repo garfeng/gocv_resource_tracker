@@ -4,117 +4,134 @@
 
 package gocv_resource_tracker
 
+import "C"
 import (
-    origin "gocv.io/x/gocv"
-    "image"
-    "image/color"
+	"image"
+	"image/color"
+
+	origin "gocv.io/x/gocv"
 )
 
-
-
 // Veci is a generic vector of integers.
-type Veci = origin.Veci 
+type Veci = origin.Veci
 
 // Vecf is a generic vector of floats.
-type Vecf = origin.Vecf 
+type Vecf = origin.Vecf
 
 // Vecd is a generic vector of float64/doubles.
-type Vecd = origin.Vecd 
+type Vecd = origin.Vecd
 
 // Vecb is a generic vector of bytes.
-type Vecb = origin.Vecb 
+type Vecb = origin.Vecb
 
 // TermCriteria is the criteria for iterative algorithms.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d5d/classcv_1_1TermCriteria.html
-type TermCriteria = origin.TermCriteria 
+type TermCriteria = origin.TermCriteria
 
+type RNGDistType = origin.RNGDistType
 
-type RNGDistType = origin.RNGDistType 
-
-
-type ORBScoreType = origin.ORBScoreType 
+type ORBScoreType = origin.ORBScoreType
 
 // IMReadFlag is one of the valid flags to use for the IMRead function.
-type IMReadFlag = origin.IMReadFlag 
+type IMReadFlag = origin.IMReadFlag
 
-
-type HomographyMethod = origin.HomographyMethod 
+type HomographyMethod = origin.HomographyMethod
 
 // FileExt represents a file extension.
-type FileExt = origin.FileExt 
+type FileExt = origin.FileExt
 
-
-type EdgeFilter = origin.EdgeFilter 
-
-
-
-
+type EdgeFilter = origin.EdgeFilter
 
 // Window is a wrapper around OpenCV's "HighGUI" named windows.
 // While OpenCV was designed for use in full-scale applications and can be used
 // within functionally rich UI frameworks (such as Qt*, WinForms*, or Cocoa*)
 // or without any UI at all, sometimes there it is required to try functionality
 // quickly and visualize the results. This is what the HighGUI module has been designed for.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d7/dfc/group__highgui.html
 type Window struct {
+	*origin.Window
 
-    *origin.Window
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Window) coreElem() origin.Window {
-    return *p.Window
+	return *p.Window
 }
 
 func (p *Window) coreElemPtr() *origin.Window {
-    return p.Window
+	return p.Window
 }
 
-
 func newWindowFromPtr(rt *GoCVResourceTracker, core *origin.Window) *Window {
-    
-    rt.TrackCloseError(core)
-    
-    return &Window{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &Window{
+		core,
+		rt,
+	}
 }
 
 func newWindowFromElem(rt *GoCVResourceTracker, core origin.Window) *Window {
-    
-    rt.TrackCloseError(&core)
-    
-    return &Window{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &Window{
+		&core,
+		rt,
+	}
 }
 
 func newWindowFromElemNoTracker(rt *GoCVResourceTracker, core origin.Window) *Window {
-    return &Window{
-        &core,
-        rt,
-    }
+	return &Window{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// WaitKey waits for a pressed key.
+// This function is the only method in OpenCV's HighGUI that can fetch
+// and handle events, so it needs to be called periodically
+// for normal event processing
+//
+// For further details, please see:
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
+func (ptr *Window) WaitKey(delay int) int {
+	_ov1 := ptr.Window.WaitKey(delay)
+	return _ov1
+}
+
+// SetWindowTitle updates window title.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga56f8849295fd10d0c319724ddb773d96
+func (ptr *Window) SetWindowTitle(title string) {
+	ptr.Window.SetWindowTitle(title)
+}
+
+// SetWindowProperty changes parameters of a window dynamically.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga66e4a6db4d4e06148bcdfe0d70a5df27
+func (ptr *Window) SetWindowProperty(flag WindowPropertyFlag, value WindowFlag) {
+	ptr.Window.SetWindowProperty(flag, value)
+}
 
 // SelectROIs selects multiple Regions Of Interest (ROI) on the given image.
 // It creates a window and allows user to select ROIs using mouse.
-// 
+//
 // Controls:
 // use space or enter to finish current selection and start a new one
 // use esc to terminate multiple ROI selection process
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga0f11fad74a6432b8055fb21621a0f893
 func (ptr *Window) SelectROIs(img *Mat) []image.Rectangle {
@@ -124,11 +141,11 @@ func (ptr *Window) SelectROIs(img *Mat) []image.Rectangle {
 
 // SelectROI selects a Region Of Interest (ROI) on the given image.
 // It creates a window and allows user to select a ROI using mouse.
-// 
+//
 // Controls:
 // use space or enter to finish selection,
 // use key c to cancel selection (function will return a zero Rect).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga8daf4730d3adf7035b6de9be4c469af5
 func (ptr *Window) SelectROI(img *Mat) image.Rectangle {
@@ -136,73 +153,126 @@ func (ptr *Window) SelectROI(img *Mat) image.Rectangle {
 	return _ov1
 }
 
+// ResizeWindow resizes window to the specified size.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga9e80e080f7ef33f897e415358aee7f7e
+func (ptr *Window) ResizeWindow(width int, height int) {
+	ptr.Window.ResizeWindow(width, height)
+}
+
+// MoveWindow moves window to the specified position.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga8d86b207f7211250dbe6e28f76307ffb
+func (ptr *Window) MoveWindow(x int, y int) {
+	ptr.Window.MoveWindow(x, y)
+}
+
+// IsOpen checks to see if the Window seems to be open.
+func (ptr *Window) IsOpen() bool {
+	_ov1 := ptr.Window.IsOpen()
+	return _ov1
+}
+
 // IMShow displays an image Mat in the specified window.
 // This function should be followed by the WaitKey function which displays
 // the image for specified milliseconds. Otherwise, it won't display the image.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563
 func (ptr *Window) IMShow(img *Mat) {
-ptr.Window.IMShow(img.coreElem())
+	ptr.Window.IMShow(img.coreElem())
 }
 
+// GetWindowProperty returns properties of a window.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#gaaf9504b8f9cf19024d9d44a14e461656
+func (ptr *Window) GetWindowProperty(flag WindowPropertyFlag) float64 {
+	_ov1 := ptr.Window.GetWindowProperty(flag)
+	return _ov1
+}
 
+// CreateTrackbarWithValue works like CreateTrackbar but also assigns a
+// variable value to be a position synchronized with the trackbar.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#gaf78d2155d30b728fc413803745b67a9b
+func (ptr *Window) CreateTrackbarWithValue(name string, value *int, max int) *Trackbar {
+	_ov1 := ptr.Window.CreateTrackbarWithValue(name, value, max)
+	return _ov1
+}
 
+// CreateTrackbar creates a trackbar and attaches it to the specified window.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#gaf78d2155d30b728fc413803745b67a9b
+func (ptr *Window) CreateTrackbar(name string, max int) *Trackbar {
+	_ov1 := ptr.Window.CreateTrackbar(name, max)
+	return _ov1
+}
+
+// Close closes and deletes a named OpenCV Window.
+//
+// For further details, please see:
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga851ccdd6961022d1d5b4c4f255dbab34
+func (ptr *Window) Close() error {
+	_ov1 := ptr.Window.Close()
+	return _ov1
+}
 
 // VideoWriter is a wrapper around the OpenCV VideoWriter`class.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/dd/d9e/classcv_1_1VideoWriter.html
 type VideoWriter struct {
+	*origin.VideoWriter
 
-    *origin.VideoWriter
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *VideoWriter) coreElem() origin.VideoWriter {
-    return *p.VideoWriter
+	return *p.VideoWriter
 }
 
 func (p *VideoWriter) coreElemPtr() *origin.VideoWriter {
-    return p.VideoWriter
+	return p.VideoWriter
 }
 
-
 func newVideoWriterFromPtr(rt *GoCVResourceTracker, core *origin.VideoWriter) *VideoWriter {
-    
-    rt.TrackCloseError(core)
-    
-    return &VideoWriter{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &VideoWriter{
+		core,
+		rt,
+	}
 }
 
 func newVideoWriterFromElem(rt *GoCVResourceTracker, core origin.VideoWriter) *VideoWriter {
-    
-    rt.TrackCloseError(&core)
-    
-    return &VideoWriter{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &VideoWriter{
+		&core,
+		rt,
+	}
 }
 
 func newVideoWriterFromElemNoTracker(rt *GoCVResourceTracker, core origin.VideoWriter) *VideoWriter {
-    return &VideoWriter{
-        &core,
-        rt,
-    }
+	return &VideoWriter{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Write the next video frame from the Mat image to the open VideoWriter.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/dd/d9e/classcv_1_1VideoWriter.html#a3115b679d612a6a0b5864a0c88ed4b39
 func (ptr *VideoWriter) Write(img *Mat) error {
@@ -210,59 +280,80 @@ func (ptr *VideoWriter) Write(img *Mat) error {
 	return _ov1
 }
 
+// IsOpened checks if the VideoWriter is open and ready to be written to.
+//
+// For further details, please see:
+// http://docs.opencv.org/master/dd/d9e/classcv_1_1VideoWriter.html#a9a40803e5f671968ac9efa877c984d75
+func (ptr *VideoWriter) IsOpened() bool {
+	_ov1 := ptr.VideoWriter.IsOpened()
+	return _ov1
+}
 
+// Close VideoWriter object.
+func (ptr *VideoWriter) Close() error {
+	_ov1 := ptr.VideoWriter.Close()
+	return _ov1
+}
 
 // VideoCapture is a wrapper around the OpenCV VideoCapture class.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html
 type VideoCapture struct {
+	*origin.VideoCapture
 
-    *origin.VideoCapture
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *VideoCapture) coreElem() origin.VideoCapture {
-    return *p.VideoCapture
+	return *p.VideoCapture
 }
 
 func (p *VideoCapture) coreElemPtr() *origin.VideoCapture {
-    return p.VideoCapture
+	return p.VideoCapture
 }
 
-
 func newVideoCaptureFromPtr(rt *GoCVResourceTracker, core *origin.VideoCapture) *VideoCapture {
-    
-    rt.TrackCloseError(core)
-    
-    return &VideoCapture{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &VideoCapture{
+		core,
+		rt,
+	}
 }
 
 func newVideoCaptureFromElem(rt *GoCVResourceTracker, core origin.VideoCapture) *VideoCapture {
-    
-    rt.TrackCloseError(&core)
-    
-    return &VideoCapture{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &VideoCapture{
+		&core,
+		rt,
+	}
 }
 
 func newVideoCaptureFromElemNoTracker(rt *GoCVResourceTracker, core origin.VideoCapture) *VideoCapture {
-    return &VideoCapture{
-        &core,
-        rt,
-    }
+	return &VideoCapture{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToCodec returns an float64 representation of FourCC bytes
+func (ptr *VideoCapture) ToCodec(codec string) float64 {
+	_ov1 := ptr.VideoCapture.ToCodec(codec)
+	return _ov1
+}
+
+// Set parameter with property (=key).
+func (ptr *VideoCapture) Set(prop VideoCaptureProperties, param float64) {
+	ptr.VideoCapture.Set(prop, param)
+}
 
 // Read reads the next frame from the VideoCapture to the Mat passed in
 // as the param. It returns false if the VideoCapture cannot read frame.
@@ -271,61 +362,86 @@ func (ptr *VideoCapture) Read(m *Mat) bool {
 	return _ov1
 }
 
+// IsOpened returns if the VideoCapture has been opened to read from
+// a file or capture device.
+func (ptr *VideoCapture) IsOpened() bool {
+	_ov1 := ptr.VideoCapture.IsOpened()
+	return _ov1
+}
 
+// Grab skips a specific number of frames.
+func (ptr *VideoCapture) Grab(skip int) {
+	ptr.VideoCapture.Grab(skip)
+}
+
+// Get parameter with property (=key).
+func (ptr *VideoCapture) Get(prop VideoCaptureProperties) float64 {
+	_ov1 := ptr.VideoCapture.Get(prop)
+	return _ov1
+}
+
+// CodecString returns a string representation of FourCC bytes, i.e. the name of a codec
+func (ptr *VideoCapture) CodecString() string {
+	_ov1 := ptr.VideoCapture.CodecString()
+	return _ov1
+}
+
+// Close VideoCapture object.
+func (ptr *VideoCapture) Close() error {
+	_ov1 := ptr.VideoCapture.Close()
+	return _ov1
+}
 
 // TrackerMIL is a Tracker that uses the MIL algorithm. MIL trains a classifier in an online manner
 // to separate the object from the background.
 // Multiple Instance Learning avoids the drift problem for a robust tracking.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d26/classcv_1_1TrackerMIL.html
 type TrackerMIL struct {
+	*origin.TrackerMIL
 
-    *origin.TrackerMIL
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *TrackerMIL) coreElem() origin.TrackerMIL {
-    return *p.TrackerMIL
+	return *p.TrackerMIL
 }
 
 func (p *TrackerMIL) coreElemPtr() *origin.TrackerMIL {
-    return p.TrackerMIL
+	return p.TrackerMIL
 }
 
-
 func newTrackerMILFromPtr(rt *GoCVResourceTracker, core *origin.TrackerMIL) *TrackerMIL {
-    
-    rt.TrackCloseError(core)
-    
-    return &TrackerMIL{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &TrackerMIL{
+		core,
+		rt,
+	}
 }
 
 func newTrackerMILFromElem(rt *GoCVResourceTracker, core origin.TrackerMIL) *TrackerMIL {
-    
-    rt.TrackCloseError(&core)
-    
-    return &TrackerMIL{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &TrackerMIL{
+		&core,
+		rt,
+	}
 }
 
 func newTrackerMILFromElemNoTracker(rt *GoCVResourceTracker, core origin.TrackerMIL) *TrackerMIL {
-    return &TrackerMIL{
-        &core,
-        rt,
-    }
+	return &TrackerMIL{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
-
 
 // Update updates the TrackerMIL.
 func (ptr *TrackerMIL) Update(img *Mat) (image.Rectangle, bool) {
@@ -339,38 +455,41 @@ func (ptr *TrackerMIL) Init(img *Mat, boundingBox image.Rectangle) bool {
 	return _ov1
 }
 
-
+// Close closes the TrackerMIL.
+func (ptr *TrackerMIL) Close() error {
+	_ov1 := ptr.TrackerMIL.Close()
+	return _ov1
+}
 
 // Tracker is the base interface for object tracking.
-// 
+//
 // see: https://docs.opencv.org/master/d0/d0a/classcv_1_1Tracker.html
 type Tracker struct {
+	origin.Tracker
 
-    origin.Tracker
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Tracker) coreElem() origin.Tracker {
-    return p.Tracker
+	return p.Tracker
 }
 
 func newTrackerFromElem(rt *GoCVResourceTracker, core origin.Tracker) *Tracker {
-    
-    rt.TrackCloseError(core)
-    
-    return &Tracker{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &Tracker{
+		core,
+		rt,
+	}
 }
- // Is Interface
+
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Update updates the tracker, returns a new bounding box and a boolean determining whether the tracker lost the target.
-// 
+//
 // see: https://docs.opencv.org/master/d0/d0a/classcv_1_1Tracker.html#a549159bd0553e6a8de356f3866df1f18
 func (ptr *Tracker) Update(image *Mat) (image.Rectangle, bool) {
 	_ov1, _ov2 := ptr.Tracker.Update(image.coreElem())
@@ -380,66 +499,67 @@ func (ptr *Tracker) Update(image *Mat) (image.Rectangle, bool) {
 // Init initializes the tracker with a known bounding box that surrounded the target.
 // Note: this can only be called once. If you lose the object, you have to Close() the instance,
 // create a new one, and call Init() on it again.
-// 
+//
 // see: https://docs.opencv.org/master/d0/d0a/classcv_1_1Tracker.html#a4d285747589b1bdd16d2e4f00c3255dc
 func (ptr *Tracker) Init(image *Mat, boundingBox image.Rectangle) bool {
 	_ov1 := ptr.Tracker.Init(image.coreElem(), boundingBox)
 	return _ov1
 }
 
-
+// Close closes, as Trackers need to be Closed manually.
+func (ptr *Tracker) Close() error {
+	_ov1 := ptr.Tracker.Close()
+	return _ov1
+}
 
 // SimpleBlobDetector is a wrapper around the cv::SimpleBlobDetector.
 type SimpleBlobDetector struct {
+	*origin.SimpleBlobDetector
 
-    *origin.SimpleBlobDetector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *SimpleBlobDetector) coreElem() origin.SimpleBlobDetector {
-    return *p.SimpleBlobDetector
+	return *p.SimpleBlobDetector
 }
 
 func (p *SimpleBlobDetector) coreElemPtr() *origin.SimpleBlobDetector {
-    return p.SimpleBlobDetector
+	return p.SimpleBlobDetector
 }
 
-
 func newSimpleBlobDetectorFromPtr(rt *GoCVResourceTracker, core *origin.SimpleBlobDetector) *SimpleBlobDetector {
-    
-    rt.TrackCloseError(core)
-    
-    return &SimpleBlobDetector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &SimpleBlobDetector{
+		core,
+		rt,
+	}
 }
 
 func newSimpleBlobDetectorFromElem(rt *GoCVResourceTracker, core origin.SimpleBlobDetector) *SimpleBlobDetector {
-    
-    rt.TrackCloseError(&core)
-    
-    return &SimpleBlobDetector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &SimpleBlobDetector{
+		&core,
+		rt,
+	}
 }
 
 func newSimpleBlobDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.SimpleBlobDetector) *SimpleBlobDetector {
-    return &SimpleBlobDetector{
-        &core,
-        rt,
-    }
+	return &SimpleBlobDetector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Detect keypoints in an image using SimpleBlobDetector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *SimpleBlobDetector) Detect(src *Mat) []KeyPoint {
@@ -447,60 +567,61 @@ func (ptr *SimpleBlobDetector) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close SimpleBlobDetector.
+func (ptr *SimpleBlobDetector) Close() error {
+	_ov1 := ptr.SimpleBlobDetector.Close()
+	return _ov1
+}
 
 // SIFT is a wrapper around the cv::SIFT algorithm.
 // Due to the patent having expired, this is now in the main OpenCV code modules.
 type SIFT struct {
+	*origin.SIFT
 
-    *origin.SIFT
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *SIFT) coreElem() origin.SIFT {
-    return *p.SIFT
+	return *p.SIFT
 }
 
 func (p *SIFT) coreElemPtr() *origin.SIFT {
-    return p.SIFT
+	return p.SIFT
 }
 
-
 func newSIFTFromPtr(rt *GoCVResourceTracker, core *origin.SIFT) *SIFT {
-    
-    rt.TrackCloseError(core)
-    
-    return &SIFT{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &SIFT{
+		core,
+		rt,
+	}
 }
 
 func newSIFTFromElem(rt *GoCVResourceTracker, core origin.SIFT) *SIFT {
-    
-    rt.TrackCloseError(&core)
-    
-    return &SIFT{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &SIFT{
+		&core,
+		rt,
+	}
 }
 
 func newSIFTFromElemNoTracker(rt *GoCVResourceTracker, core origin.SIFT) *SIFT {
-    return &SIFT{
-        &core,
-        rt,
-    }
+	return &SIFT{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // DetectAndCompute detects and computes keypoints in an image using SIFT.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 func (ptr *SIFT) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
@@ -509,7 +630,7 @@ func (ptr *SIFT) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 }
 
 // Detect keypoints in an image using SIFT.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *SIFT) Detect(src *Mat) []KeyPoint {
@@ -517,62 +638,63 @@ func (ptr *SIFT) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close SIFT.
+func (ptr *SIFT) Close() error {
+	_ov1 := ptr.SIFT.Close()
+	return _ov1
+}
 
 // QRCodeDetector groups the object candidate rectangles.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html
 type QRCodeDetector struct {
+	*origin.QRCodeDetector
 
-    *origin.QRCodeDetector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *QRCodeDetector) coreElem() origin.QRCodeDetector {
-    return *p.QRCodeDetector
+	return *p.QRCodeDetector
 }
 
 func (p *QRCodeDetector) coreElemPtr() *origin.QRCodeDetector {
-    return p.QRCodeDetector
+	return p.QRCodeDetector
 }
 
-
 func newQRCodeDetectorFromPtr(rt *GoCVResourceTracker, core *origin.QRCodeDetector) *QRCodeDetector {
-    
-    rt.TrackCloseError(core)
-    
-    return &QRCodeDetector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &QRCodeDetector{
+		core,
+		rt,
+	}
 }
 
 func newQRCodeDetectorFromElem(rt *GoCVResourceTracker, core origin.QRCodeDetector) *QRCodeDetector {
-    
-    rt.TrackCloseError(&core)
-    
-    return &QRCodeDetector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &QRCodeDetector{
+		&core,
+		rt,
+	}
 }
 
 func newQRCodeDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.QRCodeDetector) *QRCodeDetector {
-    return &QRCodeDetector{
-        &core,
-        rt,
-    }
+	return &QRCodeDetector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Detects QR codes in image and finds of the quadrangles containing the codes.
-// 
+//
 // Each quadrangle would be returned as a row in the `points` Mat and each point is a Vecf.
 // Returns true if QR code was detected
 // For usage please see TestQRCodeDetector
@@ -584,7 +706,7 @@ func (ptr *QRCodeDetector) DetectMulti(input *Mat, points *Mat) bool {
 }
 
 // Detects QR codes in image and finds of the quadrangles containing the codes and decode the decode the QRCodes to strings.
-// 
+//
 // Each quadrangle would be returned as a row in the `points` Mat and each point is a Vecf.
 // Returns true as long as some QR code was detected even in case where the decoding failed
 // For usage please see TestQRCodeDetector
@@ -596,7 +718,7 @@ func (ptr *QRCodeDetector) DetectAndDecodeMulti(input *Mat, decoded *[]string, p
 }
 
 // DetectAndDecode Both detects and decodes QR code.
-// 
+//
 // Returns true as long as some QR code was detected even in case where the decoding failed
 // For further details, please see:
 // https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a7290bd6a5d59b14a37979c3a14fbf394
@@ -606,7 +728,7 @@ func (ptr *QRCodeDetector) DetectAndDecode(input *Mat, points *Mat, straight_qrc
 }
 
 // Detect detects QR code in image and returns the quadrangle containing the code.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a64373f7d877d27473f64fe04bb57d22b
 func (ptr *QRCodeDetector) Detect(input *Mat, points *Mat) bool {
@@ -615,7 +737,7 @@ func (ptr *QRCodeDetector) Detect(input *Mat, points *Mat) bool {
 }
 
 // Decode decodes QR code in image once it's found by the detect() method. Returns UTF8-encoded output string or empty string if the code cannot be decoded.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a4172c2eb4825c844fb1b0ae67202d329
 func (ptr *QRCodeDetector) Decode(input *Mat, points *Mat, straight_qrcode *Mat) string {
@@ -623,56 +745,84 @@ func (ptr *QRCodeDetector) Decode(input *Mat, points *Mat, straight_qrcode *Mat)
 	return _ov1
 }
 
-
+func (ptr *QRCodeDetector) Close() error {
+	_ov1 := ptr.QRCodeDetector.Close()
+	return _ov1
+}
 
 // PointsVector is a wrapper around a std::vector< std::vector< cv::Point > >*
 type PointsVector struct {
+	*origin.PointsVector
 
-    *origin.PointsVector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *PointsVector) coreElem() origin.PointsVector {
-    return *p.PointsVector
+	return *p.PointsVector
 }
 
 func (p *PointsVector) coreElemPtr() *origin.PointsVector {
-    return p.PointsVector
+	return p.PointsVector
 }
 
-
 func newPointsVectorFromPtr(rt *GoCVResourceTracker, core *origin.PointsVector) *PointsVector {
-    
-    rt.TrackCloser(core)
-    
-    return &PointsVector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &PointsVector{
+		core,
+		rt,
+	}
 }
 
 func newPointsVectorFromElem(rt *GoCVResourceTracker, core origin.PointsVector) *PointsVector {
-    
-    rt.TrackCloser(&core)
-    
-    return &PointsVector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &PointsVector{
+		&core,
+		rt,
+	}
 }
 
 func newPointsVectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.PointsVector) *PointsVector {
-    return &PointsVector{
-        &core,
-        rt,
-    }
+	return &PointsVector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToPoints returns a slice of slices of image.Point for the data in this PointsVector.
+func (ptr *PointsVector) ToPoints() [][]image.Point {
+	_ov1 := ptr.PointsVector.ToPoints()
+	return _ov1
+}
+
+// Size returns how many vectors of Points are in the PointsVector.
+func (ptr *PointsVector) Size() int {
+	_ov1 := ptr.PointsVector.Size()
+	return _ov1
+}
+
+func (ptr *PointsVector) P() C.PointsVector {
+	_ov1 := ptr.PointsVector.P()
+	return _ov1
+}
+
+// IsNil checks the CGo pointer in the PointsVector.
+func (ptr *PointsVector) IsNil() bool {
+	_ov1 := ptr.PointsVector.IsNil()
+	return _ov1
+}
+
+// Close closes and frees memory for this PointsVector.
+func (ptr *PointsVector) Close() {
+	ptr.PointsVector.Close()
+}
 
 // At returns the PointVector at that index of the PointsVector.
 func (ptr *PointsVector) At(idx int) *PointVector {
@@ -682,60 +832,77 @@ func (ptr *PointsVector) At(idx int) *PointVector {
 
 // Append appends a PointVector at end of the PointsVector.
 func (ptr *PointsVector) Append(pv *PointVector) {
-ptr.PointsVector.Append(pv.coreElem())
+	ptr.PointsVector.Append(pv.coreElem())
 }
-
-
-
 
 // Points3fVector is a wrapper around a std::vector< std::vector< cv::Point3f > >*
 type Points3fVector struct {
+	*origin.Points3fVector
 
-    *origin.Points3fVector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Points3fVector) coreElem() origin.Points3fVector {
-    return *p.Points3fVector
+	return *p.Points3fVector
 }
 
 func (p *Points3fVector) coreElemPtr() *origin.Points3fVector {
-    return p.Points3fVector
+	return p.Points3fVector
 }
 
-
 func newPoints3fVectorFromPtr(rt *GoCVResourceTracker, core *origin.Points3fVector) *Points3fVector {
-    
-    rt.TrackCloser(core)
-    
-    return &Points3fVector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &Points3fVector{
+		core,
+		rt,
+	}
 }
 
 func newPoints3fVectorFromElem(rt *GoCVResourceTracker, core origin.Points3fVector) *Points3fVector {
-    
-    rt.TrackCloser(&core)
-    
-    return &Points3fVector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &Points3fVector{
+		&core,
+		rt,
+	}
 }
 
 func newPoints3fVectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.Points3fVector) *Points3fVector {
-    return &Points3fVector{
-        &core,
-        rt,
-    }
+	return &Points3fVector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToPoints returns a slice of slices of Point3f for the data in this Points3fVector.
+func (ptr *Points3fVector) ToPoints() [][]Point3f {
+	_ov1 := ptr.Points3fVector.ToPoints()
+	return _ov1
+}
+
+// Size returns how many vectors of Points are in the Points3fVector.
+func (ptr *Points3fVector) Size() int {
+	_ov1 := ptr.Points3fVector.Size()
+	return _ov1
+}
+
+// IsNil checks the CGo pointer in the Points3fVector.
+func (ptr *Points3fVector) IsNil() bool {
+	_ov1 := ptr.Points3fVector.IsNil()
+	return _ov1
+}
+
+// Close closes and frees memory for this Points3fVector.
+func (ptr *Points3fVector) Close() {
+	ptr.Points3fVector.Close()
+}
 
 // At returns the Point3fVector at that index of the Points3fVector.
 func (ptr *Points3fVector) At(idx int) *Point3fVector {
@@ -745,60 +912,82 @@ func (ptr *Points3fVector) At(idx int) *Point3fVector {
 
 // Append appends a Point3fVector at end of the Points3fVector.
 func (ptr *Points3fVector) Append(pv *Point3fVector) {
-ptr.Points3fVector.Append(pv.coreElem())
+	ptr.Points3fVector.Append(pv.coreElem())
 }
-
-
-
 
 // Points2fVector is a wrapper around a std::vector< std::vector< cv::Point2f > >*
 type Points2fVector struct {
+	*origin.Points2fVector
 
-    *origin.Points2fVector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Points2fVector) coreElem() origin.Points2fVector {
-    return *p.Points2fVector
+	return *p.Points2fVector
 }
 
 func (p *Points2fVector) coreElemPtr() *origin.Points2fVector {
-    return p.Points2fVector
+	return p.Points2fVector
 }
 
-
 func newPoints2fVectorFromPtr(rt *GoCVResourceTracker, core *origin.Points2fVector) *Points2fVector {
-    
-    rt.TrackCloser(core)
-    
-    return &Points2fVector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &Points2fVector{
+		core,
+		rt,
+	}
 }
 
 func newPoints2fVectorFromElem(rt *GoCVResourceTracker, core origin.Points2fVector) *Points2fVector {
-    
-    rt.TrackCloser(&core)
-    
-    return &Points2fVector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &Points2fVector{
+		&core,
+		rt,
+	}
 }
 
 func newPoints2fVectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.Points2fVector) *Points2fVector {
-    return &Points2fVector{
-        &core,
-        rt,
-    }
+	return &Points2fVector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToPoints returns a slice of slices of Point2f for the data in this Points2fVector.
+func (ptr *Points2fVector) ToPoints() [][]Point2f {
+	_ov1 := ptr.Points2fVector.ToPoints()
+	return _ov1
+}
+
+// Size returns how many vectors of Points are in the Points2fVector.
+func (ptr *Points2fVector) Size() int {
+	_ov1 := ptr.Points2fVector.Size()
+	return _ov1
+}
+
+func (ptr *Points2fVector) P() C.Points2fVector {
+	_ov1 := ptr.Points2fVector.P()
+	return _ov1
+}
+
+// IsNil checks the CGo pointer in the Points2fVector.
+func (ptr *Points2fVector) IsNil() bool {
+	_ov1 := ptr.Points2fVector.IsNil()
+	return _ov1
+}
+
+// Close closes and frees memory for this Points2fVector.
+func (ptr *Points2fVector) Close() {
+	ptr.Points2fVector.Close()
+}
 
 // At returns the Point2fVector at that index of the Points2fVector.
 func (ptr *Points2fVector) At(idx int) *Point2fVector {
@@ -808,218 +997,293 @@ func (ptr *Points2fVector) At(idx int) *Point2fVector {
 
 // Append appends a Point2fVector at end of the Points2fVector.
 func (ptr *Points2fVector) Append(pv *Point2fVector) {
-ptr.Points2fVector.Append(pv.coreElem())
+	ptr.Points2fVector.Append(pv.coreElem())
 }
-
-
-
 
 // PointVector is a wrapper around a std::vector< cv::Point >*
 // This is needed anytime that you need to pass or receive a collection of points.
 type PointVector struct {
+	*origin.PointVector
 
-    *origin.PointVector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *PointVector) coreElem() origin.PointVector {
-    return *p.PointVector
+	return *p.PointVector
 }
 
 func (p *PointVector) coreElemPtr() *origin.PointVector {
-    return p.PointVector
+	return p.PointVector
 }
 
-
 func newPointVectorFromPtr(rt *GoCVResourceTracker, core *origin.PointVector) *PointVector {
-    
-    rt.TrackCloser(core)
-    
-    return &PointVector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &PointVector{
+		core,
+		rt,
+	}
 }
 
 func newPointVectorFromElem(rt *GoCVResourceTracker, core origin.PointVector) *PointVector {
-    
-    rt.TrackCloser(&core)
-    
-    return &PointVector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &PointVector{
+		&core,
+		rt,
+	}
 }
 
 func newPointVectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.PointVector) *PointVector {
-    return &PointVector{
-        &core,
-        rt,
-    }
+	return &PointVector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToPoints returns a slice of image.Point for the data in this PointVector.
+func (ptr *PointVector) ToPoints() []image.Point {
+	_ov1 := ptr.PointVector.ToPoints()
+	return _ov1
+}
 
+// Size returns how many Point are in the PointVector.
+func (ptr *PointVector) Size() int {
+	_ov1 := ptr.PointVector.Size()
+	return _ov1
+}
 
+// IsNil checks the CGo pointer in the PointVector.
+func (ptr *PointVector) IsNil() bool {
+	_ov1 := ptr.PointVector.IsNil()
+	return _ov1
+}
+
+// Close closes and frees memory for this PointVector.
+func (ptr *PointVector) Close() {
+	ptr.PointVector.Close()
+}
+
+// At returns the image.Point
+func (ptr *PointVector) At(idx int) image.Point {
+	_ov1 := ptr.PointVector.At(idx)
+	return _ov1
+}
+
+// Append appends an image.Point at end of the PointVector.
+func (ptr *PointVector) Append(point image.Point) {
+	ptr.PointVector.Append(point)
+}
 
 // Point3fVector is a wrapper around a std::vector< cv::Point3f >*
 type Point3fVector struct {
+	*origin.Point3fVector
 
-    *origin.Point3fVector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Point3fVector) coreElem() origin.Point3fVector {
-    return *p.Point3fVector
+	return *p.Point3fVector
 }
 
 func (p *Point3fVector) coreElemPtr() *origin.Point3fVector {
-    return p.Point3fVector
+	return p.Point3fVector
 }
 
-
 func newPoint3fVectorFromPtr(rt *GoCVResourceTracker, core *origin.Point3fVector) *Point3fVector {
-    
-    rt.TrackCloser(core)
-    
-    return &Point3fVector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &Point3fVector{
+		core,
+		rt,
+	}
 }
 
 func newPoint3fVectorFromElem(rt *GoCVResourceTracker, core origin.Point3fVector) *Point3fVector {
-    
-    rt.TrackCloser(&core)
-    
-    return &Point3fVector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &Point3fVector{
+		&core,
+		rt,
+	}
 }
 
 func newPoint3fVectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.Point3fVector) *Point3fVector {
-    return &Point3fVector{
-        &core,
-        rt,
-    }
+	return &Point3fVector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToPoints returns a slice of Point3f for the data in this Point3fVector.
+func (ptr *Point3fVector) ToPoints() []Point3f {
+	_ov1 := ptr.Point3fVector.ToPoints()
+	return _ov1
+}
 
+// Size returns how many Point are in the Point3fVector.
+func (ptr *Point3fVector) Size() int {
+	_ov1 := ptr.Point3fVector.Size()
+	return _ov1
+}
 
+// IsNil checks the CGo pointer in the Point3fVector.
+func (ptr *Point3fVector) IsNil() bool {
+	_ov1 := ptr.Point3fVector.IsNil()
+	return _ov1
+}
+
+// Close closes and frees memory for this Point3fVector.
+func (ptr *Point3fVector) Close() {
+	ptr.Point3fVector.Close()
+}
+
+// At returns the Point3f
+func (ptr *Point3fVector) At(idx int) Point3f {
+	_ov1 := ptr.Point3fVector.At(idx)
+	return _ov1
+}
+
+func (ptr *Point3fVector) Append(point Point3f) {
+	ptr.Point3fVector.Append(point)
+}
 
 // Point2fVector is a wrapper around a std::vector< cv::Point2f >*
 // This is needed anytime that you need to pass or receive a collection of points.
 type Point2fVector struct {
+	*origin.Point2fVector
 
-    *origin.Point2fVector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Point2fVector) coreElem() origin.Point2fVector {
-    return *p.Point2fVector
+	return *p.Point2fVector
 }
 
 func (p *Point2fVector) coreElemPtr() *origin.Point2fVector {
-    return p.Point2fVector
+	return p.Point2fVector
 }
 
-
 func newPoint2fVectorFromPtr(rt *GoCVResourceTracker, core *origin.Point2fVector) *Point2fVector {
-    
-    rt.TrackCloser(core)
-    
-    return &Point2fVector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &Point2fVector{
+		core,
+		rt,
+	}
 }
 
 func newPoint2fVectorFromElem(rt *GoCVResourceTracker, core origin.Point2fVector) *Point2fVector {
-    
-    rt.TrackCloser(&core)
-    
-    return &Point2fVector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &Point2fVector{
+		&core,
+		rt,
+	}
 }
 
 func newPoint2fVectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.Point2fVector) *Point2fVector {
-    return &Point2fVector{
-        &core,
-        rt,
-    }
+	return &Point2fVector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// ToPoints returns a slice of image.Point for the data in this PointVector.
+func (ptr *Point2fVector) ToPoints() []Point2f {
+	_ov1 := ptr.Point2fVector.ToPoints()
+	return _ov1
+}
 
+// Size returns how many Point are in the PointVector.
+func (ptr *Point2fVector) Size() int {
+	_ov1 := ptr.Point2fVector.Size()
+	return _ov1
+}
 
+// IsNil checks the CGo pointer in the Point2fVector.
+func (ptr *Point2fVector) IsNil() bool {
+	_ov1 := ptr.Point2fVector.IsNil()
+	return _ov1
+}
+
+// Close closes and frees memory for this Point2fVector.
+func (ptr *Point2fVector) Close() {
+	ptr.Point2fVector.Close()
+}
+
+// At returns the image.Point
+func (ptr *Point2fVector) At(idx int) Point2f {
+	_ov1 := ptr.Point2fVector.At(idx)
+	return _ov1
+}
 
 // ORB is a wrapper around the cv::ORB.
 type ORB struct {
+	*origin.ORB
 
-    *origin.ORB
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *ORB) coreElem() origin.ORB {
-    return *p.ORB
+	return *p.ORB
 }
 
 func (p *ORB) coreElemPtr() *origin.ORB {
-    return p.ORB
+	return p.ORB
 }
 
-
 func newORBFromPtr(rt *GoCVResourceTracker, core *origin.ORB) *ORB {
-    
-    rt.TrackCloseError(core)
-    
-    return &ORB{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &ORB{
+		core,
+		rt,
+	}
 }
 
 func newORBFromElem(rt *GoCVResourceTracker, core origin.ORB) *ORB {
-    
-    rt.TrackCloseError(&core)
-    
-    return &ORB{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &ORB{
+		&core,
+		rt,
+	}
 }
 
 func newORBFromElemNoTracker(rt *GoCVResourceTracker, core origin.ORB) *ORB {
-    return &ORB{
-        &core,
-        rt,
-    }
+	return &ORB{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // DetectAndCompute detects keypoints and computes from an image using ORB.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 func (ptr *ORB) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
@@ -1028,7 +1292,7 @@ func (ptr *ORB) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 }
 
 // Detect keypoints in an image using ORB.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *ORB) Detect(src *Mat) []KeyPoint {
@@ -1036,71 +1300,116 @@ func (ptr *ORB) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close ORB.
+func (ptr *ORB) Close() error {
+	_ov1 := ptr.ORB.Close()
+	return _ov1
+}
 
 // Net allows you to create and manipulate comprehensive artificial neural networks.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d30/classcv_1_1dnn_1_1Net.html
 type Net struct {
+	*origin.Net
 
-    *origin.Net
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Net) coreElem() origin.Net {
-    return *p.Net
+	return *p.Net
 }
 
 func (p *Net) coreElemPtr() *origin.Net {
-    return p.Net
+	return p.Net
 }
 
-
 func newNetFromPtr(rt *GoCVResourceTracker, core *origin.Net) *Net {
-    
-    rt.TrackCloseError(core)
-    
-    return &Net{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &Net{
+		core,
+		rt,
+	}
 }
 
 func newNetFromElem(rt *GoCVResourceTracker, core origin.Net) *Net {
-    
-    rt.TrackCloseError(&core)
-    
-    return &Net{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &Net{
+		&core,
+		rt,
+	}
 }
 
 func newNetFromElemNoTracker(rt *GoCVResourceTracker, core origin.Net) *Net {
-    return &Net{
-        &core,
-        rt,
-    }
+	return &Net{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// SetPreferableTarget ask network to make computations on specific target device.
+//
+// For further details, please see:
+// https://docs.opencv.org/3.4/db/d30/classcv_1_1dnn_1_1Net.html#a9dddbefbc7f3defbe3eeb5dc3d3483f4
+func (ptr *Net) SetPreferableTarget(target NetTargetType) error {
+	_ov1 := ptr.Net.SetPreferableTarget(target)
+	return _ov1
+}
+
+// SetPreferableBackend ask network to use specific computation backend.
+//
+// For further details, please see:
+// https://docs.opencv.org/3.4/db/d30/classcv_1_1dnn_1_1Net.html#a7f767df11386d39374db49cd8df8f59e
+func (ptr *Net) SetPreferableBackend(backend NetBackendType) error {
+	_ov1 := ptr.Net.SetPreferableBackend(backend)
+	return _ov1
+}
 
 // SetInput sets the new value for the layer output blob.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/trunk/db/d30/classcv_1_1dnn_1_1Net.html#a672a08ae76444d75d05d7bfea3e4a328
 func (ptr *Net) SetInput(blob *Mat, name string) {
-ptr.Net.SetInput(blob.coreElem(), name)
+	ptr.Net.SetInput(blob.coreElem(), name)
 }
 
+// GetUnconnectedOutLayers returns indexes of layers with unconnected outputs.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/db/d30/classcv_1_1dnn_1_1Net.html#ae62a73984f62c49fd3e8e689405b056a
+func (ptr *Net) GetUnconnectedOutLayers() []int {
+	_ov1 := ptr.Net.GetUnconnectedOutLayers()
+	return _ov1
+}
+
+// GetPerfProfile returns overall time for inference and timings (in ticks) for layers
+//
+// For further details, please see:
+// https://docs.opencv.org/master/db/d30/classcv_1_1dnn_1_1Net.html#a06ce946f675f75d1c020c5ddbc78aedc
+func (ptr *Net) GetPerfProfile() float64 {
+	_ov1 := ptr.Net.GetPerfProfile()
+	return _ov1
+}
+
+// GetLayerNames returns all layer names.
+//
+// For furtherdetails, please see:
+// https://docs.opencv.org/master/db/d30/classcv_1_1dnn_1_1Net.html#ae8be9806024a0d1d41aba687cce99e6b
+func (ptr *Net) GetLayerNames() []string {
+	_ov1 := ptr.Net.GetLayerNames()
+	return _ov1
+}
 
 // GetLayer returns pointer to layer with specified id from the network.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d30/classcv_1_1dnn_1_1Net.html#a70aec7f768f38c32b1ee25f3a56526df
 func (ptr *Net) GetLayer(layer int) *Layer {
@@ -1109,7 +1418,7 @@ func (ptr *Net) GetLayer(layer int) *Layer {
 }
 
 // ForwardLayers forward pass to compute outputs of layers listed in outBlobNames.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/3.4.1/db/d30/classcv_1_1dnn_1_1Net.html#adb34d7650e555264c7da3b47d967311b
 func (ptr *Net) ForwardLayers(outBlobNames []string) []*Mat {
@@ -1118,7 +1427,7 @@ func (ptr *Net) ForwardLayers(outBlobNames []string) []*Mat {
 }
 
 // Forward runs forward pass to compute output of layer with name outputName.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/trunk/db/d30/classcv_1_1dnn_1_1Net.html#a98ed94cb6ef7063d3697259566da310b
 func (ptr *Net) Forward(outputName string) *Mat {
@@ -1126,173 +1435,236 @@ func (ptr *Net) Forward(outputName string) *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// Empty returns true if there are no layers in the network.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/db/d30/classcv_1_1dnn_1_1Net.html#a6a5778787d5b8770deab5eda6968e66c
+func (ptr *Net) Empty() bool {
+	_ov1 := ptr.Net.Empty()
+	return _ov1
+}
 
-
+// Close Net
+func (ptr *Net) Close() error {
+	_ov1 := ptr.Net.Close()
+	return _ov1
+}
 
 type NativeByteBuffer struct {
+	*origin.NativeByteBuffer
 
-    *origin.NativeByteBuffer
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *NativeByteBuffer) coreElem() origin.NativeByteBuffer {
-    return *p.NativeByteBuffer
+	return *p.NativeByteBuffer
 }
 
 func (p *NativeByteBuffer) coreElemPtr() *origin.NativeByteBuffer {
-    return p.NativeByteBuffer
+	return p.NativeByteBuffer
 }
 
-
 func newNativeByteBufferFromPtr(rt *GoCVResourceTracker, core *origin.NativeByteBuffer) *NativeByteBuffer {
-    
-    rt.TrackCloser(core)
-    
-    return &NativeByteBuffer{
-        core,
-        rt,
-    }
+
+	rt.TrackCloser(core)
+
+	return &NativeByteBuffer{
+		core,
+		rt,
+	}
 }
 
 func newNativeByteBufferFromElem(rt *GoCVResourceTracker, core origin.NativeByteBuffer) *NativeByteBuffer {
-    
-    rt.TrackCloser(&core)
-    
-    return &NativeByteBuffer{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloser(&core)
+
+	return &NativeByteBuffer{
+		&core,
+		rt,
+	}
 }
 
 func newNativeByteBufferFromElemNoTracker(rt *GoCVResourceTracker, core origin.NativeByteBuffer) *NativeByteBuffer {
-    return &NativeByteBuffer{
-        &core,
-        rt,
-    }
+	return &NativeByteBuffer{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// Len - returns length in bytes of underlying buffer
+func (ptr *NativeByteBuffer) Len() int {
+	_ov1 := ptr.NativeByteBuffer.Len()
+	return _ov1
+}
 
+// GetBytes returns slice of bytes backed by native buffer
+func (ptr *NativeByteBuffer) GetBytes() []byte {
+	_ov1 := ptr.NativeByteBuffer.GetBytes()
+	return _ov1
+}
 
+// Close the buffer releasing all its resources
+func (ptr *NativeByteBuffer) Close() {
+	ptr.NativeByteBuffer.Close()
+}
 
 // MergeMertens is a wrapper around the cv::MergeMertens.
 type MergeMertens struct {
+	*origin.MergeMertens
 
-    *origin.MergeMertens
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *MergeMertens) coreElem() origin.MergeMertens {
-    return *p.MergeMertens
+	return *p.MergeMertens
 }
 
 func (p *MergeMertens) coreElemPtr() *origin.MergeMertens {
-    return p.MergeMertens
+	return p.MergeMertens
 }
 
-
 func newMergeMertensFromPtr(rt *GoCVResourceTracker, core *origin.MergeMertens) *MergeMertens {
-    
-    rt.TrackCloseError(core)
-    
-    return &MergeMertens{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &MergeMertens{
+		core,
+		rt,
+	}
 }
 
 func newMergeMertensFromElem(rt *GoCVResourceTracker, core origin.MergeMertens) *MergeMertens {
-    
-    rt.TrackCloseError(&core)
-    
-    return &MergeMertens{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &MergeMertens{
+		&core,
+		rt,
+	}
 }
 
 func newMergeMertensFromElemNoTracker(rt *GoCVResourceTracker, core origin.MergeMertens) *MergeMertens {
-    return &MergeMertens{
-        &core,
-        rt,
-    }
+	return &MergeMertens{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
-
 
 // BalanceWhite computes merge LDR images using the current MergeMertens.
 // Return a image MAT : 8bits 3 channel image ( RGB 8 bits )
 // For further details, please see:
 // https://docs.opencv.org/master/d7/dd6/classcv_1_1MergeMertens.html#a2d2254b2aab722c16954de13a663644d
 func (ptr *MergeMertens) Process(src []*Mat, dst *Mat) {
-ptr.MergeMertens.Process(SliceToGoCVCloser(src), dst.coreElemPtr())
+	ptr.MergeMertens.Process(SliceToGoCVCloser(src), dst.coreElemPtr())
 }
 
-
-
+// Close MergeMertens.
+func (ptr *MergeMertens) Close() error {
+	_ov1 := ptr.MergeMertens.Close()
+	return _ov1
+}
 
 // Mat represents an n-dimensional dense numerical single-channel
 // or multi-channel array. It can be used to store real or complex-valued
 // vectors and matrices, grayscale or color images, voxel volumes,
 // vector fields, point clouds, tensors, and histograms.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html
 type Mat struct {
+	*origin.Mat
 
-    *origin.Mat
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Mat) coreElem() origin.Mat {
-    return *p.Mat
+	return *p.Mat
 }
 
 func (p *Mat) coreElemPtr() *origin.Mat {
-    return p.Mat
+	return p.Mat
 }
 
-
 func newMatFromPtr(rt *GoCVResourceTracker, core *origin.Mat) *Mat {
-    
-    rt.TrackCloseError(core)
-    
-    return &Mat{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &Mat{
+		core,
+		rt,
+	}
 }
 
 func newMatFromElem(rt *GoCVResourceTracker, core origin.Mat) *Mat {
-    
-    rt.TrackCloseError(&core)
-    
-    return &Mat{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &Mat{
+		&core,
+		rt,
+	}
 }
 
 func newMatFromElemNoTracker(rt *GoCVResourceTracker, core origin.Mat) *Mat {
-    return &Mat{
-        &core,
-        rt,
-    }
+	return &Mat{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// Type returns the type for this Mat.
+func (ptr *Mat) Type() MatType {
+	_ov1 := ptr.Mat.Type()
+	return _ov1
+}
+
+// Total returns the total number of array elements.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#aa4d317d43fb0cba9c2503f3c61b866c8
+func (ptr *Mat) Total() int {
+	_ov1 := ptr.Mat.Total()
+	return _ov1
+}
+
+// ToImageYUV converts a Mat to a image.YCbCr using provided YUV subsample ratio param.
+func (ptr *Mat) ToImageYUVWithParams(ratio image.YCbCrSubsampleRatio) (*image.YCbCr, error) {
+	_ov1, _ov2 := ptr.Mat.ToImageYUVWithParams(ratio)
+	return _ov1, _ov2
+}
+
+// ToImageYUV converts a Mat to a image.YCbCr using image.YCbCrSubsampleRatio420 as default subsampling param.
+func (ptr *Mat) ToImageYUV() (*image.YCbCr, error) {
+	_ov1, _ov2 := ptr.Mat.ToImageYUV()
+	return _ov1, _ov2
+}
+
+// ToImage converts a Mat to a image.Image.
+func (ptr *Mat) ToImage() (image.Image, error) {
+	_ov1, _ov2 := ptr.Mat.ToImage()
+	return _ov1, _ov2
+}
+
+// ToBytes copies the underlying Mat data to a byte array.
+//
+// For further details, please see:
+// https://docs.opencv.org/3.3.1/d3/d63/classcv_1_1Mat.html#a4d33bed1c850265370d2af0ff02e1564
+func (ptr *Mat) ToBytes() []byte {
+	_ov1 := ptr.Mat.ToBytes()
+	return _ov1
+}
 
 // T  transpose matrix
 // https://docs.opencv.org/4.1.2/d3/d63/classcv_1_1Mat.html#aaa428c60ccb6d8ea5de18f63dfac8e11
@@ -1301,8 +1673,35 @@ func (ptr *Mat) T() *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// Sum calculates the per-channel pixel sum of an image.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga716e10a2dd9e228e4d3c95818f106722
+func (ptr *Mat) Sum() Scalar {
+	_ov1 := ptr.Mat.Sum()
+	return _ov1
+}
+
+// SubtractUChar subtracts a uchar value from each element in the Mat. Performs a
+// mat -= val operation.
+func (ptr *Mat) SubtractUChar(val uint8) {
+	ptr.Mat.SubtractUChar(val)
+}
+
+// SubtractFloat subtracts a float value from each element in the Mat. Performs a
+// mat -= val operation.
+func (ptr *Mat) SubtractFloat(val float32) {
+	ptr.Mat.SubtractFloat(val)
+}
+
+// Step returns the number of bytes each matrix row occupies.
+func (ptr *Mat) Step() int {
+	_ov1 := ptr.Mat.Step()
+	return _ov1
+}
+
 // Sqrt calculates a square root of array elements.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga186222c3919657890f88df5a1f64a7d7
 func (ptr *Mat) Sqrt() *Mat {
@@ -1310,8 +1709,100 @@ func (ptr *Mat) Sqrt() *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// Size returns an array with one element for each dimension containing the size of that dimension for the Mat.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#aa4d317d43fb0cba9c2503f3c61b866c8
+func (ptr *Mat) Size() []int {
+	_ov1 := ptr.Mat.Size()
+	return _ov1
+}
+
+// SetUCharAt3 sets a value at a specific x, y, z coordinate location
+// in this Mat expecting it to be of type uchar aka CV_8U.
+func (ptr *Mat) SetUCharAt3(x int, y int, z int, val uint8) {
+	ptr.Mat.SetUCharAt3(x, y, z, val)
+}
+
+// SetUCharAt sets a value at a specific row/col
+// in this Mat expecting it to be of type uchar aka CV_8U.
+func (ptr *Mat) SetUCharAt(row int, col int, val uint8) {
+	ptr.Mat.SetUCharAt(row, col, val)
+}
+
+// SetTo sets all or some of the array elements to the specified scalar value.
+func (ptr *Mat) SetTo(s Scalar) {
+	ptr.Mat.SetTo(s)
+}
+
+// SetShortAt3 sets a value at a specific x, y, z coordinate location
+// in this Mat expecting it to be of type short aka CV_16S.
+func (ptr *Mat) SetShortAt3(x int, y int, z int, val int16) {
+	ptr.Mat.SetShortAt3(x, y, z, val)
+}
+
+// SetShortAt sets a value at a specific row/col
+// in this Mat expecting it to be of type short aka CV_16S.
+func (ptr *Mat) SetShortAt(row int, col int, val int16) {
+	ptr.Mat.SetShortAt(row, col, val)
+}
+
+// SetSCharAt3 sets a value at a specific x, y, z coordinate location
+// in this Mat expecting it to be of type schar aka CV_8S.
+func (ptr *Mat) SetSCharAt3(x int, y int, z int, val int8) {
+	ptr.Mat.SetSCharAt3(x, y, z, val)
+}
+
+// SetSCharAt sets a value at a specific row/col
+// in this Mat expecting it to be of type schar aka CV_8S.
+func (ptr *Mat) SetSCharAt(row int, col int, val int8) {
+	ptr.Mat.SetSCharAt(row, col, val)
+}
+
+// SetIntAt3 sets a value at a specific x, y, z coordinate location
+// in this Mat expecting it to be of type int aka CV_32S.
+func (ptr *Mat) SetIntAt3(x int, y int, z int, val int32) {
+	ptr.Mat.SetIntAt3(x, y, z, val)
+}
+
+// SetIntAt sets a value at a specific row/col
+// in this Mat expecting it to be of type int aka CV_32S.
+func (ptr *Mat) SetIntAt(row int, col int, val int32) {
+	ptr.Mat.SetIntAt(row, col, val)
+}
+
+// SetFloatAt3 sets a value at a specific x, y, z coordinate location
+// in this Mat expecting it to be of type float aka CV_32F.
+func (ptr *Mat) SetFloatAt3(x int, y int, z int, val float32) {
+	ptr.Mat.SetFloatAt3(x, y, z, val)
+}
+
+// SetFloatAt sets a value at a specific row/col
+// in this Mat expecting it to be of type float aka CV_32F.
+func (ptr *Mat) SetFloatAt(row int, col int, val float32) {
+	ptr.Mat.SetFloatAt(row, col, val)
+}
+
+// SetDoubleAt3 sets a value at a specific x, y, z coordinate location
+// in this Mat expecting it to be of type double aka CV_64F.
+func (ptr *Mat) SetDoubleAt3(x int, y int, z int, val float64) {
+	ptr.Mat.SetDoubleAt3(x, y, z, val)
+}
+
+// SetDoubleAt sets a value at a specific row/col
+// in this Mat expecting it to be of type double aka CV_64F.
+func (ptr *Mat) SetDoubleAt(row int, col int, val float64) {
+	ptr.Mat.SetDoubleAt(row, col, val)
+}
+
+// Rows returns the number of rows for this Mat.
+func (ptr *Mat) Rows() int {
+	_ov1 := ptr.Mat.Rows()
+	return _ov1
+}
+
 // RowRange creates a matrix header for the specified row span.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#aa6542193430356ad631a9beabc624107
 func (ptr *Mat) RowRange(start int, end int) *Mat {
@@ -1320,7 +1811,7 @@ func (ptr *Mat) RowRange(start int, end int) *Mat {
 }
 
 // Reshape changes the shape and/or the number of channels of a 2D matrix without copying the data.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a4eb96e3251417fa88b78e2abd6cfd7d8
 func (ptr *Mat) Reshape(cn int, rows int) *Mat {
@@ -1336,10 +1827,36 @@ func (ptr *Mat) Region(rio image.Rectangle) *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// Ptr returns the Mat's underlying object pointer.
+func (ptr *Mat) Ptr() C.Mat {
+	_ov1 := ptr.Mat.Ptr()
+	return _ov1
+}
+
+// PatchNaNs converts NaN's to zeros.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga62286befb7cde3568ff8c7d14d5079da
+func (ptr *Mat) PatchNaNs() {
+	ptr.Mat.PatchNaNs()
+}
+
+// MultiplyUChar multiplies each element in the Mat by a uint value. Performs a
+// mat *= val operation.
+func (ptr *Mat) MultiplyUChar(val uint8) {
+	ptr.Mat.MultiplyUChar(val)
+}
+
 // MultiplyMatrix multiplies matrix (m*x)
 func (ptr *Mat) MultiplyMatrix(x *Mat) *Mat {
 	_ov1 := ptr.Mat.MultiplyMatrix(x.coreElem())
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
+}
+
+// MultiplyFloat multiplies each element in the Mat by a float value. Performs a
+// mat *= val operation.
+func (ptr *Mat) MultiplyFloat(val float32) {
+	ptr.Mat.MultiplyFloat(val)
 }
 
 // MeanWithMask calculates the mean value M of array elements,independently for each channel,
@@ -1350,47 +1867,249 @@ func (ptr *Mat) MeanWithMask(mask *Mat) Scalar {
 	return _ov1
 }
 
+// Mean calculates the mean value M of array elements, independently for each channel, and return it as Scalar
+// For further details, please see:
+// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga191389f8a0e58180bb13a727782cd461
+func (ptr *Mat) Mean() Scalar {
+	_ov1 := ptr.Mat.Mean()
+	return _ov1
+}
+
+// IsContinuous determines if the Mat is continuous.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#aa90cea495029c7d1ee0a41361ccecdf3
+func (ptr *Mat) IsContinuous() bool {
+	_ov1 := ptr.Mat.IsContinuous()
+	return _ov1
+}
+
+// GetVeciAt returns a vector of integers. Its size corresponds to the number
+// of channels of the Mat.
+func (ptr *Mat) GetVeciAt(row int, col int) Veci {
+	_ov1 := ptr.Mat.GetVeciAt(row, col)
+	return _ov1
+}
+
+// GetVecfAt returns a vector of floats. Its size corresponds to the number of
+// channels of the Mat.
+func (ptr *Mat) GetVecfAt(row int, col int) Vecf {
+	_ov1 := ptr.Mat.GetVecfAt(row, col)
+	return _ov1
+}
+
+// GetVecdAt returns a vector of float64s. Its size corresponds to the number
+// of channels of the Mat.
+func (ptr *Mat) GetVecdAt(row int, col int) Vecd {
+	_ov1 := ptr.Mat.GetVecdAt(row, col)
+	return _ov1
+}
+
+// GetVecbAt returns a vector of bytes. Its size corresponds to the number
+// of channels of the Mat.
+func (ptr *Mat) GetVecbAt(row int, col int) Vecb {
+	_ov1 := ptr.Mat.GetVecbAt(row, col)
+	return _ov1
+}
+
+// GetUCharAt3 returns a value from a specific x, y, z coordinate location
+// in this Mat expecting it to be of type uchar aka CV_8U.
+func (ptr *Mat) GetUCharAt3(x int, y int, z int) uint8 {
+	_ov1 := ptr.Mat.GetUCharAt3(x, y, z)
+	return _ov1
+}
+
+// GetUCharAt returns a value from a specific row/col
+// in this Mat expecting it to be of type uchar aka CV_8U.
+func (ptr *Mat) GetUCharAt(row int, col int) uint8 {
+	_ov1 := ptr.Mat.GetUCharAt(row, col)
+	return _ov1
+}
+
+// GetShortAt3 returns a value from a specific x, y, z coordinate location
+// in this Mat expecting it to be of type short aka CV_16S.
+func (ptr *Mat) GetShortAt3(x int, y int, z int) int16 {
+	_ov1 := ptr.Mat.GetShortAt3(x, y, z)
+	return _ov1
+}
+
+// GetShortAt returns a value from a specific row/col
+// in this Mat expecting it to be of type short aka CV_16S.
+func (ptr *Mat) GetShortAt(row int, col int) int16 {
+	_ov1 := ptr.Mat.GetShortAt(row, col)
+	return _ov1
+}
+
+// GetSCharAt3 returns a value from a specific x, y, z coordinate location
+// in this Mat expecting it to be of type schar aka CV_8S.
+func (ptr *Mat) GetSCharAt3(x int, y int, z int) int8 {
+	_ov1 := ptr.Mat.GetSCharAt3(x, y, z)
+	return _ov1
+}
+
+// GetSCharAt returns a value from a specific row/col
+// in this Mat expecting it to be of type schar aka CV_8S.
+func (ptr *Mat) GetSCharAt(row int, col int) int8 {
+	_ov1 := ptr.Mat.GetSCharAt(row, col)
+	return _ov1
+}
+
+// GetIntAt3 returns a value from a specific x, y, z coordinate location
+// in this Mat expecting it to be of type int aka CV_32S.
+func (ptr *Mat) GetIntAt3(x int, y int, z int) int32 {
+	_ov1 := ptr.Mat.GetIntAt3(x, y, z)
+	return _ov1
+}
+
+// GetIntAt returns a value from a specific row/col
+// in this Mat expecting it to be of type int aka CV_32S.
+func (ptr *Mat) GetIntAt(row int, col int) int32 {
+	_ov1 := ptr.Mat.GetIntAt(row, col)
+	return _ov1
+}
+
+// GetFloatAt3 returns a value from a specific x, y, z coordinate location
+// in this Mat expecting it to be of type float aka CV_32F.
+func (ptr *Mat) GetFloatAt3(x int, y int, z int) float32 {
+	_ov1 := ptr.Mat.GetFloatAt3(x, y, z)
+	return _ov1
+}
+
+// GetFloatAt returns a value from a specific row/col
+// in this Mat expecting it to be of type float aka CV_32F.
+func (ptr *Mat) GetFloatAt(row int, col int) float32 {
+	_ov1 := ptr.Mat.GetFloatAt(row, col)
+	return _ov1
+}
+
+// GetDoubleAt3 returns a value from a specific x, y, z coordinate location
+// in this Mat expecting it to be of type double aka CV_64F.
+func (ptr *Mat) GetDoubleAt3(x int, y int, z int) float64 {
+	_ov1 := ptr.Mat.GetDoubleAt3(x, y, z)
+	return _ov1
+}
+
+// GetDoubleAt returns a value from a specific row/col
+// in this Mat expecting it to be of type double aka CV_64F.
+func (ptr *Mat) GetDoubleAt(row int, col int) float64 {
+	_ov1 := ptr.Mat.GetDoubleAt(row, col)
+	return _ov1
+}
+
 // FromPtr returns a new Mat with a specific size and type, initialized from a Mat Ptr.
 func (ptr *Mat) FromPtr(rows int, cols int, mt MatType, prow int, pcol int) (*Mat, error) {
 	_ov1, _ov2 := ptr.Mat.FromPtr(rows, cols, mt, prow, pcol)
 	return newMatFromElem(ptr.ResourceTracker, _ov1), _ov2
 }
 
+// Empty determines if the Mat is empty or not.
+func (ptr *Mat) Empty() bool {
+	_ov1 := ptr.Mat.Empty()
+	return _ov1
+}
+
+// ElemSize returns the matrix element size in bytes.
+func (ptr *Mat) ElemSize() int {
+	_ov1 := ptr.Mat.ElemSize()
+	return _ov1
+}
+
+// DivideUChar divides each element in the Mat by a uint value. Performs a
+// mat /= val operation.
+func (ptr *Mat) DivideUChar(val uint8) {
+	ptr.Mat.DivideUChar(val)
+}
+
+// DivideFloat divides each element in the Mat by a float value. Performs a
+// mat /= val operation.
+func (ptr *Mat) DivideFloat(val float32) {
+	ptr.Mat.DivideFloat(val)
+}
+
+// DataPtrUint8 returns a slice that references the OpenCV allocated data.
+//
+// The data is no longer valid once the Mat has been closed. Any data that
+// needs to be accessed after the Mat is closed must be copied into Go memory.
+func (ptr *Mat) DataPtrUint8() ([]uint8, error) {
+	_ov1, _ov2 := ptr.Mat.DataPtrUint8()
+	return _ov1, _ov2
+}
+
+// DataPtrUint16 returns a slice that references the OpenCV allocated data.
+//
+// The data is no longer valid once the Mat has been closed. Any data that
+// needs to be accessed after the Mat is closed must be copied into Go memory.
+func (ptr *Mat) DataPtrUint16() ([]uint16, error) {
+	_ov1, _ov2 := ptr.Mat.DataPtrUint16()
+	return _ov1, _ov2
+}
+
+// DataPtrInt8 returns a slice that references the OpenCV allocated data.
+//
+// The data is no longer valid once the Mat has been closed. Any data that
+// needs to be accessed after the Mat is closed must be copied into Go memory.
+func (ptr *Mat) DataPtrInt8() ([]int8, error) {
+	_ov1, _ov2 := ptr.Mat.DataPtrInt8()
+	return _ov1, _ov2
+}
+
+// DataPtrInt16 returns a slice that references the OpenCV allocated data.
+//
+// The data is no longer valid once the Mat has been closed. Any data that
+// needs to be accessed after the Mat is closed must be copied into Go memory.
+func (ptr *Mat) DataPtrInt16() ([]int16, error) {
+	_ov1, _ov2 := ptr.Mat.DataPtrInt16()
+	return _ov1, _ov2
+}
+
+// DataPtrFloat64 returns a slice that references the OpenCV allocated data.
+//
+// The data is no longer valid once the Mat has been closed. Any data that
+// needs to be accessed after the Mat is closed must be copied into Go memory.
+func (ptr *Mat) DataPtrFloat64() ([]float64, error) {
+	_ov1, _ov2 := ptr.Mat.DataPtrFloat64()
+	return _ov1, _ov2
+}
+
+// DataPtrFloat32 returns a slice that references the OpenCV allocated data.
+//
+// The data is no longer valid once the Mat has been closed. Any data that
+// needs to be accessed after the Mat is closed must be copied into Go memory.
+func (ptr *Mat) DataPtrFloat32() ([]float32, error) {
+	_ov1, _ov2 := ptr.Mat.DataPtrFloat32()
+	return _ov1, _ov2
+}
+
 // CopyToWithMask copies Mat into destination Mat after applying the mask Mat.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a626fe5f96d02525e2604d2ad46dd574f
 func (ptr *Mat) CopyToWithMask(dst *Mat, mask *Mat) {
-ptr.Mat.CopyToWithMask(dst.coreElemPtr(), mask.coreElem())
+	ptr.Mat.CopyToWithMask(dst.coreElemPtr(), mask.coreElem())
 }
 
-
 // CopyTo copies Mat into destination Mat.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a33fd5d125b4c302b0c9aa86980791a77
 func (ptr *Mat) CopyTo(dst *Mat) {
-ptr.Mat.CopyTo(dst.coreElemPtr())
+	ptr.Mat.CopyTo(dst.coreElemPtr())
 }
-
-
 
 func (ptr *Mat) ConvertToWithParams(dst *Mat, mt MatType, alpha float32, beta float32) {
-ptr.Mat.ConvertToWithParams(dst.coreElemPtr(), mt, alpha, beta)
+	ptr.Mat.ConvertToWithParams(dst.coreElemPtr(), mt, alpha, beta)
 }
 
-
 // ConvertTo converts Mat into destination Mat.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#adf88c60c5b4980e05bb556080916978b
 func (ptr *Mat) ConvertTo(dst *Mat, mt MatType) {
-ptr.Mat.ConvertTo(dst.coreElemPtr(), mt)
+	ptr.Mat.ConvertTo(dst.coreElemPtr(), mt)
 }
 
-
 // ConvertFp16 converts a Mat to half-precision floating point.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9c25d9ef44a2a48ecc3774b30cb80082
 func (ptr *Mat) ConvertFp16() *Mat {
@@ -1398,13 +2117,25 @@ func (ptr *Mat) ConvertFp16() *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// Cols returns the number of columns for this Mat.
+func (ptr *Mat) Cols() int {
+	_ov1 := ptr.Mat.Cols()
+	return _ov1
+}
+
 // ColRange creates a matrix header for the specified column span.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#aadc8f9210fe4dec50513746c246fa8d9
 func (ptr *Mat) ColRange(start int, end int) *Mat {
 	_ov1 := ptr.Mat.ColRange(start, end)
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
+}
+
+// Close the Mat object.
+func (ptr *Mat) Close() error {
+	_ov1 := ptr.Mat.Close()
+	return _ov1
 }
 
 // Clone returns a cloned full copy of the Mat.
@@ -1413,59 +2144,72 @@ func (ptr *Mat) Clone() *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// Channels returns the number of channels for this Mat.
+func (ptr *Mat) Channels() int {
+	_ov1 := ptr.Mat.Channels()
+	return _ov1
+}
 
+// AddUChar adds a uchar value to each element in the Mat. Performs a
+// mat += val operation.
+func (ptr *Mat) AddUChar(val uint8) {
+	ptr.Mat.AddUChar(val)
+}
+
+// AddFloat adds a float value to each element in the Mat. Performs a
+// mat += val operation.
+func (ptr *Mat) AddFloat(val float32) {
+	ptr.Mat.AddFloat(val)
+}
 
 // MSER is a wrapper around the cv::MSER algorithm.
 type MSER struct {
+	*origin.MSER
 
-    *origin.MSER
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *MSER) coreElem() origin.MSER {
-    return *p.MSER
+	return *p.MSER
 }
 
 func (p *MSER) coreElemPtr() *origin.MSER {
-    return p.MSER
+	return p.MSER
 }
 
-
 func newMSERFromPtr(rt *GoCVResourceTracker, core *origin.MSER) *MSER {
-    
-    rt.TrackCloseError(core)
-    
-    return &MSER{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &MSER{
+		core,
+		rt,
+	}
 }
 
 func newMSERFromElem(rt *GoCVResourceTracker, core origin.MSER) *MSER {
-    
-    rt.TrackCloseError(&core)
-    
-    return &MSER{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &MSER{
+		&core,
+		rt,
+	}
 }
 
 func newMSERFromElemNoTracker(rt *GoCVResourceTracker, core origin.MSER) *MSER {
-    return &MSER{
-        &core,
-        rt,
-    }
+	return &MSER{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Detect keypoints in an image using MSER.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *MSER) Detect(src *Mat) []KeyPoint {
@@ -1473,110 +2217,142 @@ func (ptr *MSER) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close MSER.
+func (ptr *MSER) Close() error {
+	_ov1 := ptr.MSER.Close()
+	return _ov1
+}
 
 // Layer is a wrapper around the cv::dnn::Layer algorithm.
 type Layer struct {
+	*origin.Layer
 
-    *origin.Layer
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *Layer) coreElem() origin.Layer {
-    return *p.Layer
+	return *p.Layer
 }
 
 func (p *Layer) coreElemPtr() *origin.Layer {
-    return p.Layer
+	return p.Layer
 }
 
-
 func newLayerFromPtr(rt *GoCVResourceTracker, core *origin.Layer) *Layer {
-    
-    rt.TrackCloseError(core)
-    
-    return &Layer{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &Layer{
+		core,
+		rt,
+	}
 }
 
 func newLayerFromElem(rt *GoCVResourceTracker, core origin.Layer) *Layer {
-    
-    rt.TrackCloseError(&core)
-    
-    return &Layer{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &Layer{
+		&core,
+		rt,
+	}
 }
 
 func newLayerFromElemNoTracker(rt *GoCVResourceTracker, core origin.Layer) *Layer {
-    return &Layer{
-        &core,
-        rt,
-    }
+	return &Layer{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// OutputNameToIndex returns index of output blob in output array.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d6c/classcv_1_1dnn_1_1Layer.html#a60ffc8238f3fa26cd3f49daa7ac0884b
+func (ptr *Layer) OutputNameToIndex(name string) int {
+	_ov1 := ptr.Layer.OutputNameToIndex(name)
+	return _ov1
+}
 
+// InputNameToIndex returns index of input blob in input array.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d6c/classcv_1_1dnn_1_1Layer.html#a60ffc8238f3fa26cd3f49daa7ac0884b
+func (ptr *Layer) InputNameToIndex(name string) int {
+	_ov1 := ptr.Layer.InputNameToIndex(name)
+	return _ov1
+}
 
+// GetType returns type for this layer.
+func (ptr *Layer) GetType() string {
+	_ov1 := ptr.Layer.GetType()
+	return _ov1
+}
+
+// GetName returns name for this layer.
+func (ptr *Layer) GetName() string {
+	_ov1 := ptr.Layer.GetName()
+	return _ov1
+}
+
+// Close Layer
+func (ptr *Layer) Close() error {
+	_ov1 := ptr.Layer.Close()
+	return _ov1
+}
 
 // KAZE is a wrapper around the cv::KAZE algorithm.
 type KAZE struct {
+	*origin.KAZE
 
-    *origin.KAZE
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *KAZE) coreElem() origin.KAZE {
-    return *p.KAZE
+	return *p.KAZE
 }
 
 func (p *KAZE) coreElemPtr() *origin.KAZE {
-    return p.KAZE
+	return p.KAZE
 }
 
-
 func newKAZEFromPtr(rt *GoCVResourceTracker, core *origin.KAZE) *KAZE {
-    
-    rt.TrackCloseError(core)
-    
-    return &KAZE{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &KAZE{
+		core,
+		rt,
+	}
 }
 
 func newKAZEFromElem(rt *GoCVResourceTracker, core origin.KAZE) *KAZE {
-    
-    rt.TrackCloseError(&core)
-    
-    return &KAZE{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &KAZE{
+		&core,
+		rt,
+	}
 }
 
 func newKAZEFromElemNoTracker(rt *GoCVResourceTracker, core origin.KAZE) *KAZE {
-    return &KAZE{
-        &core,
-        rt,
-    }
+	return &KAZE{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // DetectAndCompute keypoints and compute in an image using KAZE.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 func (ptr *KAZE) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
@@ -1585,7 +2361,7 @@ func (ptr *KAZE) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 }
 
 // Detect keypoints in an image using KAZE.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *KAZE) Detect(src *Mat) []KeyPoint {
@@ -1593,62 +2369,63 @@ func (ptr *KAZE) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close KAZE.
+func (ptr *KAZE) Close() error {
+	_ov1 := ptr.KAZE.Close()
+	return _ov1
+}
 
 // HOGDescriptor is a Histogram Of Gradiants (HOG) for object detection.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a723b95b709cfd3f95cf9e616de988fc8
 type HOGDescriptor struct {
+	*origin.HOGDescriptor
 
-    *origin.HOGDescriptor
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *HOGDescriptor) coreElem() origin.HOGDescriptor {
-    return *p.HOGDescriptor
+	return *p.HOGDescriptor
 }
 
 func (p *HOGDescriptor) coreElemPtr() *origin.HOGDescriptor {
-    return p.HOGDescriptor
+	return p.HOGDescriptor
 }
 
-
 func newHOGDescriptorFromPtr(rt *GoCVResourceTracker, core *origin.HOGDescriptor) *HOGDescriptor {
-    
-    rt.TrackCloseError(core)
-    
-    return &HOGDescriptor{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &HOGDescriptor{
+		core,
+		rt,
+	}
 }
 
 func newHOGDescriptorFromElem(rt *GoCVResourceTracker, core origin.HOGDescriptor) *HOGDescriptor {
-    
-    rt.TrackCloseError(&core)
-    
-    return &HOGDescriptor{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &HOGDescriptor{
+		&core,
+		rt,
+	}
 }
 
 func newHOGDescriptorFromElemNoTracker(rt *GoCVResourceTracker, core origin.HOGDescriptor) *HOGDescriptor {
-    return &HOGDescriptor{
-        &core,
-        rt,
-    }
+	return &HOGDescriptor{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // SetSVMDetector sets the data for the HOGDescriptor.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a09e354ad701f56f9c550dc0385dc36f1
 func (ptr *HOGDescriptor) SetSVMDetector(det *Mat) error {
@@ -1658,7 +2435,7 @@ func (ptr *HOGDescriptor) SetSVMDetector(det *Mat) error {
 
 // DetectMultiScaleWithParams calls DetectMultiScale but allows setting parameters
 // to values other than just the defaults.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a660e5cd036fd5ddf0f5767b352acd948
 func (ptr *HOGDescriptor) DetectMultiScaleWithParams(img *Mat, hitThresh float64, winStride image.Point, padding image.Point, scale float64, finalThreshold float64, useMeanshiftGrouping bool) []image.Rectangle {
@@ -1668,7 +2445,7 @@ func (ptr *HOGDescriptor) DetectMultiScaleWithParams(img *Mat, hitThresh float64
 
 // DetectMultiScale detects objects in the input Mat image.
 // The detected objects are returned as a slice of image.Rectangle structs.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a660e5cd036fd5ddf0f5767b352acd948
 func (ptr *HOGDescriptor) DetectMultiScale(img *Mat) []image.Rectangle {
@@ -1676,59 +2453,60 @@ func (ptr *HOGDescriptor) DetectMultiScale(img *Mat) []image.Rectangle {
 	return _ov1
 }
 
-
+// Close deletes the HOGDescriptor's pointer.
+func (ptr *HOGDescriptor) Close() error {
+	_ov1 := ptr.HOGDescriptor.Close()
+	return _ov1
+}
 
 // GFTTDetector is a wrapper around the cv::GFTTDetector algorithm.
 type GFTTDetector struct {
+	*origin.GFTTDetector
 
-    *origin.GFTTDetector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *GFTTDetector) coreElem() origin.GFTTDetector {
-    return *p.GFTTDetector
+	return *p.GFTTDetector
 }
 
 func (p *GFTTDetector) coreElemPtr() *origin.GFTTDetector {
-    return p.GFTTDetector
+	return p.GFTTDetector
 }
 
-
 func newGFTTDetectorFromPtr(rt *GoCVResourceTracker, core *origin.GFTTDetector) *GFTTDetector {
-    
-    rt.TrackCloseError(core)
-    
-    return &GFTTDetector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &GFTTDetector{
+		core,
+		rt,
+	}
 }
 
 func newGFTTDetectorFromElem(rt *GoCVResourceTracker, core origin.GFTTDetector) *GFTTDetector {
-    
-    rt.TrackCloseError(&core)
-    
-    return &GFTTDetector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &GFTTDetector{
+		&core,
+		rt,
+	}
 }
 
 func newGFTTDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.GFTTDetector) *GFTTDetector {
-    return &GFTTDetector{
-        &core,
-        rt,
-    }
+	return &GFTTDetector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Detect keypoints in an image using GFTTDetector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *GFTTDetector) Detect(src *Mat) []KeyPoint {
@@ -1736,59 +2514,60 @@ func (ptr *GFTTDetector) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close GFTTDetector.
+func (ptr *GFTTDetector) Close() error {
+	_ov1 := ptr.GFTTDetector.Close()
+	return _ov1
+}
 
 // FlannBasedMatcher is a wrapper around the the cv::FlannBasedMatcher algorithm
 type FlannBasedMatcher struct {
+	*origin.FlannBasedMatcher
 
-    *origin.FlannBasedMatcher
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *FlannBasedMatcher) coreElem() origin.FlannBasedMatcher {
-    return *p.FlannBasedMatcher
+	return *p.FlannBasedMatcher
 }
 
 func (p *FlannBasedMatcher) coreElemPtr() *origin.FlannBasedMatcher {
-    return p.FlannBasedMatcher
+	return p.FlannBasedMatcher
 }
 
-
 func newFlannBasedMatcherFromPtr(rt *GoCVResourceTracker, core *origin.FlannBasedMatcher) *FlannBasedMatcher {
-    
-    rt.TrackCloseError(core)
-    
-    return &FlannBasedMatcher{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &FlannBasedMatcher{
+		core,
+		rt,
+	}
 }
 
 func newFlannBasedMatcherFromElem(rt *GoCVResourceTracker, core origin.FlannBasedMatcher) *FlannBasedMatcher {
-    
-    rt.TrackCloseError(&core)
-    
-    return &FlannBasedMatcher{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &FlannBasedMatcher{
+		&core,
+		rt,
+	}
 }
 
 func newFlannBasedMatcherFromElemNoTracker(rt *GoCVResourceTracker, core origin.FlannBasedMatcher) *FlannBasedMatcher {
-    return &FlannBasedMatcher{
-        &core,
-        rt,
-    }
+	return &FlannBasedMatcher{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // KnnMatch Finds the k best matches for each descriptor from a query set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d39/classcv_1_1DescriptorMatcher.html#aa880f9353cdf185ccf3013e08210483a
 func (ptr *FlannBasedMatcher) KnnMatch(query *Mat, train *Mat, k int) [][]DMatch {
@@ -1796,59 +2575,60 @@ func (ptr *FlannBasedMatcher) KnnMatch(query *Mat, train *Mat, k int) [][]DMatch
 	return _ov1
 }
 
-
+// Close FlannBasedMatcher
+func (ptr *FlannBasedMatcher) Close() error {
+	_ov1 := ptr.FlannBasedMatcher.Close()
+	return _ov1
+}
 
 // FastFeatureDetector is a wrapper around the cv::FastFeatureDetector.
 type FastFeatureDetector struct {
+	*origin.FastFeatureDetector
 
-    *origin.FastFeatureDetector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *FastFeatureDetector) coreElem() origin.FastFeatureDetector {
-    return *p.FastFeatureDetector
+	return *p.FastFeatureDetector
 }
 
 func (p *FastFeatureDetector) coreElemPtr() *origin.FastFeatureDetector {
-    return p.FastFeatureDetector
+	return p.FastFeatureDetector
 }
 
-
 func newFastFeatureDetectorFromPtr(rt *GoCVResourceTracker, core *origin.FastFeatureDetector) *FastFeatureDetector {
-    
-    rt.TrackCloseError(core)
-    
-    return &FastFeatureDetector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &FastFeatureDetector{
+		core,
+		rt,
+	}
 }
 
 func newFastFeatureDetectorFromElem(rt *GoCVResourceTracker, core origin.FastFeatureDetector) *FastFeatureDetector {
-    
-    rt.TrackCloseError(&core)
-    
-    return &FastFeatureDetector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &FastFeatureDetector{
+		&core,
+		rt,
+	}
 }
 
 func newFastFeatureDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.FastFeatureDetector) *FastFeatureDetector {
-    return &FastFeatureDetector{
-        &core,
-        rt,
-    }
+	return &FastFeatureDetector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Detect keypoints in an image using FastFeatureDetector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *FastFeatureDetector) Detect(src *Mat) []KeyPoint {
@@ -1856,63 +2636,73 @@ func (ptr *FastFeatureDetector) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close FastFeatureDetector.
+func (ptr *FastFeatureDetector) Close() error {
+	_ov1 := ptr.FastFeatureDetector.Close()
+	return _ov1
+}
 
 // CascadeClassifier is a cascade classifier class for object detection.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d1/de5/classcv_1_1CascadeClassifier.html
 type CascadeClassifier struct {
+	*origin.CascadeClassifier
 
-    *origin.CascadeClassifier
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *CascadeClassifier) coreElem() origin.CascadeClassifier {
-    return *p.CascadeClassifier
+	return *p.CascadeClassifier
 }
 
 func (p *CascadeClassifier) coreElemPtr() *origin.CascadeClassifier {
-    return p.CascadeClassifier
+	return p.CascadeClassifier
 }
 
-
 func newCascadeClassifierFromPtr(rt *GoCVResourceTracker, core *origin.CascadeClassifier) *CascadeClassifier {
-    
-    rt.TrackCloseError(core)
-    
-    return &CascadeClassifier{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &CascadeClassifier{
+		core,
+		rt,
+	}
 }
 
 func newCascadeClassifierFromElem(rt *GoCVResourceTracker, core origin.CascadeClassifier) *CascadeClassifier {
-    
-    rt.TrackCloseError(&core)
-    
-    return &CascadeClassifier{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &CascadeClassifier{
+		&core,
+		rt,
+	}
 }
 
 func newCascadeClassifierFromElemNoTracker(rt *GoCVResourceTracker, core origin.CascadeClassifier) *CascadeClassifier {
-    return &CascadeClassifier{
-        &core,
-        rt,
-    }
+	return &CascadeClassifier{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// Load cascade classifier from a file.
+//
+// For further details, please see:
+// http://docs.opencv.org/master/d1/de5/classcv_1_1CascadeClassifier.html#a1a5884c8cc749422f9eb77c2471958bc
+func (ptr *CascadeClassifier) Load(name string) bool {
+	_ov1 := ptr.CascadeClassifier.Load(name)
+	return _ov1
+}
 
 // DetectMultiScaleWithParams calls DetectMultiScale but allows setting parameters
 // to values other than just the defaults.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d1/de5/classcv_1_1CascadeClassifier.html#aaf8181cb63968136476ec4204ffca498
 func (ptr *CascadeClassifier) DetectMultiScaleWithParams(img *Mat, scale float64, minNeighbors int, flags int, minSize image.Point, maxSize image.Point) []image.Rectangle {
@@ -1922,7 +2712,7 @@ func (ptr *CascadeClassifier) DetectMultiScaleWithParams(img *Mat, scale float64
 
 // DetectMultiScale detects objects of different sizes in the input Mat image.
 // The detected objects are returned as a slice of image.Rectangle structs.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d1/de5/classcv_1_1CascadeClassifier.html#aaf8181cb63968136476ec4204ffca498
 func (ptr *CascadeClassifier) DetectMultiScale(img *Mat) []image.Rectangle {
@@ -1930,239 +2720,240 @@ func (ptr *CascadeClassifier) DetectMultiScale(img *Mat) []image.Rectangle {
 	return _ov1
 }
 
-
+// Close deletes the CascadeClassifier's pointer.
+func (ptr *CascadeClassifier) Close() error {
+	_ov1 := ptr.CascadeClassifier.Close()
+	return _ov1
+}
 
 // CLAHE is a wrapper around the cv::CLAHE algorithm.
 type CLAHE struct {
+	*origin.CLAHE
 
-    *origin.CLAHE
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *CLAHE) coreElem() origin.CLAHE {
-    return *p.CLAHE
+	return *p.CLAHE
 }
 
 func (p *CLAHE) coreElemPtr() *origin.CLAHE {
-    return p.CLAHE
+	return p.CLAHE
 }
 
-
 func newCLAHEFromPtr(rt *GoCVResourceTracker, core *origin.CLAHE) *CLAHE {
-    
-    rt.TrackCloseError(core)
-    
-    return &CLAHE{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &CLAHE{
+		core,
+		rt,
+	}
 }
 
 func newCLAHEFromElem(rt *GoCVResourceTracker, core origin.CLAHE) *CLAHE {
-    
-    rt.TrackCloseError(&core)
-    
-    return &CLAHE{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &CLAHE{
+		&core,
+		rt,
+	}
 }
 
 func newCLAHEFromElemNoTracker(rt *GoCVResourceTracker, core origin.CLAHE) *CLAHE {
-    return &CLAHE{
-        &core,
-        rt,
-    }
+	return &CLAHE{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// Close CLAHE.
+func (ptr *CLAHE) Close() error {
+	_ov1 := ptr.CLAHE.Close()
+	return _ov1
+}
 
 // Apply CLAHE.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/db6/classcv_1_1CLAHE.html#a4e92e0e427de21be8d1fae8dcd862c5e
 func (ptr *CLAHE) Apply(src *Mat, dst *Mat) {
-ptr.CLAHE.Apply(src.coreElem(), dst.coreElemPtr())
+	ptr.CLAHE.Apply(src.coreElem(), dst.coreElemPtr())
 }
-
-
-
 
 // BackgroundSubtractorMOG2 is a wrapper around the cv::BackgroundSubtractorMOG2.
 type BackgroundSubtractorMOG2 struct {
+	*origin.BackgroundSubtractorMOG2
 
-    *origin.BackgroundSubtractorMOG2
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *BackgroundSubtractorMOG2) coreElem() origin.BackgroundSubtractorMOG2 {
-    return *p.BackgroundSubtractorMOG2
+	return *p.BackgroundSubtractorMOG2
 }
 
 func (p *BackgroundSubtractorMOG2) coreElemPtr() *origin.BackgroundSubtractorMOG2 {
-    return p.BackgroundSubtractorMOG2
+	return p.BackgroundSubtractorMOG2
 }
 
-
 func newBackgroundSubtractorMOG2FromPtr(rt *GoCVResourceTracker, core *origin.BackgroundSubtractorMOG2) *BackgroundSubtractorMOG2 {
-    
-    rt.TrackCloseError(core)
-    
-    return &BackgroundSubtractorMOG2{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &BackgroundSubtractorMOG2{
+		core,
+		rt,
+	}
 }
 
 func newBackgroundSubtractorMOG2FromElem(rt *GoCVResourceTracker, core origin.BackgroundSubtractorMOG2) *BackgroundSubtractorMOG2 {
-    
-    rt.TrackCloseError(&core)
-    
-    return &BackgroundSubtractorMOG2{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &BackgroundSubtractorMOG2{
+		&core,
+		rt,
+	}
 }
 
 func newBackgroundSubtractorMOG2FromElemNoTracker(rt *GoCVResourceTracker, core origin.BackgroundSubtractorMOG2) *BackgroundSubtractorMOG2 {
-    return &BackgroundSubtractorMOG2{
-        &core,
-        rt,
-    }
+	return &BackgroundSubtractorMOG2{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// Close BackgroundSubtractorMOG2.
+func (ptr *BackgroundSubtractorMOG2) Close() error {
+	_ov1 := ptr.BackgroundSubtractorMOG2.Close()
+	return _ov1
+}
 
 // Apply computes a foreground mask using the current BackgroundSubtractorMOG2.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df6/classcv_1_1BackgroundSubtractor.html#aa735e76f7069b3fa9c3f32395f9ccd21
 func (ptr *BackgroundSubtractorMOG2) Apply(src *Mat, dst *Mat) {
-ptr.BackgroundSubtractorMOG2.Apply(src.coreElem(), dst.coreElemPtr())
+	ptr.BackgroundSubtractorMOG2.Apply(src.coreElem(), dst.coreElemPtr())
 }
-
-
-
 
 // BackgroundSubtractorKNN is a wrapper around the cv::BackgroundSubtractorKNN.
 type BackgroundSubtractorKNN struct {
+	*origin.BackgroundSubtractorKNN
 
-    *origin.BackgroundSubtractorKNN
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *BackgroundSubtractorKNN) coreElem() origin.BackgroundSubtractorKNN {
-    return *p.BackgroundSubtractorKNN
+	return *p.BackgroundSubtractorKNN
 }
 
 func (p *BackgroundSubtractorKNN) coreElemPtr() *origin.BackgroundSubtractorKNN {
-    return p.BackgroundSubtractorKNN
+	return p.BackgroundSubtractorKNN
 }
 
-
 func newBackgroundSubtractorKNNFromPtr(rt *GoCVResourceTracker, core *origin.BackgroundSubtractorKNN) *BackgroundSubtractorKNN {
-    
-    rt.TrackCloseError(core)
-    
-    return &BackgroundSubtractorKNN{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &BackgroundSubtractorKNN{
+		core,
+		rt,
+	}
 }
 
 func newBackgroundSubtractorKNNFromElem(rt *GoCVResourceTracker, core origin.BackgroundSubtractorKNN) *BackgroundSubtractorKNN {
-    
-    rt.TrackCloseError(&core)
-    
-    return &BackgroundSubtractorKNN{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &BackgroundSubtractorKNN{
+		&core,
+		rt,
+	}
 }
 
 func newBackgroundSubtractorKNNFromElemNoTracker(rt *GoCVResourceTracker, core origin.BackgroundSubtractorKNN) *BackgroundSubtractorKNN {
-    return &BackgroundSubtractorKNN{
-        &core,
-        rt,
-    }
+	return &BackgroundSubtractorKNN{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
+// Close BackgroundSubtractorKNN.
+func (ptr *BackgroundSubtractorKNN) Close() error {
+	_ov1 := ptr.BackgroundSubtractorKNN.Close()
+	return _ov1
+}
 
 // Apply computes a foreground mask using the current BackgroundSubtractorKNN.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df6/classcv_1_1BackgroundSubtractor.html#aa735e76f7069b3fa9c3f32395f9ccd21
 func (ptr *BackgroundSubtractorKNN) Apply(src *Mat, dst *Mat) {
-ptr.BackgroundSubtractorKNN.Apply(src.coreElem(), dst.coreElemPtr())
+	ptr.BackgroundSubtractorKNN.Apply(src.coreElem(), dst.coreElemPtr())
 }
-
-
-
 
 // BRISK is a wrapper around the cv::BRISK algorithm.
 type BRISK struct {
+	*origin.BRISK
 
-    *origin.BRISK
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *BRISK) coreElem() origin.BRISK {
-    return *p.BRISK
+	return *p.BRISK
 }
 
 func (p *BRISK) coreElemPtr() *origin.BRISK {
-    return p.BRISK
+	return p.BRISK
 }
 
-
 func newBRISKFromPtr(rt *GoCVResourceTracker, core *origin.BRISK) *BRISK {
-    
-    rt.TrackCloseError(core)
-    
-    return &BRISK{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &BRISK{
+		core,
+		rt,
+	}
 }
 
 func newBRISKFromElem(rt *GoCVResourceTracker, core origin.BRISK) *BRISK {
-    
-    rt.TrackCloseError(&core)
-    
-    return &BRISK{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &BRISK{
+		&core,
+		rt,
+	}
 }
 
 func newBRISKFromElemNoTracker(rt *GoCVResourceTracker, core origin.BRISK) *BRISK {
-    return &BRISK{
-        &core,
-        rt,
-    }
+	return &BRISK{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // DetectAndCompute keypoints and compute in an image using BRISK.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 func (ptr *BRISK) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
@@ -2171,7 +2962,7 @@ func (ptr *BRISK) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 }
 
 // Detect keypoints in an image using BRISK.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *BRISK) Detect(src *Mat) []KeyPoint {
@@ -2179,59 +2970,60 @@ func (ptr *BRISK) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close BRISK.
+func (ptr *BRISK) Close() error {
+	_ov1 := ptr.BRISK.Close()
+	return _ov1
+}
 
 // BFMatcher is a wrapper around the the cv::BFMatcher algorithm
 type BFMatcher struct {
+	*origin.BFMatcher
 
-    *origin.BFMatcher
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *BFMatcher) coreElem() origin.BFMatcher {
-    return *p.BFMatcher
+	return *p.BFMatcher
 }
 
 func (p *BFMatcher) coreElemPtr() *origin.BFMatcher {
-    return p.BFMatcher
+	return p.BFMatcher
 }
 
-
 func newBFMatcherFromPtr(rt *GoCVResourceTracker, core *origin.BFMatcher) *BFMatcher {
-    
-    rt.TrackCloseError(core)
-    
-    return &BFMatcher{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &BFMatcher{
+		core,
+		rt,
+	}
 }
 
 func newBFMatcherFromElem(rt *GoCVResourceTracker, core origin.BFMatcher) *BFMatcher {
-    
-    rt.TrackCloseError(&core)
-    
-    return &BFMatcher{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &BFMatcher{
+		&core,
+		rt,
+	}
 }
 
 func newBFMatcherFromElemNoTracker(rt *GoCVResourceTracker, core origin.BFMatcher) *BFMatcher {
-    return &BFMatcher{
-        &core,
-        rt,
-    }
+	return &BFMatcher{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // KnnMatch Finds the k best matches for each descriptor from a query set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d39/classcv_1_1DescriptorMatcher.html#aa880f9353cdf185ccf3013e08210483a
 func (ptr *BFMatcher) KnnMatch(query *Mat, train *Mat, k int) [][]DMatch {
@@ -2239,119 +3031,120 @@ func (ptr *BFMatcher) KnnMatch(query *Mat, train *Mat, k int) [][]DMatch {
 	return _ov1
 }
 
-
+// Close BFMatcher
+func (ptr *BFMatcher) Close() error {
+	_ov1 := ptr.BFMatcher.Close()
+	return _ov1
+}
 
 // AlignMTB is a wrapper around the cv::AlignMTB.
 type AlignMTB struct {
+	*origin.AlignMTB
 
-    *origin.AlignMTB
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *AlignMTB) coreElem() origin.AlignMTB {
-    return *p.AlignMTB
+	return *p.AlignMTB
 }
 
 func (p *AlignMTB) coreElemPtr() *origin.AlignMTB {
-    return p.AlignMTB
+	return p.AlignMTB
 }
 
-
 func newAlignMTBFromPtr(rt *GoCVResourceTracker, core *origin.AlignMTB) *AlignMTB {
-    
-    rt.TrackCloseError(core)
-    
-    return &AlignMTB{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &AlignMTB{
+		core,
+		rt,
+	}
 }
 
 func newAlignMTBFromElem(rt *GoCVResourceTracker, core origin.AlignMTB) *AlignMTB {
-    
-    rt.TrackCloseError(&core)
-    
-    return &AlignMTB{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &AlignMTB{
+		&core,
+		rt,
+	}
 }
 
 func newAlignMTBFromElemNoTracker(rt *GoCVResourceTracker, core origin.AlignMTB) *AlignMTB {
-    return &AlignMTB{
-        &core,
-        rt,
-    }
+	return &AlignMTB{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Process computes an alignment using the current AlignMTB.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/db6/classcv_1_1AlignMTB.html#a37b3417d844f362d781f34155cbcb201
 func (ptr *AlignMTB) Process(src []*Mat, dst []*Mat) {
-ptr.AlignMTB.Process(SliceToGoCVCloser(src), SliceToGoCVCloserPtr(dst))
+	ptr.AlignMTB.Process(SliceToGoCVCloser(src), SliceToGoCVCloserPtr(dst))
 }
 
-
-
+// Close AlignMTB.
+func (ptr *AlignMTB) Close() error {
+	_ov1 := ptr.AlignMTB.Close()
+	return _ov1
+}
 
 // AgastFeatureDetector is a wrapper around the cv::AgastFeatureDetector.
 type AgastFeatureDetector struct {
+	*origin.AgastFeatureDetector
 
-    *origin.AgastFeatureDetector
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *AgastFeatureDetector) coreElem() origin.AgastFeatureDetector {
-    return *p.AgastFeatureDetector
+	return *p.AgastFeatureDetector
 }
 
 func (p *AgastFeatureDetector) coreElemPtr() *origin.AgastFeatureDetector {
-    return p.AgastFeatureDetector
+	return p.AgastFeatureDetector
 }
 
-
 func newAgastFeatureDetectorFromPtr(rt *GoCVResourceTracker, core *origin.AgastFeatureDetector) *AgastFeatureDetector {
-    
-    rt.TrackCloseError(core)
-    
-    return &AgastFeatureDetector{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &AgastFeatureDetector{
+		core,
+		rt,
+	}
 }
 
 func newAgastFeatureDetectorFromElem(rt *GoCVResourceTracker, core origin.AgastFeatureDetector) *AgastFeatureDetector {
-    
-    rt.TrackCloseError(&core)
-    
-    return &AgastFeatureDetector{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &AgastFeatureDetector{
+		&core,
+		rt,
+	}
 }
 
 func newAgastFeatureDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.AgastFeatureDetector) *AgastFeatureDetector {
-    return &AgastFeatureDetector{
-        &core,
-        rt,
-    }
+	return &AgastFeatureDetector{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // Detect keypoints in an image using AgastFeatureDetector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *AgastFeatureDetector) Detect(src *Mat) []KeyPoint {
@@ -2359,59 +3152,60 @@ func (ptr *AgastFeatureDetector) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
-
+// Close AgastFeatureDetector.
+func (ptr *AgastFeatureDetector) Close() error {
+	_ov1 := ptr.AgastFeatureDetector.Close()
+	return _ov1
+}
 
 // AKAZE is a wrapper around the cv::AKAZE algorithm.
 type AKAZE struct {
+	*origin.AKAZE
 
-    *origin.AKAZE
-
-    ResourceTracker *GoCVResourceTracker
+	ResourceTracker *GoCVResourceTracker
 }
 
 func (p *AKAZE) coreElem() origin.AKAZE {
-    return *p.AKAZE
+	return *p.AKAZE
 }
 
 func (p *AKAZE) coreElemPtr() *origin.AKAZE {
-    return p.AKAZE
+	return p.AKAZE
 }
 
-
 func newAKAZEFromPtr(rt *GoCVResourceTracker, core *origin.AKAZE) *AKAZE {
-    
-    rt.TrackCloseError(core)
-    
-    return &AKAZE{
-        core,
-        rt,
-    }
+
+	rt.TrackCloseError(core)
+
+	return &AKAZE{
+		core,
+		rt,
+	}
 }
 
 func newAKAZEFromElem(rt *GoCVResourceTracker, core origin.AKAZE) *AKAZE {
-    
-    rt.TrackCloseError(&core)
-    
-    return &AKAZE{
-        &core,
-        rt,
-    }
+
+	rt.TrackCloseError(&core)
+
+	return &AKAZE{
+		&core,
+		rt,
+	}
 }
 
 func newAKAZEFromElemNoTracker(rt *GoCVResourceTracker, core origin.AKAZE) *AKAZE {
-    return &AKAZE{
-        &core,
-        rt,
-    }
+	return &AKAZE{
+		&core,
+		rt,
+	}
 }
 
- // Is Interface
+// Is Interface
 
 // 所有返回值有Close的函数
 
-
 // DetectAndCompute keypoints and compute in an image using AKAZE.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#a8be0d1c20b08eb867184b8d74c15a677
 func (ptr *AKAZE) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
@@ -2420,7 +3214,7 @@ func (ptr *AKAZE) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 }
 
 // Detect keypoints in an image using AKAZE.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
 func (ptr *AKAZE) Detect(src *Mat) []KeyPoint {
@@ -2428,11 +3222,14 @@ func (ptr *AKAZE) Detect(src *Mat) []KeyPoint {
 	return _ov1
 }
 
+// Close AKAZE.
+func (ptr *AKAZE) Close() error {
+	_ov1 := ptr.AKAZE.Close()
+	return _ov1
+}
 
-  // range .WithCloseTypes
-  // if .WithCloseTypes
-
-
+// range .WithCloseTypes
+// if .WithCloseTypes
 
 // WindowPropertyFlag flags for SetWindowProperty / GetWindowProperty.
 type WindowPropertyFlag = origin.WindowPropertyFlag
@@ -2454,7 +3251,7 @@ type Trackbar = origin.Trackbar
 type ThresholdType = origin.ThresholdType
 
 // TermCriteriaType for TermCriteria.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d5d/classcv_1_1TermCriteria.html#a56fecdc291ccaba8aad27d67ccf72c57
 type TermCriteriaType = origin.TermCriteriaType
@@ -2462,9 +3259,7 @@ type TermCriteriaType = origin.TermCriteriaType
 // TemplateMatchMode is the type of the template matching operation.
 type TemplateMatchMode = origin.TemplateMatchMode
 
-
 type SortFlags = origin.SortFlags
-
 
 type SolveDecompositionFlags = origin.SolveDecompositionFlags
 
@@ -2475,16 +3270,15 @@ type SimpleBlobDetectorParams = origin.SimpleBlobDetectorParams
 type SeamlessCloneFlags = origin.SeamlessCloneFlags
 
 // Scalar is a 4-element vector widely used in OpenCV to pass pixel values.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d1/da0/classcv_1_1Scalar__.html
 type Scalar = origin.Scalar
 
-
 type RotatedRect = origin.RotatedRect
 
 // RotateFlag for image rotation
-// 
+//
 // For further details please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6f45d55c0b1cc9d97f5353a7c8a7aac2
 type RotateFlag = origin.RotateFlag
@@ -2492,26 +3286,23 @@ type RotateFlag = origin.RotateFlag
 // RetrievalMode is the mode of the contour retrieval algorithm.
 type RetrievalMode = origin.RetrievalMode
 
-
 type ReduceTypes = origin.ReduceTypes
 
 // RNG Random Number Generator.
 // It encapsulates the state (currently, a 64-bit integer) and
 // has methods to return scalar random values and to fill arrays
 // with random values
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d1/dd6/classcv_1_1RNG.html
 type RNG = origin.RNG
 
-
 type Point3f = origin.Point3f
-
 
 type Point2f = origin.Point2f
 
 // NormType for normalization operations.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gad12cefbcb5291cf958a85b4b67b6149f
 type NormType = origin.NormType
@@ -2532,19 +3323,19 @@ type MorphShape = origin.MorphShape
 type MatType = origin.MatType
 
 // LineType are the line libraries included in OpenCV.
-// 
+//
 // For more information, see:
 // https://vovkos.github.io/doxyrest-showcase/opencv/sphinx_rtd_theme/enum_cv_LineTypes.html
 type LineType = origin.LineType
 
 // KeyPoint is data structure for salient point detectors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/d29/classcv_1_1KeyPoint.html
 type KeyPoint = origin.KeyPoint
 
 // KMeansFlags for kmeans center selection
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/de1/group__core.html#ga276000efe55ee2756e0c471c7b270949
 type KMeansFlags = origin.KMeansFlags
@@ -2562,7 +3353,7 @@ type HistCompMethod = origin.HistCompMethod
 
 // HersheyFont are the font libraries included in OpenCV.
 // Only a subset of the available Hershey fonts are supported by OpenCV.
-// 
+//
 // For more information, see:
 // http://sources.isc.org/utils/misc/hershey-font.txt
 type HersheyFont = origin.HersheyFont
@@ -2571,19 +3362,19 @@ type HersheyFont = origin.HersheyFont
 type GrabCutMode = origin.GrabCutMode
 
 // FastFeatureDetectorType defines the detector type
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/d74/classcv_1_1FastFeatureDetector.html#a4654f6fb0aa4b8e9123b223bfa0e2a08
 type FastFeatureDetectorType = origin.FastFeatureDetectorType
 
 // DrawMatchesFlag are the flags setting drawing feature
-// 
+//
 // For further details please see:
 // https://docs.opencv.org/master/de/d30/structcv_1_1DrawMatchesFlags.html
 type DrawMatchesFlag = origin.DrawMatchesFlag
 
 // DistanceTypes types for Distance Transform and M-estimatorss
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#gaa2bfbebbc5c320526897996aafa1d8eb
 type DistanceTypes = origin.DistanceTypes
@@ -2595,19 +3386,19 @@ type DistanceTransformMasks = origin.DistanceTransformMasks
 type DistanceTransformLabelTypes = origin.DistanceTransformLabelTypes
 
 // DftFlags represents a DFT or DCT flag.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf4dde112b483b38175621befedda1f1c
 type DftFlags = origin.DftFlags
 
 // DMatch is data structure for matching keypoint descriptors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/de0/classcv_1_1DMatch.html#a546ddb9a87898f06e510e015a6de596e
 type DMatch = origin.DMatch
 
 // CovarFlags are the covariation flags used by functions such as BorderInterpolate.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/de1/group__core.html#ga719ebd4a73f30f4fab258ab7616d0f0f
 type CovarFlags = origin.CovarFlags
@@ -2626,13 +3417,13 @@ type ConnectedComponentsAlgorithmType = origin.ConnectedComponentsAlgorithmType
 type CompareType = origin.CompareType
 
 // ColormapTypes are the 12 GNU Octave/MATLAB equivalent colormaps.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html
 type ColormapTypes = origin.ColormapTypes
 
 // ColorConversionCode is a color conversion code used on Mat.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0
 type ColorConversionCode = origin.ColorConversionCode
@@ -2651,1655 +3442,1180 @@ type BorderType = origin.BorderType
 // AdaptiveThresholdType type of adaptive threshold operation.
 type AdaptiveThresholdType = origin.AdaptiveThresholdType
 
-
-
-
-
 const (
- 
+	WindowPropertyVisible = origin.WindowPropertyVisible // WindowPropertyFlag
 
-WindowPropertyVisible = origin.WindowPropertyVisible  // WindowPropertyFlag
- 
+	WindowPropertyOpenGL = origin.WindowPropertyOpenGL // WindowPropertyFlag
 
-WindowPropertyOpenGL = origin.WindowPropertyOpenGL  // WindowPropertyFlag
- 
+	WindowPropertyFullscreen = origin.WindowPropertyFullscreen // WindowPropertyFlag
 
-WindowPropertyFullscreen = origin.WindowPropertyFullscreen  // WindowPropertyFlag
- 
+	WindowPropertyAutosize = origin.WindowPropertyAutosize // WindowPropertyFlag
 
-WindowPropertyAutosize = origin.WindowPropertyAutosize  // WindowPropertyFlag
- 
+	WindowPropertyAspectRatio = origin.WindowPropertyAspectRatio // WindowPropertyFlag
 
-WindowPropertyAspectRatio = origin.WindowPropertyAspectRatio  // WindowPropertyFlag
- 
+	WindowNormal = origin.WindowNormal // WindowFlag
 
-WindowNormal = origin.WindowNormal  // WindowFlag
- 
+	WindowKeepRatio = origin.WindowKeepRatio // WindowFlag
 
-WindowKeepRatio = origin.WindowKeepRatio  // WindowFlag
- 
+	WindowFullscreen = origin.WindowFullscreen // WindowFlag
 
-WindowFullscreen = origin.WindowFullscreen  // WindowFlag
- 
+	WindowFreeRatio = origin.WindowFreeRatio // WindowFlag
 
-WindowFreeRatio = origin.WindowFreeRatio  // WindowFlag
- 
+	WindowAutosize = origin.WindowAutosize // WindowFlag
 
-WindowAutosize = origin.WindowAutosize  // WindowFlag
- 
-// WarpInverseMap, inverse transformation.
-WarpInverseMap = origin.WarpInverseMap  // int
- 
-// WarpFillOutliers fills all of the destination image pixels. If some of them correspond to outliers in the source image, they are set to zero.
-WarpFillOutliers = origin.WarpFillOutliers  // int
- 
+	// WarpInverseMap, inverse transformation.
+	WarpInverseMap = origin.WarpInverseMap // int
 
-VideoCaptureZoom = origin.VideoCaptureZoom  // VideoCaptureProperties
- 
+	// WarpFillOutliers fills all of the destination image pixels. If some of them correspond to outliers in the source image, they are set to zero.
+	WarpFillOutliers = origin.WarpFillOutliers // int
 
-VideoCaptureXiAPI = origin.VideoCaptureXiAPI  // VideoCaptureAPI
- 
+	VideoCaptureZoom = origin.VideoCaptureZoom // VideoCaptureProperties
 
-VideoCaptureXINE = origin.VideoCaptureXINE  // VideoCaptureAPI
- 
+	VideoCaptureXiAPI = origin.VideoCaptureXiAPI // VideoCaptureAPI
 
-VideoCaptureWinRT = origin.VideoCaptureWinRT  // VideoCaptureAPI
- 
+	VideoCaptureXINE = origin.VideoCaptureXINE // VideoCaptureAPI
 
-VideoCaptureWhiteBalanceRedV = origin.VideoCaptureWhiteBalanceRedV  // VideoCaptureProperties
- 
+	VideoCaptureWinRT = origin.VideoCaptureWinRT // VideoCaptureAPI
 
-VideoCaptureWhiteBalanceBlueU = origin.VideoCaptureWhiteBalanceBlueU  // VideoCaptureProperties
- 
+	VideoCaptureWhiteBalanceRedV = origin.VideoCaptureWhiteBalanceRedV // VideoCaptureProperties
 
-VideoCaptureWBTemperature = origin.VideoCaptureWBTemperature  // VideoCaptureProperties
- 
+	VideoCaptureWhiteBalanceBlueU = origin.VideoCaptureWhiteBalanceBlueU // VideoCaptureProperties
 
-VideoCaptureVFW = origin.VideoCaptureVFW  // VideoCaptureAPI
- 
+	VideoCaptureWBTemperature = origin.VideoCaptureWBTemperature // VideoCaptureProperties
 
-VideoCaptureV4L2 = origin.VideoCaptureV4L2  // VideoCaptureAPI
- 
+	VideoCaptureVFW = origin.VideoCaptureVFW // VideoCaptureAPI
 
-VideoCaptureV4L = origin.VideoCaptureV4L  // VideoCaptureAPI
- 
+	VideoCaptureV4L2 = origin.VideoCaptureV4L2 // VideoCaptureAPI
 
-VideoCaptureUnicap = origin.VideoCaptureUnicap  // VideoCaptureAPI
- 
+	VideoCaptureV4L = origin.VideoCaptureV4L // VideoCaptureAPI
 
-VideoCaptureTriggerDelay = origin.VideoCaptureTriggerDelay  // VideoCaptureProperties
- 
+	VideoCaptureUnicap = origin.VideoCaptureUnicap // VideoCaptureAPI
 
-VideoCaptureTrigger = origin.VideoCaptureTrigger  // VideoCaptureProperties
- 
+	VideoCaptureTriggerDelay = origin.VideoCaptureTriggerDelay // VideoCaptureProperties
 
-VideoCaptureTilt = origin.VideoCaptureTilt  // VideoCaptureProperties
- 
+	VideoCaptureTrigger = origin.VideoCaptureTrigger // VideoCaptureProperties
 
-VideoCaptureTemperature = origin.VideoCaptureTemperature  // VideoCaptureProperties
- 
+	VideoCaptureTilt = origin.VideoCaptureTilt // VideoCaptureProperties
 
-VideoCaptureSharpness = origin.VideoCaptureSharpness  // VideoCaptureProperties
- 
+	VideoCaptureTemperature = origin.VideoCaptureTemperature // VideoCaptureProperties
 
-VideoCaptureSettings = origin.VideoCaptureSettings  // VideoCaptureProperties
- 
+	VideoCaptureSharpness = origin.VideoCaptureSharpness // VideoCaptureProperties
 
-VideoCaptureSaturation = origin.VideoCaptureSaturation  // VideoCaptureProperties
- 
+	VideoCaptureSettings = origin.VideoCaptureSettings // VideoCaptureProperties
 
-VideoCaptureSarNumerator = origin.VideoCaptureSarNumerator  // VideoCaptureProperties
- 
+	VideoCaptureSaturation = origin.VideoCaptureSaturation // VideoCaptureProperties
 
-VideoCaptureSarDenominator = origin.VideoCaptureSarDenominator  // VideoCaptureProperties
- 
+	VideoCaptureSarNumerator = origin.VideoCaptureSarNumerator // VideoCaptureProperties
 
-VideoCaptureRoll = origin.VideoCaptureRoll  // VideoCaptureProperties
- 
+	VideoCaptureSarDenominator = origin.VideoCaptureSarDenominator // VideoCaptureProperties
 
-VideoCaptureRectification = origin.VideoCaptureRectification  // VideoCaptureProperties
- 
+	VideoCaptureRoll = origin.VideoCaptureRoll // VideoCaptureProperties
 
-VideoCaptureRealsense = origin.VideoCaptureRealsense  // VideoCaptureAPI
- 
+	VideoCaptureRectification = origin.VideoCaptureRectification // VideoCaptureProperties
 
-VideoCaptureQT = origin.VideoCaptureQT  // VideoCaptureAPI
- 
+	VideoCaptureRealsense = origin.VideoCaptureRealsense // VideoCaptureAPI
 
-VideoCapturePvAPI = origin.VideoCapturePvAPI  // VideoCaptureAPI
- 
+	VideoCaptureQT = origin.VideoCaptureQT // VideoCaptureAPI
 
-VideoCapturePosMsec = origin.VideoCapturePosMsec  // VideoCaptureProperties
- 
+	VideoCapturePvAPI = origin.VideoCapturePvAPI // VideoCaptureAPI
 
-VideoCapturePosFrames = origin.VideoCapturePosFrames  // VideoCaptureProperties
- 
+	VideoCapturePosMsec = origin.VideoCapturePosMsec // VideoCaptureProperties
 
-VideoCapturePosAVIRatio = origin.VideoCapturePosAVIRatio  // VideoCaptureProperties
- 
+	VideoCapturePosFrames = origin.VideoCapturePosFrames // VideoCaptureProperties
 
-VideoCapturePan = origin.VideoCapturePan  // VideoCaptureProperties
- 
+	VideoCapturePosAVIRatio = origin.VideoCapturePosAVIRatio // VideoCaptureProperties
 
-VideoCaptureOpencvMjpeg = origin.VideoCaptureOpencvMjpeg  // VideoCaptureAPI
- 
+	VideoCapturePan = origin.VideoCapturePan // VideoCaptureProperties
 
-VideoCaptureOpenNIAsus = origin.VideoCaptureOpenNIAsus  // VideoCaptureAPI
- 
+	VideoCaptureOpencvMjpeg = origin.VideoCaptureOpencvMjpeg // VideoCaptureAPI
 
-VideoCaptureOpenNI2Asus = origin.VideoCaptureOpenNI2Asus  // VideoCaptureAPI
- 
+	VideoCaptureOpenNIAsus = origin.VideoCaptureOpenNIAsus // VideoCaptureAPI
 
-VideoCaptureOpenNI2 = origin.VideoCaptureOpenNI2  // VideoCaptureAPI
- 
+	VideoCaptureOpenNI2Asus = origin.VideoCaptureOpenNI2Asus // VideoCaptureAPI
 
-VideoCaptureOpenNI = origin.VideoCaptureOpenNI  // VideoCaptureAPI
- 
+	VideoCaptureOpenNI2 = origin.VideoCaptureOpenNI2 // VideoCaptureAPI
 
-VideoCaptureMonochrome = origin.VideoCaptureMonochrome  // VideoCaptureProperties
- 
+	VideoCaptureOpenNI = origin.VideoCaptureOpenNI // VideoCaptureAPI
 
-VideoCaptureMode = origin.VideoCaptureMode  // VideoCaptureProperties
- 
+	VideoCaptureMonochrome = origin.VideoCaptureMonochrome // VideoCaptureProperties
 
-VideoCaptureMSMF = origin.VideoCaptureMSMF  // VideoCaptureAPI
- 
+	VideoCaptureMode = origin.VideoCaptureMode // VideoCaptureProperties
 
-VideoCaptureIris = origin.VideoCaptureIris  // VideoCaptureProperties
- 
+	VideoCaptureMSMF = origin.VideoCaptureMSMF // VideoCaptureAPI
 
-VideoCaptureIntelPerc = origin.VideoCaptureIntelPerc  // VideoCaptureAPI
- 
+	VideoCaptureIris = origin.VideoCaptureIris // VideoCaptureProperties
 
-VideoCaptureIntelMFX = origin.VideoCaptureIntelMFX  // VideoCaptureAPI
- 
+	VideoCaptureIntelPerc = origin.VideoCaptureIntelPerc // VideoCaptureAPI
 
-VideoCaptureImages = origin.VideoCaptureImages  // VideoCaptureAPI
- 
+	VideoCaptureIntelMFX = origin.VideoCaptureIntelMFX // VideoCaptureAPI
 
-VideoCaptureISOSpeed = origin.VideoCaptureISOSpeed  // VideoCaptureProperties
- 
+	VideoCaptureImages = origin.VideoCaptureImages // VideoCaptureAPI
 
-VideoCaptureIEEE1394 = origin.VideoCaptureIEEE1394  // VideoCaptureAPI
- 
+	VideoCaptureISOSpeed = origin.VideoCaptureISOSpeed // VideoCaptureProperties
 
-VideoCaptureHue = origin.VideoCaptureHue  // VideoCaptureProperties
- 
+	VideoCaptureIEEE1394 = origin.VideoCaptureIEEE1394 // VideoCaptureAPI
 
-VideoCaptureGstreamer = origin.VideoCaptureGstreamer  // VideoCaptureAPI
- 
+	VideoCaptureHue = origin.VideoCaptureHue // VideoCaptureProperties
 
-VideoCaptureGiganetix = origin.VideoCaptureGiganetix  // VideoCaptureAPI
- 
+	VideoCaptureGstreamer = origin.VideoCaptureGstreamer // VideoCaptureAPI
 
-VideoCaptureGamma = origin.VideoCaptureGamma  // VideoCaptureProperties
- 
+	VideoCaptureGiganetix = origin.VideoCaptureGiganetix // VideoCaptureAPI
 
-VideoCaptureGain = origin.VideoCaptureGain  // VideoCaptureProperties
- 
+	VideoCaptureGamma = origin.VideoCaptureGamma // VideoCaptureProperties
 
-VideoCaptureGUID = origin.VideoCaptureGUID  // VideoCaptureProperties
- 
+	VideoCaptureGain = origin.VideoCaptureGain // VideoCaptureProperties
 
-VideoCaptureGPhoto2 = origin.VideoCaptureGPhoto2  // VideoCaptureAPI
- 
+	VideoCaptureGUID = origin.VideoCaptureGUID // VideoCaptureProperties
 
-VideoCaptureFrameWidth = origin.VideoCaptureFrameWidth  // VideoCaptureProperties
- 
+	VideoCaptureGPhoto2 = origin.VideoCaptureGPhoto2 // VideoCaptureAPI
 
-VideoCaptureFrameHeight = origin.VideoCaptureFrameHeight  // VideoCaptureProperties
- 
+	VideoCaptureFrameWidth = origin.VideoCaptureFrameWidth // VideoCaptureProperties
 
-VideoCaptureFrameCount = origin.VideoCaptureFrameCount  // VideoCaptureProperties
- 
+	VideoCaptureFrameHeight = origin.VideoCaptureFrameHeight // VideoCaptureProperties
 
-VideoCaptureFormat = origin.VideoCaptureFormat  // VideoCaptureProperties
- 
+	VideoCaptureFrameCount = origin.VideoCaptureFrameCount // VideoCaptureProperties
 
-VideoCaptureFocus = origin.VideoCaptureFocus  // VideoCaptureProperties
- 
+	VideoCaptureFormat = origin.VideoCaptureFormat // VideoCaptureProperties
 
-VideoCaptureFirewire = origin.VideoCaptureFirewire  // VideoCaptureAPI
- 
+	VideoCaptureFocus = origin.VideoCaptureFocus // VideoCaptureProperties
 
-VideoCaptureFireware = origin.VideoCaptureFireware  // VideoCaptureAPI
- 
+	VideoCaptureFirewire = origin.VideoCaptureFirewire // VideoCaptureAPI
 
-VideoCaptureFPS = origin.VideoCaptureFPS  // VideoCaptureProperties
- 
+	VideoCaptureFireware = origin.VideoCaptureFireware // VideoCaptureAPI
 
-VideoCaptureFOURCC = origin.VideoCaptureFOURCC  // VideoCaptureProperties
- 
+	VideoCaptureFPS = origin.VideoCaptureFPS // VideoCaptureProperties
 
-VideoCaptureFFmpeg = origin.VideoCaptureFFmpeg  // VideoCaptureAPI
- 
+	VideoCaptureFOURCC = origin.VideoCaptureFOURCC // VideoCaptureProperties
 
-VideoCaptureExposure = origin.VideoCaptureExposure  // VideoCaptureProperties
- 
+	VideoCaptureFFmpeg = origin.VideoCaptureFFmpeg // VideoCaptureAPI
 
-VideoCaptureDshow = origin.VideoCaptureDshow  // VideoCaptureAPI
- 
+	VideoCaptureExposure = origin.VideoCaptureExposure // VideoCaptureProperties
 
-VideoCaptureDC1394 = origin.VideoCaptureDC1394  // VideoCaptureAPI
- 
+	VideoCaptureDshow = origin.VideoCaptureDshow // VideoCaptureAPI
 
-VideoCaptureConvertRGB = origin.VideoCaptureConvertRGB  // VideoCaptureProperties
- 
+	VideoCaptureDC1394 = origin.VideoCaptureDC1394 // VideoCaptureAPI
 
-VideoCaptureContrast = origin.VideoCaptureContrast  // VideoCaptureProperties
- 
+	VideoCaptureConvertRGB = origin.VideoCaptureConvertRGB // VideoCaptureProperties
 
-VideoCaptureCodecPixelFormat = origin.VideoCaptureCodecPixelFormat  // VideoCaptureProperties
- 
+	VideoCaptureContrast = origin.VideoCaptureContrast // VideoCaptureProperties
 
-VideoCaptureChannel = origin.VideoCaptureChannel  // VideoCaptureProperties
- 
+	VideoCaptureCodecPixelFormat = origin.VideoCaptureCodecPixelFormat // VideoCaptureProperties
 
-VideoCaptureCMU1394 = origin.VideoCaptureCMU1394  // VideoCaptureAPI
- 
+	VideoCaptureChannel = origin.VideoCaptureChannel // VideoCaptureProperties
 
-VideoCaptureBufferSize = origin.VideoCaptureBufferSize  // VideoCaptureProperties
- 
+	VideoCaptureCMU1394 = origin.VideoCaptureCMU1394 // VideoCaptureAPI
 
-VideoCaptureBrightness = origin.VideoCaptureBrightness  // VideoCaptureProperties
- 
+	VideoCaptureBufferSize = origin.VideoCaptureBufferSize // VideoCaptureProperties
 
-VideoCaptureBitrate = origin.VideoCaptureBitrate  // VideoCaptureProperties
- 
+	VideoCaptureBrightness = origin.VideoCaptureBrightness // VideoCaptureProperties
 
-VideoCaptureBacklight = origin.VideoCaptureBacklight  // VideoCaptureProperties
- 
+	VideoCaptureBitrate = origin.VideoCaptureBitrate // VideoCaptureProperties
 
-VideoCaptureBackend = origin.VideoCaptureBackend  // VideoCaptureProperties
- 
+	VideoCaptureBacklight = origin.VideoCaptureBacklight // VideoCaptureProperties
 
-VideoCaptureAutoWB = origin.VideoCaptureAutoWB  // VideoCaptureProperties
- 
+	VideoCaptureBackend = origin.VideoCaptureBackend // VideoCaptureProperties
 
-VideoCaptureAutoFocus = origin.VideoCaptureAutoFocus  // VideoCaptureProperties
- 
+	VideoCaptureAutoWB = origin.VideoCaptureAutoWB // VideoCaptureProperties
 
-VideoCaptureAutoExposure = origin.VideoCaptureAutoExposure  // VideoCaptureProperties
- 
+	VideoCaptureAutoFocus = origin.VideoCaptureAutoFocus // VideoCaptureProperties
 
-VideoCaptureAravis = origin.VideoCaptureAravis  // VideoCaptureAPI
- 
+	VideoCaptureAutoExposure = origin.VideoCaptureAutoExposure // VideoCaptureProperties
 
-VideoCaptureAny = origin.VideoCaptureAny  // VideoCaptureAPI
- 
+	VideoCaptureAravis = origin.VideoCaptureAravis // VideoCaptureAPI
 
-VideoCaptureAndroid = origin.VideoCaptureAndroid  // VideoCaptureAPI
- 
+	VideoCaptureAny = origin.VideoCaptureAny // VideoCaptureAPI
 
-VideoCaptureAVFoundation = origin.VideoCaptureAVFoundation  // VideoCaptureAPI
- 
+	VideoCaptureAndroid = origin.VideoCaptureAndroid // VideoCaptureAPI
 
-TmSqdiffNormed = origin.TmSqdiffNormed  // TemplateMatchMode
- 
+	VideoCaptureAVFoundation = origin.VideoCaptureAVFoundation // VideoCaptureAPI
 
-TmSqdiff = origin.TmSqdiff  // TemplateMatchMode
- 
+	TmSqdiffNormed = origin.TmSqdiffNormed // TemplateMatchMode
 
-TmCcorrNormed = origin.TmCcorrNormed  // TemplateMatchMode
- 
+	TmSqdiff = origin.TmSqdiff // TemplateMatchMode
 
-TmCcorr = origin.TmCcorr  // TemplateMatchMode
- 
+	TmCcorrNormed = origin.TmCcorrNormed // TemplateMatchMode
 
-TmCcoeffNormed = origin.TmCcoeffNormed  // TemplateMatchMode
- 
+	TmCcorr = origin.TmCcorr // TemplateMatchMode
 
-TmCcoeff = origin.TmCcoeff  // TemplateMatchMode
- 
+	TmCcoeffNormed = origin.TmCcoeffNormed // TemplateMatchMode
 
-ThresholdTrunc = origin.ThresholdTrunc  // ThresholdType
- 
+	TmCcoeff = origin.TmCcoeff // TemplateMatchMode
 
-ThresholdTriangle = origin.ThresholdTriangle  // ThresholdType
- 
+	ThresholdTrunc = origin.ThresholdTrunc // ThresholdType
 
-ThresholdToZeroInv = origin.ThresholdToZeroInv  // ThresholdType
- 
+	ThresholdTriangle = origin.ThresholdTriangle // ThresholdType
 
-ThresholdToZero = origin.ThresholdToZero  // ThresholdType
- 
+	ThresholdToZeroInv = origin.ThresholdToZeroInv // ThresholdType
 
-ThresholdOtsu = origin.ThresholdOtsu  // ThresholdType
- 
+	ThresholdToZero = origin.ThresholdToZero // ThresholdType
 
-ThresholdMask = origin.ThresholdMask  // ThresholdType
- 
+	ThresholdOtsu = origin.ThresholdOtsu // ThresholdType
 
-ThresholdBinaryInv = origin.ThresholdBinaryInv  // ThresholdType
- 
+	ThresholdMask = origin.ThresholdMask // ThresholdType
 
-ThresholdBinary = origin.ThresholdBinary  // ThresholdType
- 
+	ThresholdBinaryInv = origin.ThresholdBinaryInv // ThresholdType
 
-SortEveryRow = origin.SortEveryRow  // SortFlags
- 
+	ThresholdBinary = origin.ThresholdBinary // ThresholdType
 
-SortEveryColumn = origin.SortEveryColumn  // SortFlags
- 
+	SortEveryRow = origin.SortEveryRow // SortFlags
 
-SortDescending = origin.SortDescending  // SortFlags
- 
+	SortEveryColumn = origin.SortEveryColumn // SortFlags
 
-SortAscending = origin.SortAscending  // SortFlags
- 
+	SortDescending = origin.SortDescending // SortFlags
 
-SolveDecompositionSvd = origin.SolveDecompositionSvd  // SolveDecompositionFlags
- 
+	SortAscending = origin.SortAscending // SortFlags
 
-SolveDecompositionQr = origin.SolveDecompositionQr  // SolveDecompositionFlags
- 
+	SolveDecompositionSvd = origin.SolveDecompositionSvd // SolveDecompositionFlags
 
-SolveDecompositionNormal = origin.SolveDecompositionNormal  // SolveDecompositionFlags
- 
+	SolveDecompositionQr = origin.SolveDecompositionQr // SolveDecompositionFlags
 
-SolveDecompositionLu = origin.SolveDecompositionLu  // SolveDecompositionFlags
- 
+	SolveDecompositionNormal = origin.SolveDecompositionNormal // SolveDecompositionFlags
 
-SolveDecompositionEing = origin.SolveDecompositionEing  // SolveDecompositionFlags
- 
+	SolveDecompositionLu = origin.SolveDecompositionLu // SolveDecompositionFlags
 
-SolveDecompositionCholesky = origin.SolveDecompositionCholesky  // SolveDecompositionFlags
- 
+	SolveDecompositionEing = origin.SolveDecompositionEing // SolveDecompositionFlags
 
-Rotate90CounterClockwise = origin.Rotate90CounterClockwise  // RotateFlag
- 
+	SolveDecompositionCholesky = origin.SolveDecompositionCholesky // SolveDecompositionFlags
 
-Rotate90Clockwise = origin.Rotate90Clockwise  // RotateFlag
- 
+	Rotate90CounterClockwise = origin.Rotate90CounterClockwise // RotateFlag
 
-Rotate180Clockwise = origin.Rotate180Clockwise  // RotateFlag
- 
+	Rotate90Clockwise = origin.Rotate90Clockwise // RotateFlag
 
-RetrievalTree = origin.RetrievalTree  // RetrievalMode
- 
+	Rotate180Clockwise = origin.Rotate180Clockwise // RotateFlag
 
-RetrievalList = origin.RetrievalList  // RetrievalMode
- 
+	RetrievalTree = origin.RetrievalTree // RetrievalMode
 
-RetrievalFloodfill = origin.RetrievalFloodfill  // RetrievalMode
- 
+	RetrievalList = origin.RetrievalList // RetrievalMode
 
-RetrievalExternal = origin.RetrievalExternal  // RetrievalMode
- 
+	RetrievalFloodfill = origin.RetrievalFloodfill // RetrievalMode
 
-RetrievalCComp = origin.RetrievalCComp  // RetrievalMode
- 
+	RetrievalExternal = origin.RetrievalExternal // RetrievalMode
 
-ReduceSum = origin.ReduceSum  // ReduceTypes
- 
+	RetrievalCComp = origin.RetrievalCComp // RetrievalMode
 
-ReduceMin = origin.ReduceMin  // ReduceTypes
- 
+	ReduceSum = origin.ReduceSum // ReduceTypes
 
-ReduceMax = origin.ReduceMax  // ReduceTypes
- 
+	ReduceMin = origin.ReduceMin // ReduceTypes
 
-ReduceAvg = origin.ReduceAvg  // ReduceTypes
- 
+	ReduceMax = origin.ReduceMax // ReduceTypes
 
-RecursFilter = origin.RecursFilter  // EdgeFilter
- 
+	ReduceAvg = origin.ReduceAvg // ReduceTypes
 
-RNGDistUniform = origin.RNGDistUniform  // RNGDistType
- 
+	RecursFilter = origin.RecursFilter // EdgeFilter
 
-RNGDistNormal = origin.RNGDistNormal  // RNGDistType
- 
+	RNGDistUniform = origin.RNGDistUniform // RNGDistType
 
-PNGFileExt = origin.PNGFileExt  // FileExt
- 
-// *
-// cv::OPTFLOW_USE_INITIAL_FLOW = 4,
-// cv::OPTFLOW_LK_GET_MIN_EIGENVALS = 8,
-// cv::OPTFLOW_FARNEBACK_GAUSSIAN = 256
-// For further details, please see: https://docs.opencv.org/master/dc/d6b/group__video__track.html#gga2c6cc144c9eee043575d5b311ac8af08a9d4430ac75199af0cf6fcdefba30eafe
-OptflowUseInitialFlow = origin.OptflowUseInitialFlow  // int
- 
-// *
-// cv::OPTFLOW_USE_INITIAL_FLOW = 4,
-// cv::OPTFLOW_LK_GET_MIN_EIGENVALS = 8,
-// cv::OPTFLOW_FARNEBACK_GAUSSIAN = 256
-// For further details, please see: https://docs.opencv.org/master/dc/d6b/group__video__track.html#gga2c6cc144c9eee043575d5b311ac8af08a9d4430ac75199af0cf6fcdefba30eafe
-OptflowLkGetMinEigenvals = origin.OptflowLkGetMinEigenvals  // int
- 
-// *
-// cv::OPTFLOW_USE_INITIAL_FLOW = 4,
-// cv::OPTFLOW_LK_GET_MIN_EIGENVALS = 8,
-// cv::OPTFLOW_FARNEBACK_GAUSSIAN = 256
-// For further details, please see: https://docs.opencv.org/master/dc/d6b/group__video__track.html#gga2c6cc144c9eee043575d5b311ac8af08a9d4430ac75199af0cf6fcdefba30eafe
-OptflowFarnebackGaussian = origin.OptflowFarnebackGaussian  // int
- 
+	RNGDistNormal = origin.RNGDistNormal // RNGDistType
 
-ORBScoreTypeHarris = origin.ORBScoreTypeHarris  // ORBScoreType
- 
+	PNGFileExt = origin.PNGFileExt // FileExt
 
-ORBScoreTypeFAST = origin.ORBScoreTypeFAST  // ORBScoreType
- 
+	// *
+	// cv::OPTFLOW_USE_INITIAL_FLOW = 4,
+	// cv::OPTFLOW_LK_GET_MIN_EIGENVALS = 8,
+	// cv::OPTFLOW_FARNEBACK_GAUSSIAN = 256
+	// For further details, please see: https://docs.opencv.org/master/dc/d6b/group__video__track.html#gga2c6cc144c9eee043575d5b311ac8af08a9d4430ac75199af0cf6fcdefba30eafe
+	OptflowUseInitialFlow = origin.OptflowUseInitialFlow // int
 
-NotDrawSinglePoints = origin.NotDrawSinglePoints  // DrawMatchesFlag
- 
-// NormconvFilter Normalized Convolution Filtering.
-NormconvFilter = origin.NormconvFilter  // int
- 
+	// *
+	// cv::OPTFLOW_USE_INITIAL_FLOW = 4,
+	// cv::OPTFLOW_LK_GET_MIN_EIGENVALS = 8,
+	// cv::OPTFLOW_FARNEBACK_GAUSSIAN = 256
+	// For further details, please see: https://docs.opencv.org/master/dc/d6b/group__video__track.html#gga2c6cc144c9eee043575d5b311ac8af08a9d4430ac75199af0cf6fcdefba30eafe
+	OptflowLkGetMinEigenvals = origin.OptflowLkGetMinEigenvals // int
 
-NormalClone = origin.NormalClone  // SeamlessCloneFlags
- 
+	// *
+	// cv::OPTFLOW_USE_INITIAL_FLOW = 4,
+	// cv::OPTFLOW_LK_GET_MIN_EIGENVALS = 8,
+	// cv::OPTFLOW_FARNEBACK_GAUSSIAN = 256
+	// For further details, please see: https://docs.opencv.org/master/dc/d6b/group__video__track.html#gga2c6cc144c9eee043575d5b311ac8af08a9d4430ac75199af0cf6fcdefba30eafe
+	OptflowFarnebackGaussian = origin.OptflowFarnebackGaussian // int
 
-NormTypeMask = origin.NormTypeMask  // NormType
- 
+	ORBScoreTypeHarris = origin.ORBScoreTypeHarris // ORBScoreType
 
-NormRelative = origin.NormRelative  // NormType
- 
+	ORBScoreTypeFAST = origin.ORBScoreTypeFAST // ORBScoreType
 
-NormMinMax = origin.NormMinMax  // NormType
- 
+	NotDrawSinglePoints = origin.NotDrawSinglePoints // DrawMatchesFlag
 
-NormL2Sqr = origin.NormL2Sqr  // NormType
- 
+	// NormconvFilter Normalized Convolution Filtering.
+	NormconvFilter = origin.NormconvFilter // int
 
-NormL2 = origin.NormL2  // NormType
- 
+	NormalClone = origin.NormalClone // SeamlessCloneFlags
 
-NormL1 = origin.NormL1  // NormType
- 
+	NormTypeMask = origin.NormTypeMask // NormType
 
-NormInf = origin.NormInf  // NormType
- 
+	NormRelative = origin.NormRelative // NormType
 
-NormHamming2 = origin.NormHamming2  // NormType
- 
+	NormMinMax = origin.NormMinMax // NormType
 
-NormHamming = origin.NormHamming  // NormType
- 
+	NormL2Sqr = origin.NormL2Sqr // NormType
 
-NetTargetVulkan = origin.NetTargetVulkan  // NetTargetType
- 
+	NormL2 = origin.NormL2 // NormType
 
-NetTargetVPU = origin.NetTargetVPU  // NetTargetType
- 
+	NormL1 = origin.NormL1 // NormType
 
-NetTargetFPGA = origin.NetTargetFPGA  // NetTargetType
- 
+	NormInf = origin.NormInf // NormType
 
-NetTargetFP32 = origin.NetTargetFP32  // NetTargetType
- 
+	NormHamming2 = origin.NormHamming2 // NormType
 
-NetTargetFP16 = origin.NetTargetFP16  // NetTargetType
- 
+	NormHamming = origin.NormHamming // NormType
 
-NetTargetCUDAFP16 = origin.NetTargetCUDAFP16  // NetTargetType
- 
+	NetTargetVulkan = origin.NetTargetVulkan // NetTargetType
 
-NetTargetCUDA = origin.NetTargetCUDA  // NetTargetType
- 
+	NetTargetVPU = origin.NetTargetVPU // NetTargetType
 
-NetTargetCPU = origin.NetTargetCPU  // NetTargetType
- 
+	NetTargetFPGA = origin.NetTargetFPGA // NetTargetType
 
-NetBackendVKCOM = origin.NetBackendVKCOM  // NetBackendType
- 
+	NetTargetFP32 = origin.NetTargetFP32 // NetTargetType
 
-NetBackendOpenVINO = origin.NetBackendOpenVINO  // NetBackendType
- 
+	NetTargetFP16 = origin.NetTargetFP16 // NetTargetType
 
-NetBackendOpenCV = origin.NetBackendOpenCV  // NetBackendType
- 
+	NetTargetCUDAFP16 = origin.NetTargetCUDAFP16 // NetTargetType
 
-NetBackendHalide = origin.NetBackendHalide  // NetBackendType
- 
+	NetTargetCUDA = origin.NetTargetCUDA // NetTargetType
 
-NetBackendDefault = origin.NetBackendDefault  // NetBackendType
- 
+	NetTargetCPU = origin.NetTargetCPU // NetTargetType
 
-NetBackendCUDA = origin.NetBackendCUDA  // NetBackendType
- 
-// *
-// cv::MOTION_TRANSLATION = 0,
-// cv::MOTION_EUCLIDEAN = 1,
-// cv::MOTION_AFFINE = 2,
-// cv::MOTION_HOMOGRAPHY = 3
-// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
-MotionTranslation = origin.MotionTranslation  // int
- 
-// *
-// cv::MOTION_TRANSLATION = 0,
-// cv::MOTION_EUCLIDEAN = 1,
-// cv::MOTION_AFFINE = 2,
-// cv::MOTION_HOMOGRAPHY = 3
-// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
-MotionHomography = origin.MotionHomography  // int
- 
-// *
-// cv::MOTION_TRANSLATION = 0,
-// cv::MOTION_EUCLIDEAN = 1,
-// cv::MOTION_AFFINE = 2,
-// cv::MOTION_HOMOGRAPHY = 3
-// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
-MotionEuclidean = origin.MotionEuclidean  // int
- 
-// *
-// cv::MOTION_TRANSLATION = 0,
-// cv::MOTION_EUCLIDEAN = 1,
-// cv::MOTION_AFFINE = 2,
-// cv::MOTION_HOMOGRAPHY = 3
-// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
-MotionAffine = origin.MotionAffine  // int
- 
+	NetBackendVKCOM = origin.NetBackendVKCOM // NetBackendType
 
-MorphTophat = origin.MorphTophat  // MorphType
- 
+	NetBackendOpenVINO = origin.NetBackendOpenVINO // NetBackendType
 
-MorphRect = origin.MorphRect  // MorphShape
- 
+	NetBackendOpenCV = origin.NetBackendOpenCV // NetBackendType
 
-MorphOpen = origin.MorphOpen  // MorphType
- 
+	NetBackendHalide = origin.NetBackendHalide // NetBackendType
 
-MorphHitmiss = origin.MorphHitmiss  // MorphType
- 
+	NetBackendDefault = origin.NetBackendDefault // NetBackendType
 
-MorphGradient = origin.MorphGradient  // MorphType
- 
+	NetBackendCUDA = origin.NetBackendCUDA // NetBackendType
 
-MorphErode = origin.MorphErode  // MorphType
- 
+	// *
+	// cv::MOTION_TRANSLATION = 0,
+	// cv::MOTION_EUCLIDEAN = 1,
+	// cv::MOTION_AFFINE = 2,
+	// cv::MOTION_HOMOGRAPHY = 3
+	// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
+	MotionTranslation = origin.MotionTranslation // int
 
-MorphEllipse = origin.MorphEllipse  // MorphShape
- 
+	// *
+	// cv::MOTION_TRANSLATION = 0,
+	// cv::MOTION_EUCLIDEAN = 1,
+	// cv::MOTION_AFFINE = 2,
+	// cv::MOTION_HOMOGRAPHY = 3
+	// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
+	MotionHomography = origin.MotionHomography // int
 
-MorphDilate = origin.MorphDilate  // MorphType
- 
+	// *
+	// cv::MOTION_TRANSLATION = 0,
+	// cv::MOTION_EUCLIDEAN = 1,
+	// cv::MOTION_AFFINE = 2,
+	// cv::MOTION_HOMOGRAPHY = 3
+	// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
+	MotionEuclidean = origin.MotionEuclidean // int
 
-MorphCross = origin.MorphCross  // MorphShape
- 
+	// *
+	// cv::MOTION_TRANSLATION = 0,
+	// cv::MOTION_EUCLIDEAN = 1,
+	// cv::MOTION_AFFINE = 2,
+	// cv::MOTION_HOMOGRAPHY = 3
+	// For further details, please see: https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ggaaedb1f94e6b143cef163622c531afd88a01106d6d20122b782ff25eaeffe9a5be
+	MotionAffine = origin.MotionAffine // int
 
-MorphClose = origin.MorphClose  // MorphType
- 
+	MorphTophat = origin.MorphTophat // MorphType
 
-MorphBlackhat = origin.MorphBlackhat  // MorphType
- 
+	MorphRect = origin.MorphRect // MorphShape
 
-MonochromeTransfer = origin.MonochromeTransfer  // SeamlessCloneFlags
- 
+	MorphOpen = origin.MorphOpen // MorphType
 
-MixedClone = origin.MixedClone  // SeamlessCloneFlags
- 
+	MorphHitmiss = origin.MorphHitmiss // MorphType
 
-MaxIter = origin.MaxIter  // TermCriteriaType
- 
-// MatTypeCV8UC4 is a Mat of 8-bit unsigned int with 4 channels
-MatTypeCV8UC4 = origin.MatTypeCV8UC4  // MatTypeCV8U
- 
-// MatTypeCV8UC3 is a Mat of 8-bit unsigned int with 3 channels
-MatTypeCV8UC3 = origin.MatTypeCV8UC3  // MatTypeCV8U
- 
-// MatTypeCV8UC2 is a Mat of 8-bit unsigned int with 2 channels
-MatTypeCV8UC2 = origin.MatTypeCV8UC2  // MatTypeCV8U
- 
-// MatTypeCV8UC1 is a Mat of 8-bit unsigned int with a single channel
-MatTypeCV8UC1 = origin.MatTypeCV8UC1  // MatTypeCV8U
- 
+	MorphGradient = origin.MorphGradient // MorphType
 
-MatTypeCV8U = origin.MatTypeCV8U  // MatType
- 
-// MatTypeCV8SC4 is a Mat of 8-bit signed int with 4 channels
-MatTypeCV8SC4 = origin.MatTypeCV8SC4  // MatTypeCV8S
- 
-// MatTypeCV8SC3 is a Mat of 8-bit signed int with 3 channels
-MatTypeCV8SC3 = origin.MatTypeCV8SC3  // MatTypeCV8S
- 
-// MatTypeCV8SC2 is a Mat of 8-bit signed int with 2 channels
-MatTypeCV8SC2 = origin.MatTypeCV8SC2  // MatTypeCV8S
- 
-// MatTypeCV8SC1 is a Mat of 8-bit signed int with a single channel
-MatTypeCV8SC1 = origin.MatTypeCV8SC1  // MatTypeCV8S
- 
+	MorphErode = origin.MorphErode // MorphType
 
-MatTypeCV8S = origin.MatTypeCV8S  // MatType
- 
-// MatTypeCV64FC4 is a Mat of 64-bit float int with 4 channels
-MatTypeCV64FC4 = origin.MatTypeCV64FC4  // MatTypeCV64F
- 
-// MatTypeCV64FC3 is a Mat of 64-bit float int with 3 channels
-MatTypeCV64FC3 = origin.MatTypeCV64FC3  // MatTypeCV64F
- 
-// MatTypeCV64FC2 is a Mat of 64-bit float int with 2 channels
-MatTypeCV64FC2 = origin.MatTypeCV64FC2  // MatTypeCV64F
- 
-// MatTypeCV64FC1 is a Mat of 64-bit float int with a single channel
-MatTypeCV64FC1 = origin.MatTypeCV64FC1  // MatTypeCV64F
- 
+	MorphEllipse = origin.MorphEllipse // MorphShape
 
-MatTypeCV64F = origin.MatTypeCV64F  // MatType
- 
-// MatTypeCV32SC4 is a Mat of 32-bit signed int with 4 channels
-MatTypeCV32SC4 = origin.MatTypeCV32SC4  // MatTypeCV32S
- 
-// MatTypeCV32SC3 is a Mat of 32-bit signed int with 3 channels
-MatTypeCV32SC3 = origin.MatTypeCV32SC3  // MatTypeCV32S
- 
-// MatTypeCV32SC2 is a Mat of 32-bit signed int with 2 channels
-MatTypeCV32SC2 = origin.MatTypeCV32SC2  // MatTypeCV32S
- 
-// MatTypeCV32SC1 is a Mat of 32-bit signed int with a single channel
-MatTypeCV32SC1 = origin.MatTypeCV32SC1  // MatTypeCV32S
- 
+	MorphDilate = origin.MorphDilate // MorphType
 
-MatTypeCV32S = origin.MatTypeCV32S  // MatType
- 
-// MatTypeCV32FC4 is a Mat of 32-bit float int with 4 channels
-MatTypeCV32FC4 = origin.MatTypeCV32FC4  // MatTypeCV32F
- 
-// MatTypeCV32FC3 is a Mat of 32-bit float int with 3 channels
-MatTypeCV32FC3 = origin.MatTypeCV32FC3  // MatTypeCV32F
- 
-// MatTypeCV32FC2 is a Mat of 32-bit float int with 2 channels
-MatTypeCV32FC2 = origin.MatTypeCV32FC2  // MatTypeCV32F
- 
-// MatTypeCV32FC1 is a Mat of 32-bit float int with a single channel
-MatTypeCV32FC1 = origin.MatTypeCV32FC1  // MatTypeCV32F
- 
-
-MatTypeCV32F = origin.MatTypeCV32F  // MatType
- 
-// MatTypeCV16UC4 is a Mat of 16-bit unsigned int with 4 channels
-MatTypeCV16UC4 = origin.MatTypeCV16UC4  // MatTypeCV16U
- 
-// MatTypeCV16UC3 is a Mat of 16-bit unsigned int with 3 channels
-MatTypeCV16UC3 = origin.MatTypeCV16UC3  // MatTypeCV16U
- 
-// MatTypeCV16UC2 is a Mat of 16-bit unsigned int with 2 channels
-MatTypeCV16UC2 = origin.MatTypeCV16UC2  // MatTypeCV16U
- 
-// MatTypeCV16UC1 is a Mat of 16-bit unsigned int with a single channel
-MatTypeCV16UC1 = origin.MatTypeCV16UC1  // MatTypeCV16U
- 
-
-MatTypeCV16U = origin.MatTypeCV16U  // MatType
- 
-// MatTypeCV16SC4 is a Mat of 16-bit signed int with 4 channels
-MatTypeCV16SC4 = origin.MatTypeCV16SC4  // MatTypeCV16S
- 
-// MatTypeCV16SC3 is a Mat of 16-bit signed int with 3 channels
-MatTypeCV16SC3 = origin.MatTypeCV16SC3  // MatTypeCV16S
- 
-// MatTypeCV16SC2 is a Mat of 16-bit signed int with 2 channels
-MatTypeCV16SC2 = origin.MatTypeCV16SC2  // MatTypeCV16S
- 
-// MatTypeCV16SC1 is a Mat of 16-bit signed int with a single channel
-MatTypeCV16SC1 = origin.MatTypeCV16SC1  // MatTypeCV16S
- 
-
-MatTypeCV16S = origin.MatTypeCV16S  // MatType
- 
-// MatChannels4 is 4 channel Mat.
-MatChannels4 = origin.MatChannels4  // int
- 
-// MatChannels3 is 3 channel Mat.
-MatChannels3 = origin.MatChannels3  // int
- 
-// MatChannels2 is 2 channel Mat.
-MatChannels2 = origin.MatChannels2  // int
- 
-// MatChannels1 is a single channel Mat.
-MatChannels1 = origin.MatChannels1  // int
- 
-
-LineAA = origin.LineAA  // LineType
- 
-
-Line8 = origin.Line8  // LineType
- 
-
-Line4 = origin.Line4  // LineType
- 
-
-KMeansUseInitialLabels = origin.KMeansUseInitialLabels  // KMeansFlags
- 
-
-KMeansRandomCenters = origin.KMeansRandomCenters  // KMeansFlags
- 
-
-KMeansPPCenters = origin.KMeansPPCenters  // KMeansFlags
- 
-
-JPEGFileExt = origin.JPEGFileExt  // FileExt
- 
-
-InterpolationNearestNeighbor = origin.InterpolationNearestNeighbor  // InterpolationFlags
- 
-
-InterpolationMax = origin.InterpolationMax  // InterpolationFlags
- 
-
-InterpolationLinear = origin.InterpolationLinear  // InterpolationFlags
- 
-
-InterpolationLanczos4 = origin.InterpolationLanczos4  // InterpolationFlags
- 
-// InterpolationDefault is an alias for InterpolationLinear.
-InterpolationDefault = origin.InterpolationDefault  // InterpolationLinear
- 
-
-InterpolationCubic = origin.InterpolationCubic  // InterpolationFlags
- 
-
-InterpolationArea = origin.InterpolationArea  // InterpolationFlags
- 
-// IMWriteWebpQuality is the quality from 1 to 100 for WEBP (the higher is
-// the better). By default (without any parameter) and for quality above
-// 100 the lossless compression is used.
-IMWriteWebpQuality = origin.IMWriteWebpQuality  // int
- 
-// IMWritePxmBinary for PPM, PGM, or PBM can be a binary format flag, 0 or 1. Default value is 1.
-IMWritePxmBinary = origin.IMWritePxmBinary  // int
- 
-// IMWritePngStrategyRle is the value to use to limit match distances to
-// one (run-length encoding).
-IMWritePngStrategyRle = origin.IMWritePngStrategyRle  // int
- 
-// IMWritePngStrategyHuffmanOnly forces Huffman encoding only (no string match).
-IMWritePngStrategyHuffmanOnly = origin.IMWritePngStrategyHuffmanOnly  // int
- 
-// IMWritePngStrategyFixed is the value to prevent the use of dynamic
-// Huffman codes, allowing for a simpler decoder for special applications.
-IMWritePngStrategyFixed = origin.IMWritePngStrategyFixed  // int
- 
-// IMWritePngStrategyFiltered is the value to use for data produced by a
-// filter (or predictor). Filtered data consists mostly of small values
-// with a somewhat random distribution. In this case, the compression
-// algorithm is tuned to compress them better.
-IMWritePngStrategyFiltered = origin.IMWritePngStrategyFiltered  // int
- 
-// IMWritePngStrategyDefault is the value to use for normal data.
-IMWritePngStrategyDefault = origin.IMWritePngStrategyDefault  // int
- 
-// IMWritePngStrategy is one of cv::IMWritePNGFlags, default is IMWRITE_PNG_STRATEGY_RLE.
-IMWritePngStrategy = origin.IMWritePngStrategy  // int
- 
-// IMWritePngCompression is the compression level from 0 to 9 for PNG. A
-// higher value means a smaller size and longer compression time.
-// If specified, strategy is changed to IMWRITE_PNG_STRATEGY_DEFAULT (Z_DEFAULT_STRATEGY).
-// Default value is 1 (best speed setting).
-IMWritePngCompression = origin.IMWritePngCompression  // int
- 
-// IMWritePngBilevel is the binary level PNG, 0 or 1, default is 0.
-IMWritePngBilevel = origin.IMWritePngBilevel  // int
- 
-// IMWritePamTupletype sets the TUPLETYPE field to the corresponding string
-// value that is defined for the format.
-IMWritePamTupletype = origin.IMWritePamTupletype  // int
- 
-// IMWriteJpegRstInterval is the JPEG restart interval, 0 - 65535, default is 0 - no restart.
-IMWriteJpegRstInterval = origin.IMWriteJpegRstInterval  // int
- 
-// IMWriteJpegQuality is the quality from 0 to 100 for JPEG (the higher is the better). Default value is 95.
-IMWriteJpegQuality = origin.IMWriteJpegQuality  // int
- 
-// IMWriteJpegProgressive enables JPEG progressive feature, 0 or 1, default is False.
-IMWriteJpegProgressive = origin.IMWriteJpegProgressive  // int
- 
-// IMWriteJpegOptimize enables JPEG optimization, 0 or 1, default is False.
-IMWriteJpegOptimize = origin.IMWriteJpegOptimize  // int
- 
-// IMWriteJpegLumaQuality separates luma quality level, 0 - 100, default is 0 - don't use.
-IMWriteJpegLumaQuality = origin.IMWriteJpegLumaQuality  // int
- 
-// IMWriteJpegChromaQuality separates chroma quality level, 0 - 100, default is 0 - don't use.
-IMWriteJpegChromaQuality = origin.IMWriteJpegChromaQuality  // int
- 
-
-IMReadUnchanged = origin.IMReadUnchanged  // IMReadFlag
- 
-
-IMReadReducedGrayscale8 = origin.IMReadReducedGrayscale8  // IMReadFlag
- 
-
-IMReadReducedGrayscale4 = origin.IMReadReducedGrayscale4  // IMReadFlag
- 
-
-IMReadReducedGrayscale2 = origin.IMReadReducedGrayscale2  // IMReadFlag
- 
-
-IMReadReducedColor8 = origin.IMReadReducedColor8  // IMReadFlag
- 
-
-IMReadReducedColor4 = origin.IMReadReducedColor4  // IMReadFlag
- 
-
-IMReadReducedColor2 = origin.IMReadReducedColor2  // IMReadFlag
- 
-
-IMReadLoadGDAL = origin.IMReadLoadGDAL  // IMReadFlag
- 
-
-IMReadIgnoreOrientation = origin.IMReadIgnoreOrientation  // IMReadFlag
- 
-
-IMReadGrayScale = origin.IMReadGrayScale  // IMReadFlag
- 
-
-IMReadColor = origin.IMReadColor  // IMReadFlag
- 
-
-IMReadAnyDepth = origin.IMReadAnyDepth  // IMReadFlag
- 
-
-IMReadAnyColor = origin.IMReadAnyColor  // IMReadFlag
- 
-
-HoughStandard = origin.HoughStandard  // HoughMode
- 
-
-HoughProbabilistic = origin.HoughProbabilistic  // HoughMode
- 
-
-HoughMultiScale = origin.HoughMultiScale  // HoughMode
- 
-
-HoughGradient = origin.HoughGradient  // HoughMode
- 
-
-HomograpyMethodRANSAC = origin.HomograpyMethodRANSAC  // HomographyMethod
- 
-
-HomograpyMethodLMEDS = origin.HomograpyMethodLMEDS  // HomographyMethod
- 
-
-HomograpyMethodAllPoints = origin.HomograpyMethodAllPoints  // HomographyMethod
- 
-
-HistCmpKlDiv = origin.HistCmpKlDiv  // HistCompMethod
- 
-
-HistCmpIntersect = origin.HistCmpIntersect  // HistCompMethod
- 
-// HistCmpHellinger applies the HistCmpBhattacharya comparison. It is a synonym to HistCmpBhattacharya.
-HistCmpHellinger = origin.HistCmpHellinger  // HistCmpBhattacharya
- 
-
-HistCmpCorrel = origin.HistCmpCorrel  // HistCompMethod
- 
-
-HistCmpChiSqrAlt = origin.HistCmpChiSqrAlt  // HistCompMethod
- 
-
-HistCmpChiSqr = origin.HistCmpChiSqr  // HistCompMethod
- 
-
-HistCmpBhattacharya = origin.HistCmpBhattacharya  // HistCompMethod
- 
-// GoCVVersion of this package, for display purposes.
-GoCVVersion = origin.GoCVVersion  // string
- 
-
-GIFFileExt = origin.GIFFileExt  // FileExt
- 
+	MorphCross = origin.MorphCross // MorphShape
 
-GCInitWithRect = origin.GCInitWithRect  // GrabCutMode
- 
+	MorphClose = origin.MorphClose // MorphType
 
-GCInitWithMask = origin.GCInitWithMask  // GrabCutMode
- 
+	MorphBlackhat = origin.MorphBlackhat // MorphType
 
-GCEvalFreezeModel = origin.GCEvalFreezeModel  // GrabCutMode
- 
+	MonochromeTransfer = origin.MonochromeTransfer // SeamlessCloneFlags
 
-GCEval = origin.GCEval  // GrabCutMode
- 
+	MixedClone = origin.MixedClone // SeamlessCloneFlags
 
-FontItalic = origin.FontItalic  // HersheyFont
- 
+	MaxIter = origin.MaxIter // TermCriteriaType
 
-FontHersheyTriplex = origin.FontHersheyTriplex  // HersheyFont
- 
+	// MatTypeCV8UC4 is a Mat of 8-bit unsigned int with 4 channels
+	MatTypeCV8UC4 = origin.MatTypeCV8UC4 // MatTypeCV8U
 
-FontHersheySimplex = origin.FontHersheySimplex  // HersheyFont
- 
+	// MatTypeCV8UC3 is a Mat of 8-bit unsigned int with 3 channels
+	MatTypeCV8UC3 = origin.MatTypeCV8UC3 // MatTypeCV8U
 
-FontHersheyScriptSimplex = origin.FontHersheyScriptSimplex  // HersheyFont
- 
+	// MatTypeCV8UC2 is a Mat of 8-bit unsigned int with 2 channels
+	MatTypeCV8UC2 = origin.MatTypeCV8UC2 // MatTypeCV8U
 
-FontHersheyScriptComplex = origin.FontHersheyScriptComplex  // HersheyFont
- 
+	// MatTypeCV8UC1 is a Mat of 8-bit unsigned int with a single channel
+	MatTypeCV8UC1 = origin.MatTypeCV8UC1 // MatTypeCV8U
 
-FontHersheyPlain = origin.FontHersheyPlain  // HersheyFont
- 
+	MatTypeCV8U = origin.MatTypeCV8U // MatType
 
-FontHersheyDuplex = origin.FontHersheyDuplex  // HersheyFont
- 
+	// MatTypeCV8SC4 is a Mat of 8-bit signed int with 4 channels
+	MatTypeCV8SC4 = origin.MatTypeCV8SC4 // MatTypeCV8S
 
-FontHersheyComplexSmall = origin.FontHersheyComplexSmall  // HersheyFont
- 
+	// MatTypeCV8SC3 is a Mat of 8-bit signed int with 3 channels
+	MatTypeCV8SC3 = origin.MatTypeCV8SC3 // MatTypeCV8S
 
-FontHersheyComplex = origin.FontHersheyComplex  // HersheyFont
- 
+	// MatTypeCV8SC2 is a Mat of 8-bit signed int with 2 channels
+	MatTypeCV8SC2 = origin.MatTypeCV8SC2 // MatTypeCV8S
 
-Filled = origin.Filled  // LineType
- 
+	// MatTypeCV8SC1 is a Mat of 8-bit signed int with a single channel
+	MatTypeCV8SC1 = origin.MatTypeCV8SC1 // MatTypeCV8S
 
-FastFeatureDetectorType916 = origin.FastFeatureDetectorType916  // FastFeatureDetectorType
- 
+	MatTypeCV8S = origin.MatTypeCV8S // MatType
 
-FastFeatureDetectorType712 = origin.FastFeatureDetectorType712  // FastFeatureDetectorType
- 
+	// MatTypeCV64FC4 is a Mat of 64-bit float int with 4 channels
+	MatTypeCV64FC4 = origin.MatTypeCV64FC4 // MatTypeCV64F
 
-FastFeatureDetectorType58 = origin.FastFeatureDetectorType58  // FastFeatureDetectorType
-  
+	// MatTypeCV64FC3 is a Mat of 64-bit float int with 3 channels
+	MatTypeCV64FC3 = origin.MatTypeCV64FC3 // MatTypeCV64F
 
-EPS = origin.EPS  // TermCriteriaType
- 
+	// MatTypeCV64FC2 is a Mat of 64-bit float int with 2 channels
+	MatTypeCV64FC2 = origin.MatTypeCV64FC2 // MatTypeCV64F
 
-DrawRichKeyPoints = origin.DrawRichKeyPoints  // DrawMatchesFlag
- 
+	// MatTypeCV64FC1 is a Mat of 64-bit float int with a single channel
+	MatTypeCV64FC1 = origin.MatTypeCV64FC1 // MatTypeCV64F
 
-DrawOverOutImg = origin.DrawOverOutImg  // DrawMatchesFlag
- 
+	MatTypeCV64F = origin.MatTypeCV64F // MatType
 
-DrawDefault = origin.DrawDefault  // DrawMatchesFlag
- 
+	// MatTypeCV32SC4 is a Mat of 32-bit signed int with 4 channels
+	MatTypeCV32SC4 = origin.MatTypeCV32SC4 // MatTypeCV32S
 
-DistanceMaskPrecise = origin.DistanceMaskPrecise  // DistanceTransformMasks
- 
+	// MatTypeCV32SC3 is a Mat of 32-bit signed int with 3 channels
+	MatTypeCV32SC3 = origin.MatTypeCV32SC3 // MatTypeCV32S
 
-DistanceMask5 = origin.DistanceMask5  // DistanceTransformMasks
- 
+	// MatTypeCV32SC2 is a Mat of 32-bit signed int with 2 channels
+	MatTypeCV32SC2 = origin.MatTypeCV32SC2 // MatTypeCV32S
 
-DistanceMask3 = origin.DistanceMask3  // DistanceTransformMasks
- 
+	// MatTypeCV32SC1 is a Mat of 32-bit signed int with a single channel
+	MatTypeCV32SC1 = origin.MatTypeCV32SC1 // MatTypeCV32S
 
-DistanceLabelPixel = origin.DistanceLabelPixel  // DistanceTransformLabelTypes
- 
+	MatTypeCV32S = origin.MatTypeCV32S // MatType
 
-DistanceLabelCComp = origin.DistanceLabelCComp  // DistanceTransformLabelTypes
- 
+	// MatTypeCV32FC4 is a Mat of 32-bit float int with 4 channels
+	MatTypeCV32FC4 = origin.MatTypeCV32FC4 // MatTypeCV32F
 
-DistWelsch = origin.DistWelsch  // DistanceTypes
- 
+	// MatTypeCV32FC3 is a Mat of 32-bit float int with 3 channels
+	MatTypeCV32FC3 = origin.MatTypeCV32FC3 // MatTypeCV32F
 
-DistUser = origin.DistUser  // DistanceTypes
- 
+	// MatTypeCV32FC2 is a Mat of 32-bit float int with 2 channels
+	MatTypeCV32FC2 = origin.MatTypeCV32FC2 // MatTypeCV32F
 
-DistL2 = origin.DistL2  // DistanceTypes
- 
+	// MatTypeCV32FC1 is a Mat of 32-bit float int with a single channel
+	MatTypeCV32FC1 = origin.MatTypeCV32FC1 // MatTypeCV32F
 
-DistL12 = origin.DistL12  // DistanceTypes
- 
+	MatTypeCV32F = origin.MatTypeCV32F // MatType
 
-DistL1 = origin.DistL1  // DistanceTypes
- 
+	// MatTypeCV16UC4 is a Mat of 16-bit unsigned int with 4 channels
+	MatTypeCV16UC4 = origin.MatTypeCV16UC4 // MatTypeCV16U
 
-DistHuber = origin.DistHuber  // DistanceTypes
- 
+	// MatTypeCV16UC3 is a Mat of 16-bit unsigned int with 3 channels
+	MatTypeCV16UC3 = origin.MatTypeCV16UC3 // MatTypeCV16U
 
-DistFair = origin.DistFair  // DistanceTypes
- 
+	// MatTypeCV16UC2 is a Mat of 16-bit unsigned int with 2 channels
+	MatTypeCV16UC2 = origin.MatTypeCV16UC2 // MatTypeCV16U
 
-DistC = origin.DistC  // DistanceTypes
- 
+	// MatTypeCV16UC1 is a Mat of 16-bit unsigned int with a single channel
+	MatTypeCV16UC1 = origin.MatTypeCV16UC1 // MatTypeCV16U
 
-DftScale = origin.DftScale  // DftFlags
- 
+	MatTypeCV16U = origin.MatTypeCV16U // MatType
 
-DftRows = origin.DftRows  // DftFlags
- 
+	// MatTypeCV16SC4 is a Mat of 16-bit signed int with 4 channels
+	MatTypeCV16SC4 = origin.MatTypeCV16SC4 // MatTypeCV16S
 
-DftRealOutput = origin.DftRealOutput  // DftFlags
- 
+	// MatTypeCV16SC3 is a Mat of 16-bit signed int with 3 channels
+	MatTypeCV16SC3 = origin.MatTypeCV16SC3 // MatTypeCV16S
 
-DftInverse = origin.DftInverse  // DftFlags
- 
+	// MatTypeCV16SC2 is a Mat of 16-bit signed int with 2 channels
+	MatTypeCV16SC2 = origin.MatTypeCV16SC2 // MatTypeCV16S
 
-DftForward = origin.DftForward  // DftFlags
- 
+	// MatTypeCV16SC1 is a Mat of 16-bit signed int with a single channel
+	MatTypeCV16SC1 = origin.MatTypeCV16SC1 // MatTypeCV16S
 
-DftComplexOutput = origin.DftComplexOutput  // DftFlags
- 
+	MatTypeCV16S = origin.MatTypeCV16S // MatType
 
-DftComplexInput = origin.DftComplexInput  // DftFlags
- 
-// DctRows performs a forward or inverse dct transform of every individual row of the input matrix.
-DctRows = origin.DctRows  // DftRows
- 
-// DctInverse performs an inverse 1D or 2D dct transform.
-DctInverse = origin.DctInverse  // DftInverse
- 
+	// MatChannels4 is 4 channel Mat.
+	MatChannels4 = origin.MatChannels4 // int
 
-CovarUseAvg = origin.CovarUseAvg  // CovarFlags
- 
+	// MatChannels3 is 3 channel Mat.
+	MatChannels3 = origin.MatChannels3 // int
 
-CovarScrambled = origin.CovarScrambled  // CovarFlags
- 
+	// MatChannels2 is 2 channel Mat.
+	MatChannels2 = origin.MatChannels2 // int
 
-CovarScale = origin.CovarScale  // CovarFlags
- 
+	// MatChannels1 is a single channel Mat.
+	MatChannels1 = origin.MatChannels1 // int
 
-CovarRows = origin.CovarRows  // CovarFlags
- 
+	LineAA = origin.LineAA // LineType
 
-CovarNormal = origin.CovarNormal  // CovarFlags
- 
+	Line8 = origin.Line8 // LineType
 
-CovarCols = origin.CovarCols  // CovarFlags
- 
+	Line4 = origin.Line4 // LineType
 
-Count = origin.Count  // TermCriteriaType
- 
+	KMeansUseInitialLabels = origin.KMeansUseInitialLabels // KMeansFlags
 
-CompareNE = origin.CompareNE  // CompareType
- 
+	KMeansRandomCenters = origin.KMeansRandomCenters // KMeansFlags
 
-CompareLT = origin.CompareLT  // CompareType
- 
+	KMeansPPCenters = origin.KMeansPPCenters // KMeansFlags
 
-CompareLE = origin.CompareLE  // CompareType
- 
+	JPEGFileExt = origin.JPEGFileExt // FileExt
 
-CompareGT = origin.CompareGT  // CompareType
- 
+	InterpolationNearestNeighbor = origin.InterpolationNearestNeighbor // InterpolationFlags
 
-CompareGE = origin.CompareGE  // CompareType
- 
+	InterpolationMax = origin.InterpolationMax // InterpolationFlags
 
-CompareEQ = origin.CompareEQ  // CompareType
- 
+	InterpolationLinear = origin.InterpolationLinear // InterpolationFlags
 
-ColormapWinter = origin.ColormapWinter  // ColormapTypes
- 
+	InterpolationLanczos4 = origin.InterpolationLanczos4 // InterpolationFlags
 
-ColormapSummer = origin.ColormapSummer  // ColormapTypes
- 
+	// InterpolationDefault is an alias for InterpolationLinear.
+	InterpolationDefault = origin.InterpolationDefault // InterpolationLinear
 
-ColormapSpring = origin.ColormapSpring  // ColormapTypes
- 
+	InterpolationCubic = origin.InterpolationCubic // InterpolationFlags
 
-ColormapRainbow = origin.ColormapRainbow  // ColormapTypes
- 
+	InterpolationArea = origin.InterpolationArea // InterpolationFlags
 
-ColormapPink = origin.ColormapPink  // ColormapTypes
- 
+	// IMWriteWebpQuality is the quality from 1 to 100 for WEBP (the higher is
+	// the better). By default (without any parameter) and for quality above
+	// 100 the lossless compression is used.
+	IMWriteWebpQuality = origin.IMWriteWebpQuality // int
 
-ColormapParula = origin.ColormapParula  // ColormapTypes
- 
+	// IMWritePxmBinary for PPM, PGM, or PBM can be a binary format flag, 0 or 1. Default value is 1.
+	IMWritePxmBinary = origin.IMWritePxmBinary // int
 
-ColormapOcean = origin.ColormapOcean  // ColormapTypes
- 
+	// IMWritePngStrategyRle is the value to use to limit match distances to
+	// one (run-length encoding).
+	IMWritePngStrategyRle = origin.IMWritePngStrategyRle // int
 
-ColormapJet = origin.ColormapJet  // ColormapTypes
- 
+	// IMWritePngStrategyHuffmanOnly forces Huffman encoding only (no string match).
+	IMWritePngStrategyHuffmanOnly = origin.IMWritePngStrategyHuffmanOnly // int
 
-ColormapHsv = origin.ColormapHsv  // ColormapTypes
- 
+	// IMWritePngStrategyFixed is the value to prevent the use of dynamic
+	// Huffman codes, allowing for a simpler decoder for special applications.
+	IMWritePngStrategyFixed = origin.IMWritePngStrategyFixed // int
 
-ColormapHot = origin.ColormapHot  // ColormapTypes
- 
+	// IMWritePngStrategyFiltered is the value to use for data produced by a
+	// filter (or predictor). Filtered data consists mostly of small values
+	// with a somewhat random distribution. In this case, the compression
+	// algorithm is tuned to compress them better.
+	IMWritePngStrategyFiltered = origin.IMWritePngStrategyFiltered // int
 
-ColormapCool = origin.ColormapCool  // ColormapTypes
- 
+	// IMWritePngStrategyDefault is the value to use for normal data.
+	IMWritePngStrategyDefault = origin.IMWritePngStrategyDefault // int
 
-ColormapBone = origin.ColormapBone  // ColormapTypes
- 
+	// IMWritePngStrategy is one of cv::IMWritePNGFlags, default is IMWRITE_PNG_STRATEGY_RLE.
+	IMWritePngStrategy = origin.IMWritePngStrategy // int
 
-ColormapAutumn = origin.ColormapAutumn  // ColormapTypes
- 
+	// IMWritePngCompression is the compression level from 0 to 9 for PNG. A
+	// higher value means a smaller size and longer compression time.
+	// If specified, strategy is changed to IMWRITE_PNG_STRATEGY_DEFAULT (Z_DEFAULT_STRATEGY).
+	// Default value is 1 (best speed setting).
+	IMWritePngCompression = origin.IMWritePngCompression // int
 
-ColormRGBAToRGBA = origin.ColormRGBAToRGBA  // ColorConversionCode
- 
+	// IMWritePngBilevel is the binary level PNG, 0 or 1, default is 0.
+	IMWritePngBilevel = origin.IMWritePngBilevel // int
 
-ColorYUVToRGBYVYU = origin.ColorYUVToRGBYVYU  // ColorConversionCode
- 
+	// IMWritePamTupletype sets the TUPLETYPE field to the corresponding string
+	// value that is defined for the format.
+	IMWritePamTupletype = origin.IMWritePamTupletype // int
 
-ColorYUVToRGBYV12 = origin.ColorYUVToRGBYV12  // ColorConversionCode
- 
+	// IMWriteJpegRstInterval is the JPEG restart interval, 0 - 65535, default is 0 - no restart.
+	IMWriteJpegRstInterval = origin.IMWriteJpegRstInterval // int
 
-ColorYUVToRGBYUY2 = origin.ColorYUVToRGBYUY2  // ColorConversionCode
- 
+	// IMWriteJpegQuality is the quality from 0 to 100 for JPEG (the higher is the better). Default value is 95.
+	IMWriteJpegQuality = origin.IMWriteJpegQuality // int
 
-ColorYUVToRGBUYVY = origin.ColorYUVToRGBUYVY  // ColorConversionCode
- 
+	// IMWriteJpegProgressive enables JPEG progressive feature, 0 or 1, default is False.
+	IMWriteJpegProgressive = origin.IMWriteJpegProgressive // int
 
-ColorYUVToRGBNV21 = origin.ColorYUVToRGBNV21  // ColorConversionCode
- 
+	// IMWriteJpegOptimize enables JPEG optimization, 0 or 1, default is False.
+	IMWriteJpegOptimize = origin.IMWriteJpegOptimize // int
 
-ColorYUVToRGBNV12 = origin.ColorYUVToRGBNV12  // ColorConversionCode
- 
+	// IMWriteJpegLumaQuality separates luma quality level, 0 - 100, default is 0 - don't use.
+	IMWriteJpegLumaQuality = origin.IMWriteJpegLumaQuality // int
 
-ColorYUVToRGBIYUV = origin.ColorYUVToRGBIYUV  // ColorConversionCode
- 
+	// IMWriteJpegChromaQuality separates chroma quality level, 0 - 100, default is 0 - don't use.
+	IMWriteJpegChromaQuality = origin.IMWriteJpegChromaQuality // int
 
-ColorYUVToRGBAYVYU = origin.ColorYUVToRGBAYVYU  // ColorConversionCode
- 
+	IMReadUnchanged = origin.IMReadUnchanged // IMReadFlag
 
-ColorYUVToRGBAYV12 = origin.ColorYUVToRGBAYV12  // ColorConversionCode
- 
+	IMReadReducedGrayscale8 = origin.IMReadReducedGrayscale8 // IMReadFlag
 
-ColorYUVToRGBAYUY2 = origin.ColorYUVToRGBAYUY2  // ColorConversionCode
- 
+	IMReadReducedGrayscale4 = origin.IMReadReducedGrayscale4 // IMReadFlag
 
-ColorYUVToRGBAUYVY = origin.ColorYUVToRGBAUYVY  // ColorConversionCode
- 
+	IMReadReducedGrayscale2 = origin.IMReadReducedGrayscale2 // IMReadFlag
 
-ColorYUVToRGBANV21 = origin.ColorYUVToRGBANV21  // ColorConversionCode
- 
+	IMReadReducedColor8 = origin.IMReadReducedColor8 // IMReadFlag
 
-ColorYUVToRGBANV12 = origin.ColorYUVToRGBANV12  // ColorConversionCode
- 
+	IMReadReducedColor4 = origin.IMReadReducedColor4 // IMReadFlag
 
-ColorYUVToRGBAIYUV = origin.ColorYUVToRGBAIYUV  // ColorConversionCode
- 
+	IMReadReducedColor2 = origin.IMReadReducedColor2 // IMReadFlag
 
-ColorYUVToRGB = origin.ColorYUVToRGB  // ColorConversionCode
- 
+	IMReadLoadGDAL = origin.IMReadLoadGDAL // IMReadFlag
 
-ColorYUVToGRAYYUY2 = origin.ColorYUVToGRAYYUY2  // ColorConversionCode
- 
+	IMReadIgnoreOrientation = origin.IMReadIgnoreOrientation // IMReadFlag
 
-ColorYUVToGRAYUYVY = origin.ColorYUVToGRAYUYVY  // ColorConversionCode
- 
+	IMReadGrayScale = origin.IMReadGrayScale // IMReadFlag
 
-ColorYUVToGRAY420 = origin.ColorYUVToGRAY420  // ColorConversionCode
- 
+	IMReadColor = origin.IMReadColor // IMReadFlag
 
-ColorYUVToBGRYVYU = origin.ColorYUVToBGRYVYU  // ColorConversionCode
- 
+	IMReadAnyDepth = origin.IMReadAnyDepth // IMReadFlag
 
-ColorYUVToBGRYV12 = origin.ColorYUVToBGRYV12  // ColorConversionCode
- 
+	IMReadAnyColor = origin.IMReadAnyColor // IMReadFlag
 
-ColorYUVToBGRYUY2 = origin.ColorYUVToBGRYUY2  // ColorConversionCode
- 
+	HoughStandard = origin.HoughStandard // HoughMode
 
-ColorYUVToBGRUYVY = origin.ColorYUVToBGRUYVY  // ColorConversionCode
- 
+	HoughProbabilistic = origin.HoughProbabilistic // HoughMode
 
-ColorYUVToBGRNV21 = origin.ColorYUVToBGRNV21  // ColorConversionCode
- 
+	HoughMultiScale = origin.HoughMultiScale // HoughMode
 
-ColorYUVToBGRNV12 = origin.ColorYUVToBGRNV12  // ColorConversionCode
- 
+	HoughGradient = origin.HoughGradient // HoughMode
 
-ColorYUVToBGRIYUV = origin.ColorYUVToBGRIYUV  // ColorConversionCode
- 
+	HomograpyMethodRANSAC = origin.HomograpyMethodRANSAC // HomographyMethod
 
-ColorYUVToBGRAYVYU = origin.ColorYUVToBGRAYVYU  // ColorConversionCode
- 
+	HomograpyMethodLMEDS = origin.HomograpyMethodLMEDS // HomographyMethod
 
-ColorYUVToBGRAYV12 = origin.ColorYUVToBGRAYV12  // ColorConversionCode
- 
+	HomograpyMethodAllPoints = origin.HomograpyMethodAllPoints // HomographyMethod
 
-ColorYUVToBGRAYUY2 = origin.ColorYUVToBGRAYUY2  // ColorConversionCode
- 
+	HistCmpKlDiv = origin.HistCmpKlDiv // HistCompMethod
 
-ColorYUVToBGRAUYVY = origin.ColorYUVToBGRAUYVY  // ColorConversionCode
- 
+	HistCmpIntersect = origin.HistCmpIntersect // HistCompMethod
 
-ColorYUVToBGRANV21 = origin.ColorYUVToBGRANV21  // ColorConversionCode
- 
+	// HistCmpHellinger applies the HistCmpBhattacharya comparison. It is a synonym to HistCmpBhattacharya.
+	HistCmpHellinger = origin.HistCmpHellinger // HistCmpBhattacharya
 
-ColorYUVToBGRANV12 = origin.ColorYUVToBGRANV12  // ColorConversionCode
- 
+	HistCmpCorrel = origin.HistCmpCorrel // HistCompMethod
 
-ColorYUVToBGRAIYUV = origin.ColorYUVToBGRAIYUV  // ColorConversionCode
- 
+	HistCmpChiSqrAlt = origin.HistCmpChiSqrAlt // HistCompMethod
 
-ColorYUVToBGR = origin.ColorYUVToBGR  // ColorConversionCode
- 
+	HistCmpChiSqr = origin.HistCmpChiSqr // HistCompMethod
 
-ColorYCrCbToRGB = origin.ColorYCrCbToRGB  // ColorConversionCode
- 
+	HistCmpBhattacharya = origin.HistCmpBhattacharya // HistCompMethod
 
-ColorYCrCbToBGR = origin.ColorYCrCbToBGR  // ColorConversionCode
- 
+	// GoCVVersion of this package, for display purposes.
+	GoCVVersion = origin.GoCVVersion // string
 
-ColorXYZToRGB = origin.ColorXYZToRGB  // ColorConversionCode
- 
+	GIFFileExt = origin.GIFFileExt // FileExt
 
-ColorXYZToBGR = origin.ColorXYZToBGR  // ColorConversionCode
- 
+	GCInitWithRect = origin.GCInitWithRect // GrabCutMode
 
-ColorRGBToYUVYV12 = origin.ColorRGBToYUVYV12  // ColorConversionCode
- 
+	GCInitWithMask = origin.GCInitWithMask // GrabCutMode
 
-ColorRGBToYUVI420 = origin.ColorRGBToYUVI420  // ColorConversionCode
- 
+	GCEvalFreezeModel = origin.GCEvalFreezeModel // GrabCutMode
 
-ColorRGBToYUV = origin.ColorRGBToYUV  // ColorConversionCode
- 
+	GCEval = origin.GCEval // GrabCutMode
 
-ColorRGBToYCrCb = origin.ColorRGBToYCrCb  // ColorConversionCode
- 
+	FontItalic = origin.FontItalic // HersheyFont
 
-ColorRGBToXYZ = origin.ColorRGBToXYZ  // ColorConversionCode
- 
+	FontHersheyTriplex = origin.FontHersheyTriplex // HersheyFont
 
-ColorRGBToLuv = origin.ColorRGBToLuv  // ColorConversionCode
- 
+	FontHersheySimplex = origin.FontHersheySimplex // HersheyFont
 
-ColorRGBToLab = origin.ColorRGBToLab  // ColorConversionCode
- 
+	FontHersheyScriptSimplex = origin.FontHersheyScriptSimplex // HersheyFont
 
-ColorRGBToHSVFull = origin.ColorRGBToHSVFull  // ColorConversionCode
- 
+	FontHersheyScriptComplex = origin.FontHersheyScriptComplex // HersheyFont
 
-ColorRGBToHSV = origin.ColorRGBToHSV  // ColorConversionCode
- 
+	FontHersheyPlain = origin.FontHersheyPlain // HersheyFont
 
-ColorRGBToHLSFull = origin.ColorRGBToHLSFull  // ColorConversionCode
- 
+	FontHersheyDuplex = origin.FontHersheyDuplex // HersheyFont
 
-ColorRGBToHLS = origin.ColorRGBToHLS  // ColorConversionCode
- 
+	FontHersheyComplexSmall = origin.FontHersheyComplexSmall // HersheyFont
 
-ColorRGBToGray = origin.ColorRGBToGray  // ColorConversionCode
- 
+	FontHersheyComplex = origin.FontHersheyComplex // HersheyFont
 
-ColorRGBToBGR565 = origin.ColorRGBToBGR565  // ColorConversionCode
- 
+	Filled = origin.Filled // LineType
 
-ColorRGBToBGR555 = origin.ColorRGBToBGR555  // ColorConversionCode
- 
+	FastFeatureDetectorType916 = origin.FastFeatureDetectorType916 // FastFeatureDetectorType
 
-ColorRGBATomRGBA = origin.ColorRGBATomRGBA  // ColorConversionCode
- 
+	FastFeatureDetectorType712 = origin.FastFeatureDetectorType712 // FastFeatureDetectorType
 
-ColorRGBAToYUVYV12 = origin.ColorRGBAToYUVYV12  // ColorConversionCode
- 
+	FastFeatureDetectorType58 = origin.FastFeatureDetectorType58 // FastFeatureDetectorType
 
-ColorRGBAToYUVI420 = origin.ColorRGBAToYUVI420  // ColorConversionCode
- 
+	EPS = origin.EPS // TermCriteriaType
 
-ColorRGBAToGray = origin.ColorRGBAToGray  // ColorConversionCode
- 
+	DrawRichKeyPoints = origin.DrawRichKeyPoints // DrawMatchesFlag
 
-ColorRGBAToBGR565 = origin.ColorRGBAToBGR565  // ColorConversionCode
- 
+	DrawOverOutImg = origin.DrawOverOutImg // DrawMatchesFlag
 
-ColorRGBAToBGR555 = origin.ColorRGBAToBGR555  // ColorConversionCode
- 
+	DrawDefault = origin.DrawDefault // DrawMatchesFlag
 
-ColorRGBAToBGR = origin.ColorRGBAToBGR  // ColorConversionCode
- 
+	DistanceMaskPrecise = origin.DistanceMaskPrecise // DistanceTransformMasks
 
-ColorLuvToRGB = origin.ColorLuvToRGB  // ColorConversionCode
- 
+	DistanceMask5 = origin.DistanceMask5 // DistanceTransformMasks
 
-ColorLuvToLRGB = origin.ColorLuvToLRGB  // ColorConversionCode
- 
+	DistanceMask3 = origin.DistanceMask3 // DistanceTransformMasks
 
-ColorLuvToLBGR = origin.ColorLuvToLBGR  // ColorConversionCode
- 
+	DistanceLabelPixel = origin.DistanceLabelPixel // DistanceTransformLabelTypes
 
-ColorLuvToBGR = origin.ColorLuvToBGR  // ColorConversionCode
- 
+	DistanceLabelCComp = origin.DistanceLabelCComp // DistanceTransformLabelTypes
 
-ColorLabToRGB = origin.ColorLabToRGB  // ColorConversionCode
- 
+	DistWelsch = origin.DistWelsch // DistanceTypes
 
-ColorLabToLRGB = origin.ColorLabToLRGB  // ColorConversionCode
- 
+	DistUser = origin.DistUser // DistanceTypes
 
-ColorLabToLBGR = origin.ColorLabToLBGR  // ColorConversionCode
- 
+	DistL2 = origin.DistL2 // DistanceTypes
 
-ColorLabToBGR = origin.ColorLabToBGR  // ColorConversionCode
- 
+	DistL12 = origin.DistL12 // DistanceTypes
 
-ColorLRGBToLuv = origin.ColorLRGBToLuv  // ColorConversionCode
- 
+	DistL1 = origin.DistL1 // DistanceTypes
 
-ColorLRGBToLab = origin.ColorLRGBToLab  // ColorConversionCode
- 
+	DistHuber = origin.DistHuber // DistanceTypes
 
-ColorLBGRToLuv = origin.ColorLBGRToLuv  // ColorConversionCode
- 
+	DistFair = origin.DistFair // DistanceTypes
 
-ColorLBGRToLab = origin.ColorLBGRToLab  // ColorConversionCode
- 
+	DistC = origin.DistC // DistanceTypes
 
-ColorHSVToRGBFull = origin.ColorHSVToRGBFull  // ColorConversionCode
- 
+	DftScale = origin.DftScale // DftFlags
 
-ColorHSVToRGB = origin.ColorHSVToRGB  // ColorConversionCode
- 
+	DftRows = origin.DftRows // DftFlags
 
-ColorHSVToBGRFull = origin.ColorHSVToBGRFull  // ColorConversionCode
- 
+	DftRealOutput = origin.DftRealOutput // DftFlags
 
-ColorHSVToBGR = origin.ColorHSVToBGR  // ColorConversionCode
- 
+	DftInverse = origin.DftInverse // DftFlags
 
-ColorHLSToRGBFull = origin.ColorHLSToRGBFull  // ColorConversionCode
- 
+	DftForward = origin.DftForward // DftFlags
 
-ColorHLSToRGB = origin.ColorHLSToRGB  // ColorConversionCode
- 
+	DftComplexOutput = origin.DftComplexOutput // DftFlags
 
-ColorHLSToBGRFull = origin.ColorHLSToBGRFull  // ColorConversionCode
- 
+	DftComplexInput = origin.DftComplexInput // DftFlags
 
-ColorHLSToBGR = origin.ColorHLSToBGR  // ColorConversionCode
- 
+	// DctRows performs a forward or inverse dct transform of every individual row of the input matrix.
+	DctRows = origin.DctRows // DftRows
 
-ColorGrayToBGRA = origin.ColorGrayToBGRA  // ColorConversionCode
- 
+	// DctInverse performs an inverse 1D or 2D dct transform.
+	DctInverse = origin.DctInverse // DftInverse
 
-ColorGrayToBGR565 = origin.ColorGrayToBGR565  // ColorConversionCode
- 
+	CovarUseAvg = origin.CovarUseAvg // CovarFlags
 
-ColorGrayToBGR555 = origin.ColorGrayToBGR555  // ColorConversionCode
- 
+	CovarScrambled = origin.CovarScrambled // CovarFlags
 
-ColorGrayToBGR = origin.ColorGrayToBGR  // ColorConversionCode
- 
+	CovarScale = origin.CovarScale // CovarFlags
 
-ColorCOLORCVTMAX = origin.ColorCOLORCVTMAX  // ColorConversionCode
- 
+	CovarRows = origin.CovarRows // CovarFlags
 
-ColorBayerRGToGRAY = origin.ColorBayerRGToGRAY  // ColorConversionCode
- 
+	CovarNormal = origin.CovarNormal // CovarFlags
 
-ColorBayerRGToBGRVNG = origin.ColorBayerRGToBGRVNG  // ColorConversionCode
- 
+	CovarCols = origin.CovarCols // CovarFlags
 
-ColorBayerRGToBGREA = origin.ColorBayerRGToBGREA  // ColorConversionCode
- 
+	Count = origin.Count // TermCriteriaType
 
-ColorBayerRGToBGRA = origin.ColorBayerRGToBGRA  // ColorConversionCode
- 
+	CompareNE = origin.CompareNE // CompareType
 
-ColorBayerRGToBGR = origin.ColorBayerRGToBGR  // ColorConversionCode
- 
+	CompareLT = origin.CompareLT // CompareType
 
-ColorBayerGRToGRAY = origin.ColorBayerGRToGRAY  // ColorConversionCode
- 
+	CompareLE = origin.CompareLE // CompareType
 
-ColorBayerGRToBGRVNG = origin.ColorBayerGRToBGRVNG  // ColorConversionCode
- 
+	CompareGT = origin.CompareGT // CompareType
 
-ColorBayerGRToBGREA = origin.ColorBayerGRToBGREA  // ColorConversionCode
- 
+	CompareGE = origin.CompareGE // CompareType
 
-ColorBayerGRToBGRA = origin.ColorBayerGRToBGRA  // ColorConversionCode
- 
+	CompareEQ = origin.CompareEQ // CompareType
 
-ColorBayerGRToBGR = origin.ColorBayerGRToBGR  // ColorConversionCode
- 
+	ColormapWinter = origin.ColormapWinter // ColormapTypes
 
-ColorBayerGBToGRAY = origin.ColorBayerGBToGRAY  // ColorConversionCode
- 
+	ColormapSummer = origin.ColormapSummer // ColormapTypes
 
-ColorBayerGBToBGRVNG = origin.ColorBayerGBToBGRVNG  // ColorConversionCode
- 
+	ColormapSpring = origin.ColormapSpring // ColormapTypes
 
-ColorBayerGBToBGREA = origin.ColorBayerGBToBGREA  // ColorConversionCode
- 
+	ColormapRainbow = origin.ColormapRainbow // ColormapTypes
 
-ColorBayerGBToBGRA = origin.ColorBayerGBToBGRA  // ColorConversionCode
- 
+	ColormapPink = origin.ColormapPink // ColormapTypes
 
-ColorBayerGBToBGR = origin.ColorBayerGBToBGR  // ColorConversionCode
- 
+	ColormapParula = origin.ColormapParula // ColormapTypes
 
-ColorBayerBGToGRAY = origin.ColorBayerBGToGRAY  // ColorConversionCode
- 
+	ColormapOcean = origin.ColormapOcean // ColormapTypes
 
-ColorBayerBGToBGRVNG = origin.ColorBayerBGToBGRVNG  // ColorConversionCode
- 
+	ColormapJet = origin.ColormapJet // ColormapTypes
 
-ColorBayerBGToBGREA = origin.ColorBayerBGToBGREA  // ColorConversionCode
- 
+	ColormapHsv = origin.ColormapHsv // ColormapTypes
 
-ColorBayerBGToBGRA = origin.ColorBayerBGToBGRA  // ColorConversionCode
- 
+	ColormapHot = origin.ColormapHot // ColormapTypes
 
-ColorBayerBGToBGR = origin.ColorBayerBGToBGR  // ColorConversionCode
- 
+	ColormapCool = origin.ColormapCool // ColormapTypes
 
-ColorBGRToYUVYV12 = origin.ColorBGRToYUVYV12  // ColorConversionCode
- 
+	ColormapBone = origin.ColormapBone // ColormapTypes
 
-ColorBGRToYUVI420 = origin.ColorBGRToYUVI420  // ColorConversionCode
- 
+	ColormapAutumn = origin.ColormapAutumn // ColormapTypes
 
-ColorBGRToYUV = origin.ColorBGRToYUV  // ColorConversionCode
- 
+	ColormRGBAToRGBA = origin.ColormRGBAToRGBA // ColorConversionCode
 
-ColorBGRToYCrCb = origin.ColorBGRToYCrCb  // ColorConversionCode
- 
+	ColorYUVToRGBYVYU = origin.ColorYUVToRGBYVYU // ColorConversionCode
 
-ColorBGRToXYZ = origin.ColorBGRToXYZ  // ColorConversionCode
- 
+	ColorYUVToRGBYV12 = origin.ColorYUVToRGBYV12 // ColorConversionCode
 
-ColorBGRToRGBA = origin.ColorBGRToRGBA  // ColorConversionCode
- 
+	ColorYUVToRGBYUY2 = origin.ColorYUVToRGBYUY2 // ColorConversionCode
 
-ColorBGRToRGB = origin.ColorBGRToRGB  // ColorConversionCode
- 
+	ColorYUVToRGBUYVY = origin.ColorYUVToRGBUYVY // ColorConversionCode
 
-ColorBGRToLuv = origin.ColorBGRToLuv  // ColorConversionCode
- 
+	ColorYUVToRGBNV21 = origin.ColorYUVToRGBNV21 // ColorConversionCode
 
-ColorBGRToLab = origin.ColorBGRToLab  // ColorConversionCode
- 
+	ColorYUVToRGBNV12 = origin.ColorYUVToRGBNV12 // ColorConversionCode
 
-ColorBGRToHSVFull = origin.ColorBGRToHSVFull  // ColorConversionCode
- 
+	ColorYUVToRGBIYUV = origin.ColorYUVToRGBIYUV // ColorConversionCode
 
-ColorBGRToHSV = origin.ColorBGRToHSV  // ColorConversionCode
- 
+	ColorYUVToRGBAYVYU = origin.ColorYUVToRGBAYVYU // ColorConversionCode
 
-ColorBGRToHLSFull = origin.ColorBGRToHLSFull  // ColorConversionCode
- 
+	ColorYUVToRGBAYV12 = origin.ColorYUVToRGBAYV12 // ColorConversionCode
 
-ColorBGRToHLS = origin.ColorBGRToHLS  // ColorConversionCode
- 
+	ColorYUVToRGBAYUY2 = origin.ColorYUVToRGBAYUY2 // ColorConversionCode
 
-ColorBGRToGray = origin.ColorBGRToGray  // ColorConversionCode
- 
+	ColorYUVToRGBAUYVY = origin.ColorYUVToRGBAUYVY // ColorConversionCode
 
-ColorBGRToBGRA = origin.ColorBGRToBGRA  // ColorConversionCode
- 
+	ColorYUVToRGBANV21 = origin.ColorYUVToRGBANV21 // ColorConversionCode
 
-ColorBGRToBGR565 = origin.ColorBGRToBGR565  // ColorConversionCode
- 
+	ColorYUVToRGBANV12 = origin.ColorYUVToRGBANV12 // ColorConversionCode
 
-ColorBGRToBGR555 = origin.ColorBGRToBGR555  // ColorConversionCode
- 
+	ColorYUVToRGBAIYUV = origin.ColorYUVToRGBAIYUV // ColorConversionCode
 
-ColorBGRAToYUVYV12 = origin.ColorBGRAToYUVYV12  // ColorConversionCode
- 
+	ColorYUVToRGB = origin.ColorYUVToRGB // ColorConversionCode
 
-ColorBGRAToYUVI420 = origin.ColorBGRAToYUVI420  // ColorConversionCode
- 
+	ColorYUVToGRAYYUY2 = origin.ColorYUVToGRAYYUY2 // ColorConversionCode
 
-ColorBGRAToRGBA = origin.ColorBGRAToRGBA  // ColorConversionCode
- 
+	ColorYUVToGRAYUYVY = origin.ColorYUVToGRAYUYVY // ColorConversionCode
 
-ColorBGRAToGray = origin.ColorBGRAToGray  // ColorConversionCode
- 
+	ColorYUVToGRAY420 = origin.ColorYUVToGRAY420 // ColorConversionCode
 
-ColorBGRAToBGR565 = origin.ColorBGRAToBGR565  // ColorConversionCode
- 
+	ColorYUVToBGRYVYU = origin.ColorYUVToBGRYVYU // ColorConversionCode
 
-ColorBGRAToBGR555 = origin.ColorBGRAToBGR555  // ColorConversionCode
- 
+	ColorYUVToBGRYV12 = origin.ColorYUVToBGRYV12 // ColorConversionCode
 
-ColorBGRAToBGR = origin.ColorBGRAToBGR  // ColorConversionCode
- 
+	ColorYUVToBGRYUY2 = origin.ColorYUVToBGRYUY2 // ColorConversionCode
 
-ColorBGR565ToRGBA = origin.ColorBGR565ToRGBA  // ColorConversionCode
- 
+	ColorYUVToBGRUYVY = origin.ColorYUVToBGRUYVY // ColorConversionCode
 
-ColorBGR565ToRGB = origin.ColorBGR565ToRGB  // ColorConversionCode
- 
+	ColorYUVToBGRNV21 = origin.ColorYUVToBGRNV21 // ColorConversionCode
 
-ColorBGR565ToGray = origin.ColorBGR565ToGray  // ColorConversionCode
- 
+	ColorYUVToBGRNV12 = origin.ColorYUVToBGRNV12 // ColorConversionCode
 
-ColorBGR565ToBGRA = origin.ColorBGR565ToBGRA  // ColorConversionCode
- 
+	ColorYUVToBGRIYUV = origin.ColorYUVToBGRIYUV // ColorConversionCode
 
-ColorBGR565ToBGR = origin.ColorBGR565ToBGR  // ColorConversionCode
- 
+	ColorYUVToBGRAYVYU = origin.ColorYUVToBGRAYVYU // ColorConversionCode
 
-ColorBGR555ToRGBA = origin.ColorBGR555ToRGBA  // ColorConversionCode
- 
+	ColorYUVToBGRAYV12 = origin.ColorYUVToBGRAYV12 // ColorConversionCode
 
-ColorBGR555ToRGB = origin.ColorBGR555ToRGB  // ColorConversionCode
- 
+	ColorYUVToBGRAYUY2 = origin.ColorYUVToBGRAYUY2 // ColorConversionCode
 
-ColorBGR555ToGRAY = origin.ColorBGR555ToGRAY  // ColorConversionCode
- 
+	ColorYUVToBGRAUYVY = origin.ColorYUVToBGRAUYVY // ColorConversionCode
 
-ColorBGR555ToBGRA = origin.ColorBGR555ToBGRA  // ColorConversionCode
- 
+	ColorYUVToBGRANV21 = origin.ColorYUVToBGRANV21 // ColorConversionCode
 
-ColorBGR555ToBGR = origin.ColorBGR555ToBGR  // ColorConversionCode
- 
+	ColorYUVToBGRANV12 = origin.ColorYUVToBGRANV12 // ColorConversionCode
 
-ChainApproxTC89L1 = origin.ChainApproxTC89L1  // ContourApproximationMode
- 
+	ColorYUVToBGRAIYUV = origin.ColorYUVToBGRAIYUV // ColorConversionCode
 
-ChainApproxTC89KCOS = origin.ChainApproxTC89KCOS  // ContourApproximationMode
- 
+	ColorYUVToBGR = origin.ColorYUVToBGR // ColorConversionCode
 
-ChainApproxSimple = origin.ChainApproxSimple  // ContourApproximationMode
- 
+	ColorYCrCbToRGB = origin.ColorYCrCbToRGB // ColorConversionCode
 
-ChainApproxNone = origin.ChainApproxNone  // ContourApproximationMode
- 
+	ColorYCrCbToBGR = origin.ColorYCrCbToBGR // ColorConversionCode
 
-CalibUseIntrinsicGuess = origin.CalibUseIntrinsicGuess  // CalibFlag
- 
+	ColorXYZToRGB = origin.ColorXYZToRGB // ColorConversionCode
 
-CalibRecomputeExtrinsic = origin.CalibRecomputeExtrinsic  // CalibFlag
- 
+	ColorXYZToBGR = origin.ColorXYZToBGR // ColorConversionCode
 
-CalibFixSkew = origin.CalibFixSkew  // CalibFlag
- 
+	ColorRGBToYUVYV12 = origin.ColorRGBToYUVYV12 // ColorConversionCode
 
-CalibFixPrincipalPoint = origin.CalibFixPrincipalPoint  // CalibFlag
- 
+	ColorRGBToYUVI420 = origin.ColorRGBToYUVI420 // ColorConversionCode
 
-CalibFixK4 = origin.CalibFixK4  // CalibFlag
- 
+	ColorRGBToYUV = origin.ColorRGBToYUV // ColorConversionCode
 
-CalibFixK3 = origin.CalibFixK3  // CalibFlag
- 
+	ColorRGBToYCrCb = origin.ColorRGBToYCrCb // ColorConversionCode
 
-CalibFixK2 = origin.CalibFixK2  // CalibFlag
- 
+	ColorRGBToXYZ = origin.ColorRGBToXYZ // ColorConversionCode
 
-CalibFixK1 = origin.CalibFixK1  // CalibFlag
- 
+	ColorRGBToLuv = origin.ColorRGBToLuv // ColorConversionCode
 
-CalibFixIntrinsic = origin.CalibFixIntrinsic  // CalibFlag
- 
+	ColorRGBToLab = origin.ColorRGBToLab // ColorConversionCode
 
-CalibCheckCond = origin.CalibCheckCond  // CalibFlag
- 
+	ColorRGBToHSVFull = origin.ColorRGBToHSVFull // ColorConversionCode
 
-CalibCBNormalizeImage = origin.CalibCBNormalizeImage  // CalibCBFlag
- 
+	ColorRGBToHSV = origin.ColorRGBToHSV // ColorConversionCode
 
-CalibCBMarker = origin.CalibCBMarker  // CalibCBFlag
- 
+	ColorRGBToHLSFull = origin.ColorRGBToHLSFull // ColorConversionCode
 
-CalibCBLarger = origin.CalibCBLarger  // CalibCBFlag
- 
+	ColorRGBToHLS = origin.ColorRGBToHLS // ColorConversionCode
 
-CalibCBFilterQuads = origin.CalibCBFilterQuads  // CalibCBFlag
- 
+	ColorRGBToGray = origin.ColorRGBToGray // ColorConversionCode
 
-CalibCBFastCheck = origin.CalibCBFastCheck  // CalibCBFlag
- 
+	ColorRGBToBGR565 = origin.ColorRGBToBGR565 // ColorConversionCode
 
-CalibCBExhaustive = origin.CalibCBExhaustive  // CalibCBFlag
- 
+	ColorRGBToBGR555 = origin.ColorRGBToBGR555 // ColorConversionCode
 
-CalibCBAdaptiveThresh = origin.CalibCBAdaptiveThresh  // CalibCBFlag
- 
+	ColorRGBATomRGBA = origin.ColorRGBATomRGBA // ColorConversionCode
 
-CalibCBAccuracy = origin.CalibCBAccuracy  // CalibCBFlag
- 
+	ColorRGBAToYUVYV12 = origin.ColorRGBAToYUVYV12 // ColorConversionCode
 
-CC_STAT_WIDTH = origin.CC_STAT_WIDTH  // ConnectedComponentsTypes
- 
+	ColorRGBAToYUVI420 = origin.ColorRGBAToYUVI420 // ColorConversionCode
 
-CC_STAT_TOP = origin.CC_STAT_TOP  // ConnectedComponentsTypes
- 
+	ColorRGBAToGray = origin.ColorRGBAToGray // ColorConversionCode
 
-CC_STAT_MAX = origin.CC_STAT_MAX  // ConnectedComponentsTypes
- 
+	ColorRGBAToBGR565 = origin.ColorRGBAToBGR565 // ColorConversionCode
 
-CC_STAT_LEFT = origin.CC_STAT_LEFT  // ConnectedComponentsTypes
- 
+	ColorRGBAToBGR555 = origin.ColorRGBAToBGR555 // ColorConversionCode
 
-CC_STAT_HEIGHT = origin.CC_STAT_HEIGHT  // ConnectedComponentsTypes
- 
+	ColorRGBAToBGR = origin.ColorRGBAToBGR // ColorConversionCode
 
-CC_STAT_AREA = origin.CC_STAT_AREA  // ConnectedComponentsTypes
- 
+	ColorLuvToRGB = origin.ColorLuvToRGB // ColorConversionCode
 
-CCL_WU = origin.CCL_WU  // ConnectedComponentsAlgorithmType
- 
+	ColorLuvToLRGB = origin.ColorLuvToLRGB // ColorConversionCode
 
-CCL_GRANA = origin.CCL_GRANA  // ConnectedComponentsAlgorithmType
- 
+	ColorLuvToLBGR = origin.ColorLuvToLBGR // ColorConversionCode
 
-CCL_DEFAULT = origin.CCL_DEFAULT  // ConnectedComponentsAlgorithmType
- 
+	ColorLuvToBGR = origin.ColorLuvToBGR // ColorConversionCode
 
-BorderWrap = origin.BorderWrap  // BorderType
- 
+	ColorLabToRGB = origin.ColorLabToRGB // ColorConversionCode
 
-BorderTransparent = origin.BorderTransparent  // BorderType
- 
+	ColorLabToLRGB = origin.ColorLabToLRGB // ColorConversionCode
 
-BorderReplicate = origin.BorderReplicate  // BorderType
- 
+	ColorLabToLBGR = origin.ColorLabToLBGR // ColorConversionCode
 
-BorderReflect101 = origin.BorderReflect101  // BorderType
- 
+	ColorLabToBGR = origin.ColorLabToBGR // ColorConversionCode
 
-BorderReflect = origin.BorderReflect  // BorderType
- 
+	ColorLRGBToLuv = origin.ColorLRGBToLuv // ColorConversionCode
 
-BorderIsolated = origin.BorderIsolated  // BorderType
- 
-// BorderDefault border type
-BorderDefault = origin.BorderDefault  // BorderReflect101
- 
+	ColorLRGBToLab = origin.ColorLRGBToLab // ColorConversionCode
 
-BorderConstant = origin.BorderConstant  // BorderType
- 
+	ColorLBGRToLuv = origin.ColorLBGRToLuv // ColorConversionCode
 
-AdaptiveThresholdMean = origin.AdaptiveThresholdMean  // AdaptiveThresholdType
- 
+	ColorLBGRToLab = origin.ColorLBGRToLab // ColorConversionCode
 
-AdaptiveThresholdGaussian = origin.AdaptiveThresholdGaussian  // AdaptiveThresholdType
+	ColorHSVToRGBFull = origin.ColorHSVToRGBFull // ColorConversionCode
+
+	ColorHSVToRGB = origin.ColorHSVToRGB // ColorConversionCode
+
+	ColorHSVToBGRFull = origin.ColorHSVToBGRFull // ColorConversionCode
+
+	ColorHSVToBGR = origin.ColorHSVToBGR // ColorConversionCode
+
+	ColorHLSToRGBFull = origin.ColorHLSToRGBFull // ColorConversionCode
+
+	ColorHLSToRGB = origin.ColorHLSToRGB // ColorConversionCode
+
+	ColorHLSToBGRFull = origin.ColorHLSToBGRFull // ColorConversionCode
+
+	ColorHLSToBGR = origin.ColorHLSToBGR // ColorConversionCode
+
+	ColorGrayToBGRA = origin.ColorGrayToBGRA // ColorConversionCode
+
+	ColorGrayToBGR565 = origin.ColorGrayToBGR565 // ColorConversionCode
+
+	ColorGrayToBGR555 = origin.ColorGrayToBGR555 // ColorConversionCode
+
+	ColorGrayToBGR = origin.ColorGrayToBGR // ColorConversionCode
+
+	ColorCOLORCVTMAX = origin.ColorCOLORCVTMAX // ColorConversionCode
+
+	ColorBayerRGToGRAY = origin.ColorBayerRGToGRAY // ColorConversionCode
+
+	ColorBayerRGToBGRVNG = origin.ColorBayerRGToBGRVNG // ColorConversionCode
+
+	ColorBayerRGToBGREA = origin.ColorBayerRGToBGREA // ColorConversionCode
+
+	ColorBayerRGToBGRA = origin.ColorBayerRGToBGRA // ColorConversionCode
+
+	ColorBayerRGToBGR = origin.ColorBayerRGToBGR // ColorConversionCode
+
+	ColorBayerGRToGRAY = origin.ColorBayerGRToGRAY // ColorConversionCode
+
+	ColorBayerGRToBGRVNG = origin.ColorBayerGRToBGRVNG // ColorConversionCode
+
+	ColorBayerGRToBGREA = origin.ColorBayerGRToBGREA // ColorConversionCode
+
+	ColorBayerGRToBGRA = origin.ColorBayerGRToBGRA // ColorConversionCode
+
+	ColorBayerGRToBGR = origin.ColorBayerGRToBGR // ColorConversionCode
+
+	ColorBayerGBToGRAY = origin.ColorBayerGBToGRAY // ColorConversionCode
+
+	ColorBayerGBToBGRVNG = origin.ColorBayerGBToBGRVNG // ColorConversionCode
+
+	ColorBayerGBToBGREA = origin.ColorBayerGBToBGREA // ColorConversionCode
+
+	ColorBayerGBToBGRA = origin.ColorBayerGBToBGRA // ColorConversionCode
+
+	ColorBayerGBToBGR = origin.ColorBayerGBToBGR // ColorConversionCode
+
+	ColorBayerBGToGRAY = origin.ColorBayerBGToGRAY // ColorConversionCode
+
+	ColorBayerBGToBGRVNG = origin.ColorBayerBGToBGRVNG // ColorConversionCode
+
+	ColorBayerBGToBGREA = origin.ColorBayerBGToBGREA // ColorConversionCode
+
+	ColorBayerBGToBGRA = origin.ColorBayerBGToBGRA // ColorConversionCode
+
+	ColorBayerBGToBGR = origin.ColorBayerBGToBGR // ColorConversionCode
+
+	ColorBGRToYUVYV12 = origin.ColorBGRToYUVYV12 // ColorConversionCode
+
+	ColorBGRToYUVI420 = origin.ColorBGRToYUVI420 // ColorConversionCode
+
+	ColorBGRToYUV = origin.ColorBGRToYUV // ColorConversionCode
+
+	ColorBGRToYCrCb = origin.ColorBGRToYCrCb // ColorConversionCode
+
+	ColorBGRToXYZ = origin.ColorBGRToXYZ // ColorConversionCode
+
+	ColorBGRToRGBA = origin.ColorBGRToRGBA // ColorConversionCode
+
+	ColorBGRToRGB = origin.ColorBGRToRGB // ColorConversionCode
+
+	ColorBGRToLuv = origin.ColorBGRToLuv // ColorConversionCode
+
+	ColorBGRToLab = origin.ColorBGRToLab // ColorConversionCode
+
+	ColorBGRToHSVFull = origin.ColorBGRToHSVFull // ColorConversionCode
+
+	ColorBGRToHSV = origin.ColorBGRToHSV // ColorConversionCode
+
+	ColorBGRToHLSFull = origin.ColorBGRToHLSFull // ColorConversionCode
+
+	ColorBGRToHLS = origin.ColorBGRToHLS // ColorConversionCode
+
+	ColorBGRToGray = origin.ColorBGRToGray // ColorConversionCode
+
+	ColorBGRToBGRA = origin.ColorBGRToBGRA // ColorConversionCode
+
+	ColorBGRToBGR565 = origin.ColorBGRToBGR565 // ColorConversionCode
+
+	ColorBGRToBGR555 = origin.ColorBGRToBGR555 // ColorConversionCode
+
+	ColorBGRAToYUVYV12 = origin.ColorBGRAToYUVYV12 // ColorConversionCode
+
+	ColorBGRAToYUVI420 = origin.ColorBGRAToYUVI420 // ColorConversionCode
+
+	ColorBGRAToRGBA = origin.ColorBGRAToRGBA // ColorConversionCode
+
+	ColorBGRAToGray = origin.ColorBGRAToGray // ColorConversionCode
+
+	ColorBGRAToBGR565 = origin.ColorBGRAToBGR565 // ColorConversionCode
+
+	ColorBGRAToBGR555 = origin.ColorBGRAToBGR555 // ColorConversionCode
+
+	ColorBGRAToBGR = origin.ColorBGRAToBGR // ColorConversionCode
+
+	ColorBGR565ToRGBA = origin.ColorBGR565ToRGBA // ColorConversionCode
+
+	ColorBGR565ToRGB = origin.ColorBGR565ToRGB // ColorConversionCode
+
+	ColorBGR565ToGray = origin.ColorBGR565ToGray // ColorConversionCode
+
+	ColorBGR565ToBGRA = origin.ColorBGR565ToBGRA // ColorConversionCode
+
+	ColorBGR565ToBGR = origin.ColorBGR565ToBGR // ColorConversionCode
+
+	ColorBGR555ToRGBA = origin.ColorBGR555ToRGBA // ColorConversionCode
+
+	ColorBGR555ToRGB = origin.ColorBGR555ToRGB // ColorConversionCode
+
+	ColorBGR555ToGRAY = origin.ColorBGR555ToGRAY // ColorConversionCode
+
+	ColorBGR555ToBGRA = origin.ColorBGR555ToBGRA // ColorConversionCode
+
+	ColorBGR555ToBGR = origin.ColorBGR555ToBGR // ColorConversionCode
+
+	ChainApproxTC89L1 = origin.ChainApproxTC89L1 // ContourApproximationMode
+
+	ChainApproxTC89KCOS = origin.ChainApproxTC89KCOS // ContourApproximationMode
+
+	ChainApproxSimple = origin.ChainApproxSimple // ContourApproximationMode
+
+	ChainApproxNone = origin.ChainApproxNone // ContourApproximationMode
+
+	CalibUseIntrinsicGuess = origin.CalibUseIntrinsicGuess // CalibFlag
+
+	CalibRecomputeExtrinsic = origin.CalibRecomputeExtrinsic // CalibFlag
+
+	CalibFixSkew = origin.CalibFixSkew // CalibFlag
+
+	CalibFixPrincipalPoint = origin.CalibFixPrincipalPoint // CalibFlag
+
+	CalibFixK4 = origin.CalibFixK4 // CalibFlag
+
+	CalibFixK3 = origin.CalibFixK3 // CalibFlag
+
+	CalibFixK2 = origin.CalibFixK2 // CalibFlag
+
+	CalibFixK1 = origin.CalibFixK1 // CalibFlag
+
+	CalibFixIntrinsic = origin.CalibFixIntrinsic // CalibFlag
+
+	CalibCheckCond = origin.CalibCheckCond // CalibFlag
+
+	CalibCBNormalizeImage = origin.CalibCBNormalizeImage // CalibCBFlag
+
+	CalibCBMarker = origin.CalibCBMarker // CalibCBFlag
+
+	CalibCBLarger = origin.CalibCBLarger // CalibCBFlag
+
+	CalibCBFilterQuads = origin.CalibCBFilterQuads // CalibCBFlag
+
+	CalibCBFastCheck = origin.CalibCBFastCheck // CalibCBFlag
+
+	CalibCBExhaustive = origin.CalibCBExhaustive // CalibCBFlag
+
+	CalibCBAdaptiveThresh = origin.CalibCBAdaptiveThresh // CalibCBFlag
+
+	CalibCBAccuracy = origin.CalibCBAccuracy // CalibCBFlag
+
+	CC_STAT_WIDTH = origin.CC_STAT_WIDTH // ConnectedComponentsTypes
+
+	CC_STAT_TOP = origin.CC_STAT_TOP // ConnectedComponentsTypes
+
+	CC_STAT_MAX = origin.CC_STAT_MAX // ConnectedComponentsTypes
+
+	CC_STAT_LEFT = origin.CC_STAT_LEFT // ConnectedComponentsTypes
+
+	CC_STAT_HEIGHT = origin.CC_STAT_HEIGHT // ConnectedComponentsTypes
+
+	CC_STAT_AREA = origin.CC_STAT_AREA // ConnectedComponentsTypes
+
+	CCL_WU = origin.CCL_WU // ConnectedComponentsAlgorithmType
+
+	CCL_GRANA = origin.CCL_GRANA // ConnectedComponentsAlgorithmType
+
+	CCL_DEFAULT = origin.CCL_DEFAULT // ConnectedComponentsAlgorithmType
+
+	BorderWrap = origin.BorderWrap // BorderType
+
+	BorderTransparent = origin.BorderTransparent // BorderType
+
+	BorderReplicate = origin.BorderReplicate // BorderType
+
+	BorderReflect101 = origin.BorderReflect101 // BorderType
+
+	BorderReflect = origin.BorderReflect // BorderType
+
+	BorderIsolated = origin.BorderIsolated // BorderType
+
+	// BorderDefault border type
+	BorderDefault = origin.BorderDefault // BorderReflect101
+
+	BorderConstant = origin.BorderConstant // BorderType
+
+	AdaptiveThresholdMean = origin.AdaptiveThresholdMean // AdaptiveThresholdType
+
+	AdaptiveThresholdGaussian = origin.AdaptiveThresholdGaussian // AdaptiveThresholdType
 
 )
-
-
 
 var (
-                                                                                                                                                                                                                                                                                                          
+	ErrEmptyByteSlice = origin.ErrEmptyByteSlice // _
 
-ErrEmptyByteSlice = origin.ErrEmptyByteSlice  // _
-                                                                                                                                                                                                                                       
 )
 
-
-
-
 // Returns a zero array of the specified size and type.
-// 
+//
 // The method returns a Matlab-style zero array initializer.
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a0b57b6a326c8876d944d188a46e0f556
@@ -4309,50 +4625,45 @@ func (rt *GoCVResourceTracker) Zeros(rows int, cols int, mt MatType) *Mat {
 }
 
 // Watershed performs a marker-based image segmentation using the watershed algorithm.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga3267243e4d3f95165d55a618c65ac6e1
 func (rt *GoCVResourceTracker) Watershed(image *Mat, markers *Mat) {
-origin.Watershed(image.coreElem(), markers.coreElemPtr())
+	origin.Watershed(image.coreElem(), markers.coreElemPtr())
 }
 
-
 // WarpPerspectiveWithParams applies a perspective transformation to an image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87
 func (rt *GoCVResourceTracker) WarpPerspectiveWithParams(src *Mat, dst *Mat, m *Mat, sz image.Point, flags InterpolationFlags, borderType BorderType, borderValue color.RGBA) {
-origin.WarpPerspectiveWithParams(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz, flags, borderType, borderValue)
+	origin.WarpPerspectiveWithParams(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz, flags, borderType, borderValue)
 }
-
 
 // WarpPerspective applies a perspective transformation to an image.
 // For more parameters please check WarpPerspectiveWithParams.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87
 func (rt *GoCVResourceTracker) WarpPerspective(src *Mat, dst *Mat, m *Mat, sz image.Point) {
-origin.WarpPerspective(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz)
+	origin.WarpPerspective(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz)
 }
 
-
 // WarpAffineWithParams applies an affine transformation to an image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983
 func (rt *GoCVResourceTracker) WarpAffineWithParams(src *Mat, dst *Mat, m *Mat, sz image.Point, flags InterpolationFlags, borderType BorderType, borderValue color.RGBA) {
-origin.WarpAffineWithParams(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz, flags, borderType, borderValue)
+	origin.WarpAffineWithParams(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz, flags, borderType, borderValue)
 }
 
-
 // WarpAffine applies an affine transformation to an image. For more parameters please check WarpAffineWithParams
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983
 func (rt *GoCVResourceTracker) WarpAffine(src *Mat, dst *Mat, m *Mat, sz image.Point) {
-origin.WarpAffine(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz)
+	origin.WarpAffine(src.coreElem(), dst.coreElemPtr(), m.coreElem(), sz)
 }
-
 
 // WaitKey that is not attached to a specific Window.
 // Only use when no Window exists in your application, e.g. command line app.
@@ -4364,7 +4675,7 @@ func (rt *GoCVResourceTracker) WaitKey(delay int) int {
 // VideoWriterFile opens a VideoWriter with a specific output file.
 // The "codec" param should be the four-letter code for the desired output
 // codec, for example "MJPG".
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/dd/d9e/classcv_1_1VideoWriter.html#a0901c353cd5ea05bba455317dab81130
 func (rt *GoCVResourceTracker) VideoWriterFile(name string, codec string, fps float64, width int, height int, isColor bool) (*VideoWriter, error) {
@@ -4407,49 +4718,43 @@ func (rt *GoCVResourceTracker) Version() string {
 }
 
 // Vconcat applies vertical concatenation to given matrices.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaab5ceee39e0580f879df645a872c6bf7
 func (rt *GoCVResourceTracker) Vconcat(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Vconcat(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Vconcat(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // UndistortPoints transforms points to compensate for lens distortion
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga55c716492470bfe86b0ee9bf3a1f0f7e
 func (rt *GoCVResourceTracker) UndistortPoints(src *Mat, dst *Mat, cameraMatrix *Mat, distCoeffs *Mat, rectificationTransform *Mat, newCameraMatrix *Mat) {
-origin.UndistortPoints(src.coreElem(), dst.coreElemPtr(), cameraMatrix.coreElem(), distCoeffs.coreElem(), rectificationTransform.coreElem(), newCameraMatrix.coreElem())
+	origin.UndistortPoints(src.coreElem(), dst.coreElemPtr(), cameraMatrix.coreElem(), distCoeffs.coreElem(), rectificationTransform.coreElem(), newCameraMatrix.coreElem())
 }
-
-
 
 func (rt *GoCVResourceTracker) Undistort(src *Mat, dst *Mat, cameraMatrix *Mat, distCoeffs *Mat, newCameraMatrix *Mat) {
-origin.Undistort(src.coreElem(), dst.coreElemPtr(), cameraMatrix.coreElem(), distCoeffs.coreElem(), newCameraMatrix.coreElem())
+	origin.Undistort(src.coreElem(), dst.coreElemPtr(), cameraMatrix.coreElem(), distCoeffs.coreElem(), newCameraMatrix.coreElem())
 }
 
-
 // Transpose transposes a matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga46630ed6c0ea6254a35f447289bd7404
 func (rt *GoCVResourceTracker) Transpose(src *Mat, dst *Mat) {
-origin.Transpose(src.coreElem(), dst.coreElemPtr())
+	origin.Transpose(src.coreElem(), dst.coreElemPtr())
 }
 
-
 // Transform performs the matrix transformation of every array element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga393164aa54bb9169ce0a8cc44e08ff22
 func (rt *GoCVResourceTracker) Transform(src *Mat, dst *Mat, tm *Mat) {
-origin.Transform(src.coreElem(), dst.coreElemPtr(), tm.coreElem())
+	origin.Transform(src.coreElem(), dst.coreElemPtr(), tm.coreElem())
 }
 
-
 // Trace returns the trace of a matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3419ac19c7dcd2be4bd552a23e147dd8
 func (rt *GoCVResourceTracker) Trace(src *Mat) Scalar {
@@ -4458,7 +4763,7 @@ func (rt *GoCVResourceTracker) Trace(src *Mat) Scalar {
 }
 
 // Threshold applies a fixed-level threshold to each array element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/3.3.0/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57
 func (rt *GoCVResourceTracker) Threshold(src *Mat, dst *Mat, thresh float32, maxvalue float32, typ ThresholdType) float32 {
@@ -4467,7 +4772,7 @@ func (rt *GoCVResourceTracker) Threshold(src *Mat, dst *Mat, thresh float32, max
 }
 
 // TheRNG Returns the default random number generator.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga75843061d150ad6564b5447e38e57722
 func (rt *GoCVResourceTracker) TheRNG() RNG {
@@ -4476,47 +4781,43 @@ func (rt *GoCVResourceTracker) TheRNG() RNG {
 }
 
 // TextureFlattening washes out the texture of the selected region, giving its contents a flat aspect.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/da0/group__photo__clone.html#gad55df6aa53797365fa7cc23959a54004
 func (rt *GoCVResourceTracker) TextureFlattening(src *Mat, mask *Mat, dst *Mat, lowThreshold float32, highThreshold float32, kernelSize int) {
-origin.TextureFlattening(src.coreElem(), mask.coreElem(), dst.coreElemPtr(), lowThreshold, highThreshold, kernelSize)
+	origin.TextureFlattening(src.coreElem(), mask.coreElem(), dst.coreElemPtr(), lowThreshold, highThreshold, kernelSize)
 }
 
-
 // Subtract calculates the per-element subtraction of two arrays or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaa0f00d98b4b5edeaeb7b8333b2de353b
 func (rt *GoCVResourceTracker) Subtract(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Subtract(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Subtract(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
-
 
 // Stylization aims to produce digital imagery with a wide variety of effects
 // not focused on photorealism. Edge-aware filters are ideal for stylization,
 // as they can abstract regions of low contrast while preserving, or enhancing,
 // high-contrast features.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gacb0f7324017df153d7b5d095aed53206
 func (rt *GoCVResourceTracker) Stylization(src *Mat, dst *Mat, sigma_s float32, sigma_r float32) {
-origin.Stylization(src.coreElem(), dst.coreElemPtr(), sigma_s, sigma_r)
+	origin.Stylization(src.coreElem(), dst.coreElemPtr(), sigma_s, sigma_r)
 }
 
-
 // SqBoxFilter calculates the normalized sum of squares of the pixel values overlapping the filter.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga045028184a9ef65d7d2579e5c4bff6c0
 func (rt *GoCVResourceTracker) SqBoxFilter(src *Mat, dst *Mat, depth int, ksize image.Point) {
-origin.SqBoxFilter(src.coreElem(), dst.coreElemPtr(), depth, ksize)
+	origin.SqBoxFilter(src.coreElem(), dst.coreElemPtr(), depth, ksize)
 }
-
 
 // Split creates an array of single channel images from a multi-channel image
 // Created images should be closed manualy to avoid memory leaks.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga0547c7fed86152d7e9d0096029c8518a
 func (rt *GoCVResourceTracker) Split(src *Mat) []*Mat {
@@ -4525,35 +4826,32 @@ func (rt *GoCVResourceTracker) Split(src *Mat) []*Mat {
 }
 
 // SpatialGradient calculates the first order image derivative in both x and y using a Sobel operator.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga405d03b20c782b65a4daf54d233239a2
 func (rt *GoCVResourceTracker) SpatialGradient(src *Mat, dx *Mat, dy *Mat, ksize MatType, borderType BorderType) {
-origin.SpatialGradient(src.coreElem(), dx.coreElemPtr(), dy.coreElemPtr(), ksize, borderType)
+	origin.SpatialGradient(src.coreElem(), dx.coreElemPtr(), dy.coreElemPtr(), ksize, borderType)
 }
-
 
 // SortIdx sorts each row or each column of a matrix.
 // Instead of reordering the elements themselves, it stores the indices of sorted elements in the output array
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gadf35157cbf97f3cb85a545380e383506
 func (rt *GoCVResourceTracker) SortIdx(src *Mat, dst *Mat, flags SortFlags) {
-origin.SortIdx(src.coreElem(), dst.coreElemPtr(), flags)
+	origin.SortIdx(src.coreElem(), dst.coreElemPtr(), flags)
 }
 
-
 // Sort sorts each row or each column of a matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga45dd56da289494ce874be2324856898f
 func (rt *GoCVResourceTracker) Sort(src *Mat, dst *Mat, flags SortFlags) {
-origin.Sort(src.coreElem(), dst.coreElemPtr(), flags)
+	origin.Sort(src.coreElem(), dst.coreElemPtr(), flags)
 }
 
-
 // SolvePoly finds the real or complex roots of a polynomial equation.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gac2f5e953016fabcdf793d762f4ec5dce
 func (rt *GoCVResourceTracker) SolvePoly(coeffs *Mat, roots *Mat, maxIters int) float64 {
@@ -4562,7 +4860,7 @@ func (rt *GoCVResourceTracker) SolvePoly(coeffs *Mat, roots *Mat, maxIters int) 
 }
 
 // SolveCubic finds the real roots of a cubic equation.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga1c3b0b925b085b6e96931ee309e6a1da
 func (rt *GoCVResourceTracker) SolveCubic(coeffs *Mat, roots *Mat) int {
@@ -4571,7 +4869,7 @@ func (rt *GoCVResourceTracker) SolveCubic(coeffs *Mat, roots *Mat) int {
 }
 
 // Solve solves one or more linear systems or least-squares problems.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga12b43690dbd31fed96f213eefead2373
 func (rt *GoCVResourceTracker) Solve(src1 *Mat, src2 *Mat, dst *Mat, flags SolveDecompositionFlags) bool {
@@ -4580,39 +4878,35 @@ func (rt *GoCVResourceTracker) Solve(src1 *Mat, src2 *Mat, dst *Mat, flags Solve
 }
 
 // Sobel calculates the first, second, third, or mixed image derivatives using an extended Sobel operator
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gacea54f142e81b6758cb6f375ce782c8d
 func (rt *GoCVResourceTracker) Sobel(src *Mat, dst *Mat, ddepth MatType, dx int, dy int, ksize int, scale float64, delta float64, borderType BorderType) {
-origin.Sobel(src.coreElem(), dst.coreElemPtr(), ddepth, dx, dy, ksize, scale, delta, borderType)
+	origin.Sobel(src.coreElem(), dst.coreElemPtr(), ddepth, dx, dy, ksize, scale, delta, borderType)
 }
 
-
 // TheRNG Sets state of default random number generator.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga757e657c037410d9e19e819569e7de0f
 func (rt *GoCVResourceTracker) SetRNGSeed(seed int) {
-origin.SetRNGSeed(seed)
+	origin.SetRNGSeed(seed)
 }
-
 
 // SetIdentity initializes a scaled identity matrix.
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga388d7575224a4a277ceb98ccaa327c99
 func (rt *GoCVResourceTracker) SetIdentity(src *Mat, scalar float64) {
-origin.SetIdentity(src.coreElem(), scalar)
+	origin.SetIdentity(src.coreElem(), scalar)
 }
 
-
 // SepFilter2D applies a separable linear filter to the image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga910e29ff7d7b105057d1625a4bf6318d
 func (rt *GoCVResourceTracker) SepFilter2D(src *Mat, dst *Mat, ddepth MatType, kernelX *Mat, kernelY *Mat, anchor image.Point, delta float64, borderType BorderType) {
-origin.SepFilter2D(src.coreElem(), dst.coreElemPtr(), ddepth, kernelX.coreElem(), kernelY.coreElem(), anchor, delta, borderType)
+	origin.SepFilter2D(src.coreElem(), dst.coreElemPtr(), ddepth, kernelX.coreElem(), kernelY.coreElem(), anchor, delta, borderType)
 }
-
 
 // Deprecated: use Window.SelectROIs instead
 func (rt *GoCVResourceTracker) SelectROIs(name string, img *Mat) []image.Rectangle {
@@ -4627,48 +4921,43 @@ func (rt *GoCVResourceTracker) SelectROI(name string, img *Mat) image.Rectangle 
 }
 
 // SeamlessClone blend two image by Poisson Blending.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/da0/group__photo__clone.html#ga2bf426e4c93a6b1f21705513dfeca49d
 func (rt *GoCVResourceTracker) SeamlessClone(src *Mat, dst *Mat, mask *Mat, p image.Point, blend *Mat, flags SeamlessCloneFlags) {
-origin.SeamlessClone(src.coreElem(), dst.coreElem(), mask.coreElem(), p, blend.coreElemPtr(), flags)
+	origin.SeamlessClone(src.coreElem(), dst.coreElem(), mask.coreElem(), p, blend.coreElemPtr(), flags)
 }
 
-
 // Scharr calculates the first x- or y- image derivative using Scharr operator.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaa13106761eedf14798f37aa2d60404c9
 func (rt *GoCVResourceTracker) Scharr(src *Mat, dst *Mat, dDepth MatType, dx int, dy int, scale float64, delta float64, borderType BorderType) {
-origin.Scharr(src.coreElem(), dst.coreElemPtr(), dDepth, dx, dy, scale, delta, borderType)
+	origin.Scharr(src.coreElem(), dst.coreElemPtr(), dDepth, dx, dy, scale, delta, borderType)
 }
 
-
 // Calculates the sum of a scaled array and another array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9e0845db4135f55dcf20227402f00d98
 func (rt *GoCVResourceTracker) ScaleAdd(src1 *Mat, alpha float64, src2 *Mat, dst *Mat) {
-origin.ScaleAdd(src1.coreElem(), alpha, src2.coreElem(), dst.coreElemPtr())
+	origin.ScaleAdd(src1.coreElem(), alpha, src2.coreElem(), dst.coreElemPtr())
 }
-
 
 // SVDCompute decomposes matrix and stores the results to user-provided matrices
-// 
+//
 // https://docs.opencv.org/4.1.2/df/df7/classcv_1_1SVD.html#a76f0b2044df458160292045a3d3714c6
 func (rt *GoCVResourceTracker) SVDCompute(src *Mat, w *Mat, u *Mat, vt *Mat) {
-origin.SVDCompute(src.coreElem(), w.coreElemPtr(), u.coreElemPtr(), vt.coreElemPtr())
+	origin.SVDCompute(src.coreElem(), w.coreElemPtr(), u.coreElemPtr(), vt.coreElemPtr())
 }
 
-
 // Rotate rotates a 2D array in multiples of 90 degrees
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga4ad01c0978b0ce64baa246811deeac24
 func (rt *GoCVResourceTracker) Rotate(src *Mat, dst *Mat, code RotateFlag) {
-origin.Rotate(src.coreElem(), dst.coreElemPtr(), code)
+	origin.Rotate(src.coreElem(), dst.coreElemPtr(), code)
 }
-
 
 // Resize resizes an image.
 // It resizes the image src down to or up to the specified size, storing the
@@ -4676,64 +4965,58 @@ origin.Rotate(src.coreElem(), dst.coreElemPtr(), code)
 // scale by factor, an empty sz may be passed and non-zero fx and fy. Likewise,
 // if you wish to scale to an explicit size, a non-empty sz may be passed with
 // zero for both fx and fy.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d
 func (rt *GoCVResourceTracker) Resize(src *Mat, dst *Mat, sz image.Point, fx float64, fy float64, interp InterpolationFlags) {
-origin.Resize(src.coreElem(), dst.coreElemPtr(), sz, fx, fy, interp)
+	origin.Resize(src.coreElem(), dst.coreElemPtr(), sz, fx, fy, interp)
 }
 
-
 // Repeat fills the output array with repeated copies of the input array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga496c3860f3ac44c40b48811333cfda2d
 func (rt *GoCVResourceTracker) Repeat(src *Mat, nY int, nX int, dst *Mat) {
-origin.Repeat(src.coreElem(), nY, nX, dst.coreElemPtr())
+	origin.Repeat(src.coreElem(), nY, nX, dst.coreElemPtr())
 }
 
-
 // Remap applies a generic geometrical transformation to an image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4
 func (rt *GoCVResourceTracker) Remap(src *Mat, dst *Mat, map1 *Mat, map2 *Mat, interpolation InterpolationFlags, borderMode BorderType, borderValue color.RGBA) {
-origin.Remap(src.coreElem(), dst.coreElemPtr(), map1.coreElemPtr(), map2.coreElemPtr(), interpolation, borderMode, borderValue)
+	origin.Remap(src.coreElem(), dst.coreElemPtr(), map1.coreElemPtr(), map2.coreElemPtr(), interpolation, borderMode, borderValue)
 }
 
-
 // Reduce reduces a matrix to a vector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga4b78072a303f29d9031d56e5638da78e
 func (rt *GoCVResourceTracker) Reduce(src *Mat, dst *Mat, dim int, rType ReduceTypes, dType MatType) {
-origin.Reduce(src.coreElem(), dst.coreElemPtr(), dim, rType, dType)
+	origin.Reduce(src.coreElem(), dst.coreElemPtr(), dim, rType, dType)
 }
-
 
 // RectangleWithParams draws a simple, thick, or filled up-right rectangle.
 // It renders a rectangle with the desired characteristics to the target Mat image.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga346ac30b5c74e9b5137576c9ee9e0e8c
 func (rt *GoCVResourceTracker) RectangleWithParams(img *Mat, r image.Rectangle, c color.RGBA, thickness int, lineType LineType, shift int) {
-origin.RectangleWithParams(img.coreElemPtr(), r, c, thickness, lineType, shift)
+	origin.RectangleWithParams(img.coreElemPtr(), r, c, thickness, lineType, shift)
 }
-
 
 // Rectangle draws a simple, thick, or filled up-right rectangle.
 // It renders a rectangle with the desired characteristics to the target Mat image.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga346ac30b5c74e9b5137576c9ee9e0e8c
 func (rt *GoCVResourceTracker) Rectangle(img *Mat, r image.Rectangle, c color.RGBA, thickness int) {
-origin.Rectangle(img.coreElemPtr(), r, c, thickness)
+	origin.Rectangle(img.coreElemPtr(), r, c, thickness)
 }
-
 
 // ReadNetFromTorch reads a network model stored in Torch framework's format (t7).
 // check net.Empty() for read failure
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#gaaaed8c8530e9e92fe6647700c13d961e
 func (rt *GoCVResourceTracker) ReadNetFromTorch(model string) *Net {
@@ -4742,7 +5025,7 @@ func (rt *GoCVResourceTracker) ReadNetFromTorch(model string) *Net {
 }
 
 // ReadNetFromTensorflowBytes reads a network model stored in Tensorflow framework's format.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#gacdba30a7c20db2788efbf5bb16a7884d
 func (rt *GoCVResourceTracker) ReadNetFromTensorflowBytes(model []byte) (*Net, error) {
@@ -4751,7 +5034,7 @@ func (rt *GoCVResourceTracker) ReadNetFromTensorflowBytes(model []byte) (*Net, e
 }
 
 // ReadNetFromTensorflow reads a network model stored in Tensorflow framework's format.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#gad820b280978d06773234ba6841e77e8d
 func (rt *GoCVResourceTracker) ReadNetFromTensorflow(model string) *Net {
@@ -4760,7 +5043,7 @@ func (rt *GoCVResourceTracker) ReadNetFromTensorflow(model string) *Net {
 }
 
 // ReadNetFromONNXBytes reads a network model stored in ONNX framework's format.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga9198ecaac7c32ddf0aa7a1bcbd359567
 func (rt *GoCVResourceTracker) ReadNetFromONNXBytes(model []byte) (*Net, error) {
@@ -4770,7 +5053,7 @@ func (rt *GoCVResourceTracker) ReadNetFromONNXBytes(model []byte) (*Net, error) 
 
 // ReadNetFromONNX reads a network model stored in ONNX framework's format.
 // check net.Empty() for read failure
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga7faea56041d10c71dbbd6746ca854197
 func (rt *GoCVResourceTracker) ReadNetFromONNX(model string) *Net {
@@ -4779,7 +5062,7 @@ func (rt *GoCVResourceTracker) ReadNetFromONNX(model string) *Net {
 }
 
 // ReadNetFromCaffeBytes reads a network model stored in Caffe model in memory.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga946b342af1355185a7107640f868b64a
 func (rt *GoCVResourceTracker) ReadNetFromCaffeBytes(prototxt []byte, caffeModel []byte) (*Net, error) {
@@ -4788,7 +5071,7 @@ func (rt *GoCVResourceTracker) ReadNetFromCaffeBytes(prototxt []byte, caffeModel
 }
 
 // ReadNetFromCaffe reads a network model stored in Caffe framework's format.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga29d0ea5e52b1d1a6c2681e3f7d68473a
 func (rt *GoCVResourceTracker) ReadNetFromCaffe(prototxt string, caffeModel string) *Net {
@@ -4797,7 +5080,7 @@ func (rt *GoCVResourceTracker) ReadNetFromCaffe(prototxt string, caffeModel stri
 }
 
 // ReadNetBytes reads a deep learning network represented in one of the supported formats.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga138439da76f26266fdefec9723f6c5cd
 func (rt *GoCVResourceTracker) ReadNetBytes(framework string, model []byte, config []byte) (*Net, error) {
@@ -4806,7 +5089,7 @@ func (rt *GoCVResourceTracker) ReadNetBytes(framework string, model []byte, conf
 }
 
 // ReadNet reads a deep learning network represented in one of the supported formats.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/3.4/d6/d0f/group__dnn.html#ga3b34fe7a29494a6a4295c169a7d32422
 func (rt *GoCVResourceTracker) ReadNet(model string, config string) *Net {
@@ -4816,112 +5099,101 @@ func (rt *GoCVResourceTracker) ReadNet(model string, config string) *Net {
 
 // RandU Generates a single uniformly-distributed random
 // number or an array of random numbers.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga1ba1026dca0807b27057ba6a49d258c0
 func (rt *GoCVResourceTracker) RandU(mat *Mat, low Scalar, high Scalar) {
-origin.RandU(mat.coreElemPtr(), low, high)
+	origin.RandU(mat.coreElemPtr(), low, high)
 }
 
-
 // RandShuffleWithParams Shuffles the array elements randomly.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6a789c8a5cb56c6dd62506179808f763
 func (rt *GoCVResourceTracker) RandShuffleWithParams(mat *Mat, iterFactor float64, rng RNG) {
-origin.RandShuffleWithParams(mat.coreElemPtr(), iterFactor, rng)
+	origin.RandShuffleWithParams(mat.coreElemPtr(), iterFactor, rng)
 }
 
-
 // RandShuffle Shuffles the array elements randomly.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6a789c8a5cb56c6dd62506179808f763
 func (rt *GoCVResourceTracker) RandShuffle(mat *Mat) {
-origin.RandShuffle(mat.coreElemPtr())
+	origin.RandShuffle(mat.coreElemPtr())
 }
 
-
 // RandN Fills the array with normally distributed random numbers.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaeff1f61e972d133a04ce3a5f81cf6808
 func (rt *GoCVResourceTracker) RandN(mat *Mat, mean Scalar, stddev Scalar) {
-origin.RandN(mat.coreElemPtr(), mean, stddev)
+	origin.RandN(mat.coreElemPtr(), mean, stddev)
 }
 
-
 // PyrUp upsamples an image and then blurs it.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gada75b59bdaaca411ed6fee10085eb784
 func (rt *GoCVResourceTracker) PyrUp(src *Mat, dst *Mat, ksize image.Point, borderType BorderType) {
-origin.PyrUp(src.coreElem(), dst.coreElemPtr(), ksize, borderType)
+	origin.PyrUp(src.coreElem(), dst.coreElemPtr(), ksize, borderType)
 }
 
-
 // PyrDown blurs an image and downsamples it.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaf9bba239dfca11654cb7f50f889fc2ff
 func (rt *GoCVResourceTracker) PyrDown(src *Mat, dst *Mat, ksize image.Point, borderType BorderType) {
-origin.PyrDown(src.coreElem(), dst.coreElemPtr(), ksize, borderType)
+	origin.PyrDown(src.coreElem(), dst.coreElemPtr(), ksize, borderType)
 }
-
 
 // PutTextWithParams draws a text string.
 // It renders the specified text string into the img Mat at the location
 // passed in the "org" param, using the desired font face, font scale,
 // color, and line thinkness.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576
 func (rt *GoCVResourceTracker) PutTextWithParams(img *Mat, text string, org image.Point, fontFace HersheyFont, fontScale float64, c color.RGBA, thickness int, lineType LineType, bottomLeftOrigin bool) {
-origin.PutTextWithParams(img.coreElemPtr(), text, org, fontFace, fontScale, c, thickness, lineType, bottomLeftOrigin)
+	origin.PutTextWithParams(img.coreElemPtr(), text, org, fontFace, fontScale, c, thickness, lineType, bottomLeftOrigin)
 }
-
 
 // PutText draws a text string.
 // It renders the specified text string into the img Mat at the location
 // passed in the "org" param, using the desired font face, font scale,
 // color, and line thinkness.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576
 func (rt *GoCVResourceTracker) PutText(img *Mat, text string, org image.Point, fontFace HersheyFont, fontScale float64, c color.RGBA, thickness int) {
-origin.PutText(img.coreElemPtr(), text, org, fontFace, fontScale, c, thickness)
+	origin.PutText(img.coreElemPtr(), text, org, fontFace, fontScale, c, thickness)
 }
 
-
 // Pow raises every array element to a power.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf0d056b5bd1dc92500d6f6cf6bac41ef
 func (rt *GoCVResourceTracker) Pow(src *Mat, power float64, dst *Mat) {
-origin.Pow(src.coreElem(), power, dst.coreElemPtr())
+	origin.Pow(src.coreElem(), power, dst.coreElemPtr())
 }
 
-
 // Polylines draws several polygonal curves.
-// 
+//
 // For more information, see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga1ea127ffbbb7e0bfc4fd6fd2eb64263c
 func (rt *GoCVResourceTracker) Polylines(img *Mat, pts *PointsVector, isClosed bool, c color.RGBA, thickness int) {
-origin.Polylines(img.coreElemPtr(), pts.coreElem(), isClosed, c, thickness)
+	origin.Polylines(img.coreElemPtr(), pts.coreElem(), isClosed, c, thickness)
 }
 
-
 // PolatToCart calculates x and y coordinates of 2D vectors from their magnitude and angle.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga581ff9d44201de2dd1b40a50db93d665
 func (rt *GoCVResourceTracker) PolarToCart(magnitude *Mat, degree *Mat, x *Mat, y *Mat, angleInDegrees bool) {
-origin.PolarToCart(magnitude.coreElem(), degree.coreElem(), x.coreElemPtr(), y.coreElemPtr(), angleInDegrees)
+	origin.PolarToCart(magnitude.coreElem(), degree.coreElem(), x.coreElemPtr(), y.coreElemPtr(), angleInDegrees)
 }
 
-
 // PointPolygonTest performs a point-in-contour test.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga1a539e8db2135af2566103705d7a5722
 func (rt *GoCVResourceTracker) PointPolygonTest(pts *PointVector, pt image.Point, measureDist bool) float64 {
@@ -4930,7 +5202,7 @@ func (rt *GoCVResourceTracker) PointPolygonTest(pts *PointVector, pt image.Point
 }
 
 // Apply phaseCorrelate.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga552420a2ace9ef3fb053cd630fdb4952
 func (rt *GoCVResourceTracker) PhaseCorrelate(src1 *Mat, src2 *Mat, window *Mat) (Point2f, float64) {
@@ -4939,31 +5211,28 @@ func (rt *GoCVResourceTracker) PhaseCorrelate(src1 *Mat, src2 *Mat, window *Mat)
 }
 
 // Phase calculates the rotation angle of 2D vectors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9db9ca9b4d81c3bde5677b8f64dc0137
 func (rt *GoCVResourceTracker) Phase(x *Mat, y *Mat, angle *Mat, angleInDegrees bool) {
-origin.Phase(x.coreElem(), y.coreElem(), angle.coreElemPtr(), angleInDegrees)
+	origin.Phase(x.coreElem(), y.coreElem(), angle.coreElemPtr(), angleInDegrees)
 }
 
-
 // PerspectiveTransform performs the perspective matrix transformation of vectors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gad327659ac03e5fd6894b90025e6900a7
 func (rt *GoCVResourceTracker) PerspectiveTransform(src *Mat, dst *Mat, tm *Mat) {
-origin.PerspectiveTransform(src.coreElem(), dst.coreElemPtr(), tm.coreElem())
+	origin.PerspectiveTransform(src.coreElem(), dst.coreElemPtr(), tm.coreElem())
 }
 
-
 // PencilSketch pencil-like non-photorealistic line drawing.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gae5930dd822c713b36f8529b21ddebd0c
 func (rt *GoCVResourceTracker) PencilSketch(src *Mat, dst1 *Mat, dst2 *Mat, sigma_s float32, sigma_r float32, shade_factor float32) {
-origin.PencilSketch(src.coreElem(), dst1.coreElemPtr(), dst2.coreElemPtr(), sigma_s, sigma_r, shade_factor)
+	origin.PencilSketch(src.coreElem(), dst1.coreElemPtr(), dst2.coreElemPtr(), sigma_s, sigma_r, shade_factor)
 }
-
 
 // ParseNetTarget returns a valid NetTargetType given a string. Valid values are:
 // - cpu
@@ -4991,7 +5260,6 @@ func (rt *GoCVResourceTracker) ParseNetBackend(backend string) NetBackendType {
 	return _ov1
 }
 
-
 func (rt *GoCVResourceTracker) OpenVideoCaptureWithAPI(v interface{}, apiPreference VideoCaptureAPI) (*VideoCapture, error) {
 	_ov1, _ov2 := origin.OpenVideoCaptureWithAPI(v, apiPreference)
 	return newVideoCaptureFromPtr(rt, _ov1), _ov2
@@ -5012,7 +5280,7 @@ func (rt *GoCVResourceTracker) OpenCVVersion() string {
 }
 
 // Returns an array of all 1's of the specified size and type.
-// 
+//
 // The method returns a Matlab-style 1's array initializer
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a69ae0402d116fc9c71908d8508dc2f09
@@ -5022,16 +5290,15 @@ func (rt *GoCVResourceTracker) Ones(rows int, cols int, mt MatType) *Mat {
 }
 
 // Normalize normalizes the norm or value range of an array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga87eef7ee3970f86906d69a92cbf064bd
 func (rt *GoCVResourceTracker) Normalize(src *Mat, dst *Mat, alpha float64, beta float64, typ NormType) {
-origin.Normalize(src.coreElem(), dst.coreElemPtr(), alpha, beta, typ)
+	origin.Normalize(src.coreElem(), dst.coreElemPtr(), alpha, beta, typ)
 }
 
-
 // Norm calculates the absolute difference/relative norm of two arrays.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7c331fb8dd951707e184ef4e3f21dd33
 func (rt *GoCVResourceTracker) NormWithMats(src1 *Mat, src2 *Mat, normType NormType) float64 {
@@ -5040,7 +5307,7 @@ func (rt *GoCVResourceTracker) NormWithMats(src1 *Mat, src2 *Mat, normType NormT
 }
 
 // Norm calculates the absolute norm of an array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7c331fb8dd951707e184ef4e3f21dd33
 func (rt *GoCVResourceTracker) Norm(src1 *Mat, normType NormType) float64 {
@@ -5049,7 +5316,7 @@ func (rt *GoCVResourceTracker) Norm(src1 *Mat, normType NormType) float64 {
 }
 
 // NewWindow creates a new named OpenCV window
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga5afdf8410934fd099df85c75b2e0888b
 func (rt *GoCVResourceTracker) NewWindow(name string) *Window {
@@ -5070,7 +5337,7 @@ func (rt *GoCVResourceTracker) NewTermCriteria(typ TermCriteriaType, maxCount in
 }
 
 // NewSimpleBlobDetectorWithParams returns a new SimpleBlobDetector with custom parameters
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d7a/classcv_1_1SimpleBlobDetector.html
 func (rt *GoCVResourceTracker) NewSimpleBlobDetectorWithParams(params SimpleBlobDetectorParams) *SimpleBlobDetector {
@@ -5085,7 +5352,7 @@ func (rt *GoCVResourceTracker) NewSimpleBlobDetectorParams() SimpleBlobDetectorP
 }
 
 // NewSimpleBlobDetector returns a new SimpleBlobDetector algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d0/d7a/classcv_1_1SimpleBlobDetector.html
 func (rt *GoCVResourceTracker) NewSimpleBlobDetector() *SimpleBlobDetector {
@@ -5100,14 +5367,13 @@ func (rt *GoCVResourceTracker) NewScalar(v1 float64, v2 float64, v3 float64, v4 
 }
 
 // NewSIFT returns a new SIFT algorithm.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d3c/classcv_1_1xfeatures2d_1_1SIFT.html
 func (rt *GoCVResourceTracker) NewSIFT() *SIFT {
 	_ov1 := origin.NewSIFT()
 	return newSIFTFromElem(rt, _ov1)
 }
-
 
 func (rt *GoCVResourceTracker) NewQRCodeDetector() *QRCodeDetector {
 	_ov1 := origin.NewQRCodeDetector()
@@ -5193,7 +5459,6 @@ func (rt *GoCVResourceTracker) NewPoint3fVector() *Point3fVector {
 	return newPoint3fVectorFromElem(rt, _ov1)
 }
 
-
 func (rt *GoCVResourceTracker) NewPoint3f(x float32, y float32, z float32) Point3f {
 	_ov1 := origin.NewPoint3f(x, y, z)
 	return _ov1
@@ -5219,14 +5484,13 @@ func (rt *GoCVResourceTracker) NewPoint2fVector() *Point2fVector {
 	return newPoint2fVectorFromElem(rt, _ov1)
 }
 
-
 func (rt *GoCVResourceTracker) NewPoint2f(x float32, y float32) Point2f {
 	_ov1 := origin.NewPoint2f(x, y)
 	return _ov1
 }
 
 // NewORBWithParams returns a new ORB algorithm with parameters
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d95/classcv_1_1ORB.html#aeff0cbe668659b7ca14bb85ff1c4073b
 func (rt *GoCVResourceTracker) NewORBWithParams(nFeatures int, scaleFactor float32, nLevels int, edgeThreshold int, firstLevel int, WTAK int, scoreType ORBScoreType, patchSize int, fastThreshold int) *ORB {
@@ -5235,7 +5499,7 @@ func (rt *GoCVResourceTracker) NewORBWithParams(nFeatures int, scaleFactor float
 }
 
 // NewORB returns a new ORB algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d95/classcv_1_1ORB.html
 func (rt *GoCVResourceTracker) NewORB() *ORB {
@@ -5246,7 +5510,7 @@ func (rt *GoCVResourceTracker) NewORB() *ORB {
 // NewMergeMertensWithParams returns a new MergeMertens white LDR merge algorithm
 // of type MergeMertens with customized parameters.
 // MergeMertens algorithm merge the ldr image should result in a HDR image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/df5/group__photo__hdr.html
 // https://docs.opencv.org/master/d7/dd6/classcv_1_1MergeMertens.html
@@ -5259,7 +5523,7 @@ func (rt *GoCVResourceTracker) NewMergeMertensWithParams(contrast_weight float32
 // NewMergeMertens returns returns a new MergeMertens white LDR merge algorithm.
 // of type MergeMertens with default parameters.
 // MergeMertens algorithm merge the ldr image should result in a HDR image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/df5/group__photo__hdr.html
 // https://docs.opencv.org/master/d7/dd6/classcv_1_1MergeMertens.html
@@ -5319,7 +5583,7 @@ func (rt *GoCVResourceTracker) NewMat() *Mat {
 }
 
 // NewMSER returns a new MSER algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d28/classcv_1_1MSER.html
 func (rt *GoCVResourceTracker) NewMSER() *MSER {
@@ -5328,7 +5592,7 @@ func (rt *GoCVResourceTracker) NewMSER() *MSER {
 }
 
 // NewKAZE returns a new KAZE algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d61/classcv_1_1KAZE.html
 func (rt *GoCVResourceTracker) NewKAZE() *KAZE {
@@ -5343,7 +5607,7 @@ func (rt *GoCVResourceTracker) NewHOGDescriptor() *HOGDescriptor {
 }
 
 // NewGFTTDetector returns a new GFTTDetector algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/d21/classcv_1_1GFTTDetector.html
 func (rt *GoCVResourceTracker) NewGFTTDetector() *GFTTDetector {
@@ -5352,7 +5616,7 @@ func (rt *GoCVResourceTracker) NewGFTTDetector() *GFTTDetector {
 }
 
 // NewFlannBasedMatcher returns a new FlannBasedMatcher
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dc/de2/classcv_1_1FlannBasedMatcher.html#ab9114a6471e364ad221f89068ca21382
 func (rt *GoCVResourceTracker) NewFlannBasedMatcher() *FlannBasedMatcher {
@@ -5361,7 +5625,7 @@ func (rt *GoCVResourceTracker) NewFlannBasedMatcher() *FlannBasedMatcher {
 }
 
 // NewFastFeatureDetectorWithParams returns a new FastFeatureDetector algorithm with parameters
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/d74/classcv_1_1FastFeatureDetector.html#ab986f2ff8f8778aab1707e2642bc7f8e
 func (rt *GoCVResourceTracker) NewFastFeatureDetectorWithParams(threshold int, nonmaxSuppression bool, typ FastFeatureDetectorType) *FastFeatureDetector {
@@ -5370,7 +5634,7 @@ func (rt *GoCVResourceTracker) NewFastFeatureDetectorWithParams(threshold int, n
 }
 
 // NewFastFeatureDetector returns a new FastFeatureDetector algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/d74/classcv_1_1FastFeatureDetector.html
 func (rt *GoCVResourceTracker) NewFastFeatureDetector() *FastFeatureDetector {
@@ -5385,7 +5649,7 @@ func (rt *GoCVResourceTracker) NewCascadeClassifier() *CascadeClassifier {
 }
 
 // NewCLAHEWithParams returns a new CLAHE algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/db6/classcv_1_1CLAHE.html
 func (rt *GoCVResourceTracker) NewCLAHEWithParams(clipLimit float64, tileGridSize image.Point) *CLAHE {
@@ -5394,7 +5658,7 @@ func (rt *GoCVResourceTracker) NewCLAHEWithParams(clipLimit float64, tileGridSiz
 }
 
 // NewCLAHE returns a new CLAHE algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/db6/classcv_1_1CLAHE.html
 func (rt *GoCVResourceTracker) NewCLAHE() *CLAHE {
@@ -5405,7 +5669,7 @@ func (rt *GoCVResourceTracker) NewCLAHE() *CLAHE {
 // NewBackgroundSubtractorMOG2WithParams returns a new BackgroundSubtractor algorithm
 // of type MOG2 with customized parameters. MOG2 is a Gaussian Mixture-based Background/Foreground
 // Segmentation Algorithm.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/de1/group__video__motion.html#ga2beb2dee7a073809ccec60f145b6b29c
 // https://docs.opencv.org/master/d7/d7b/classcv_1_1BackgroundSubtractorMOG2.html
@@ -5417,7 +5681,7 @@ func (rt *GoCVResourceTracker) NewBackgroundSubtractorMOG2WithParams(history int
 // NewBackgroundSubtractorMOG2 returns a new BackgroundSubtractor algorithm
 // of type MOG2. MOG2 is a Gaussian Mixture-based Background/Foreground
 // Segmentation Algorithm.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/de1/group__video__motion.html#ga2beb2dee7a073809ccec60f145b6b29c
 // https://docs.opencv.org/master/d7/d7b/classcv_1_1BackgroundSubtractorMOG2.html
@@ -5429,7 +5693,7 @@ func (rt *GoCVResourceTracker) NewBackgroundSubtractorMOG2() *BackgroundSubtract
 // NewBackgroundSubtractorKNNWithParams returns a new BackgroundSubtractor algorithm
 // of type KNN with customized parameters. K-Nearest Neighbors (KNN) uses a Background/Foreground
 // Segmentation Algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/de1/group__video__motion.html#gac9be925771f805b6fdb614ec2292006d
 // https://docs.opencv.org/master/db/d88/classcv_1_1BackgroundSubtractorKNN.html
@@ -5441,7 +5705,7 @@ func (rt *GoCVResourceTracker) NewBackgroundSubtractorKNNWithParams(history int,
 // NewBackgroundSubtractorKNN returns a new BackgroundSubtractor algorithm
 // of type KNN. K-Nearest Neighbors (KNN) uses a Background/Foreground
 // Segmentation Algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/de/de1/group__video__motion.html#gac9be925771f805b6fdb614ec2292006d
 // https://docs.opencv.org/master/db/d88/classcv_1_1BackgroundSubtractorKNN.html
@@ -5451,7 +5715,7 @@ func (rt *GoCVResourceTracker) NewBackgroundSubtractorKNN() *BackgroundSubtracto
 }
 
 // NewBRISK returns a new BRISK algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d8/d30/classcv_1_1AKAZE.html
 func (rt *GoCVResourceTracker) NewBRISK() *BRISK {
@@ -5461,7 +5725,7 @@ func (rt *GoCVResourceTracker) NewBRISK() *BRISK {
 
 // NewBFMatcherWithParams creates a new BFMatchers but allows setting parameters
 // to values other than just the defaults.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/da1/classcv_1_1BFMatcher.html#abe0bb11749b30d97f60d6ade665617bd
 func (rt *GoCVResourceTracker) NewBFMatcherWithParams(normType NormType, crossCheck bool) *BFMatcher {
@@ -5470,7 +5734,7 @@ func (rt *GoCVResourceTracker) NewBFMatcherWithParams(normType NormType, crossCh
 }
 
 // NewBFMatcher returns a new BFMatcher
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/da1/classcv_1_1BFMatcher.html#abe0bb11749b30d97f60d6ade665617bd
 func (rt *GoCVResourceTracker) NewBFMatcher() *BFMatcher {
@@ -5497,7 +5761,7 @@ func (rt *GoCVResourceTracker) NewAlignMTB() *AlignMTB {
 }
 
 // NewAgastFeatureDetector returns a new AgastFeatureDetector algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d19/classcv_1_1AgastFeatureDetector.html
 func (rt *GoCVResourceTracker) NewAgastFeatureDetector() *AgastFeatureDetector {
@@ -5506,7 +5770,7 @@ func (rt *GoCVResourceTracker) NewAgastFeatureDetector() *AgastFeatureDetector {
 }
 
 // NewAKAZE returns a new AKAZE algorithm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d8/d30/classcv_1_1AKAZE.html
 func (rt *GoCVResourceTracker) NewAKAZE() *AKAZE {
@@ -5515,73 +5779,66 @@ func (rt *GoCVResourceTracker) NewAKAZE() *AKAZE {
 }
 
 // NMSBoxesWithParams performs non maximum suppression given boxes and corresponding scores.
-// 
+//
 // For futher details, please see:
 // https://docs.opencv.org/4.4.0/d6/d0f/group__dnn.html#ga9d118d70a1659af729d01b10233213ee
 func (rt *GoCVResourceTracker) NMSBoxesWithParams(bboxes []image.Rectangle, scores []float32, scoreThreshold float32, nmsThreshold float32, indices []int, eta float32, topK int) {
-origin.NMSBoxesWithParams(bboxes, scores, scoreThreshold, nmsThreshold, indices, eta, topK)
+	origin.NMSBoxesWithParams(bboxes, scores, scoreThreshold, nmsThreshold, indices, eta, topK)
 }
 
-
 // NMSBoxes performs non maximum suppression given boxes and corresponding scores.
-// 
+//
 // For futher details, please see:
 // https://docs.opencv.org/4.4.0/d6/d0f/group__dnn.html#ga9d118d70a1659af729d01b10233213ee
 func (rt *GoCVResourceTracker) NMSBoxes(bboxes []image.Rectangle, scores []float32, scoreThreshold float32, nmsThreshold float32, indices []int) {
-origin.NMSBoxes(bboxes, scores, scoreThreshold, nmsThreshold, indices)
+	origin.NMSBoxes(bboxes, scores, scoreThreshold, nmsThreshold, indices)
 }
-
 
 // MultiplyWithParams calculates the per-element scaled product of two arrays.
 // Both input arrays must be of the same size and the same type.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga979d898a58d7f61c53003e162e7ad89f
 func (rt *GoCVResourceTracker) MultiplyWithParams(src1 *Mat, src2 *Mat, dst *Mat, scale float64, dtype MatType) {
-origin.MultiplyWithParams(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), scale, dtype)
+	origin.MultiplyWithParams(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), scale, dtype)
 }
-
 
 // Multiply calculates the per-element scaled product of two arrays.
 // Both input arrays must be of the same size and the same type.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga979d898a58d7f61c53003e162e7ad89f
 func (rt *GoCVResourceTracker) Multiply(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Multiply(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Multiply(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // Mulspectrums performs the per-element multiplication of two Fourier spectrums.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3ab38646463c59bf0ce962a9d51db64f
 func (rt *GoCVResourceTracker) MulSpectrums(a *Mat, b *Mat, dst *Mat, flags DftFlags) {
-origin.MulSpectrums(a.coreElem(), b.coreElem(), dst.coreElemPtr(), flags)
+	origin.MulSpectrums(a.coreElem(), b.coreElem(), dst.coreElemPtr(), flags)
 }
 
-
 // MorphologyExWithParams performs advanced morphological transformations.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f
 func (rt *GoCVResourceTracker) MorphologyExWithParams(src *Mat, dst *Mat, op MorphType, kernel *Mat, iterations int, borderType BorderType) {
-origin.MorphologyExWithParams(src.coreElem(), dst.coreElemPtr(), op, kernel.coreElem(), iterations, borderType)
+	origin.MorphologyExWithParams(src.coreElem(), dst.coreElemPtr(), op, kernel.coreElem(), iterations, borderType)
 }
 
-
 // MorphologyEx performs advanced morphological transformations.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f
 func (rt *GoCVResourceTracker) MorphologyEx(src *Mat, dst *Mat, op MorphType, kernel *Mat) {
-origin.MorphologyEx(src.coreElem(), dst.coreElemPtr(), op, kernel.coreElem())
+	origin.MorphologyEx(src.coreElem(), dst.coreElemPtr(), op, kernel.coreElem())
 }
-
 
 // MorphologyDefaultBorder returns "magic" border value for erosion and dilation.
 // It is automatically transformed to Scalar::all(-DBL_MAX) for dilation.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga94756fad83d9d24d29c9bf478558c40a
 func (rt *GoCVResourceTracker) MorphologyDefaultBorderValue() Scalar {
@@ -5591,7 +5848,7 @@ func (rt *GoCVResourceTracker) MorphologyDefaultBorderValue() Scalar {
 
 // Moments calculates all of the moments up to the third order of a polygon
 // or rasterized shape.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139
 func (rt *GoCVResourceTracker) Moments(src *Mat, binaryImage bool) map[string]float64 {
@@ -5600,16 +5857,15 @@ func (rt *GoCVResourceTracker) Moments(src *Mat, binaryImage bool) map[string]fl
 }
 
 // Copies specified channels from input arrays to the specified channels of output arrays.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga51d768c270a1cdd3497255017c4504be
 func (rt *GoCVResourceTracker) MixChannels(src []*Mat, dst []*Mat, fromTo []int) {
-origin.MixChannels(SliceToGoCVCloser(src), SliceToGoCVCloser(dst), fromTo)
+	origin.MixChannels(SliceToGoCVCloser(src), SliceToGoCVCloser(dst), fromTo)
 }
 
-
 // MinMaxLoc finds the global minimum and maximum in an array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/trunk/d2/de8/group__core__array.html#gab473bf2eb6d14ff97e89b355dac20707
 func (rt *GoCVResourceTracker) MinMaxLoc(input *Mat) (float32, float32, image.Point, image.Point) {
@@ -5618,7 +5874,7 @@ func (rt *GoCVResourceTracker) MinMaxLoc(input *Mat) (float32, float32, image.Po
 }
 
 // MinMaxIdx finds the global minimum and maximum in an array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7622c466c628a75d9ed008b42250a73f
 func (rt *GoCVResourceTracker) MinMaxIdx(input *Mat) (float32, float32, int, int) {
@@ -5627,7 +5883,7 @@ func (rt *GoCVResourceTracker) MinMaxIdx(input *Mat) (float32, float32, int, int
 }
 
 // MinEnclosingCircle finds a circle of the minimum area enclosing the input 2D point set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/3.4/d3/dc0/group__imgproc__shape.html#ga8ce13c24081bbc7151e9326f412190f1
 func (rt *GoCVResourceTracker) MinEnclosingCircle(pts *PointVector) (float32, float32, float32) {
@@ -5636,7 +5892,7 @@ func (rt *GoCVResourceTracker) MinEnclosingCircle(pts *PointVector) (float32, fl
 }
 
 // MinAreaRect finds a rotated rectangle of the minimum area enclosing the input 2D point set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9
 func (rt *GoCVResourceTracker) MinAreaRect(points *PointVector) RotatedRect {
@@ -5645,127 +5901,114 @@ func (rt *GoCVResourceTracker) MinAreaRect(points *PointVector) RotatedRect {
 }
 
 // Min calculates per-element minimum of two arrays or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9af368f182ee76d0463d0d8d5330b764
 func (rt *GoCVResourceTracker) Min(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Min(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Min(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // Merge creates one multi-channel array out of several single-channel ones.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7d7b4d6c6ee504b30a20b1680029c7b4
 func (rt *GoCVResourceTracker) Merge(mv []*Mat, dst *Mat) {
-origin.Merge(SliceToGoCVCloser(mv), dst.coreElemPtr())
+	origin.Merge(SliceToGoCVCloser(mv), dst.coreElemPtr())
 }
 
-
 // MedianBlur blurs an image using the median filter.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga564869aa33e58769b4469101aac458f9
 func (rt *GoCVResourceTracker) MedianBlur(src *Mat, dst *Mat, ksize int) {
-origin.MedianBlur(src.coreElem(), dst.coreElemPtr(), ksize)
+	origin.MedianBlur(src.coreElem(), dst.coreElemPtr(), ksize)
 }
 
-
 // MeanStdDev calculates a mean and standard deviation of array elements.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga846c858f4004d59493d7c6a4354b301d
 func (rt *GoCVResourceTracker) MeanStdDev(src *Mat, dst *Mat, dstStdDev *Mat) {
-origin.MeanStdDev(src.coreElem(), dst.coreElemPtr(), dstStdDev.coreElemPtr())
+	origin.MeanStdDev(src.coreElem(), dst.coreElemPtr(), dstStdDev.coreElemPtr())
 }
 
-
 // Max calculates per-element maximum of two arrays or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacc40fa15eac0fb83f8ca70b7cc0b588d
 func (rt *GoCVResourceTracker) Max(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Max(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Max(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // MatchTemplate compares a template against overlapped image regions.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be
 func (rt *GoCVResourceTracker) MatchTemplate(image *Mat, templ *Mat, result *Mat, method TemplateMatchMode, mask *Mat) {
-origin.MatchTemplate(image.coreElem(), templ.coreElem(), result.coreElemPtr(), method, mask.coreElem())
+	origin.MatchTemplate(image.coreElem(), templ.coreElem(), result.coreElemPtr(), method, mask.coreElem())
 }
 
-
 // Magnitude calculates the magnitude of 2D vectors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6d3b097586bca4409873d64a90fe64c3
 func (rt *GoCVResourceTracker) Magnitude(x *Mat, y *Mat, magnitude *Mat) {
-origin.Magnitude(x.coreElem(), y.coreElem(), magnitude.coreElemPtr())
+	origin.Magnitude(x.coreElem(), y.coreElem(), magnitude.coreElemPtr())
 }
 
-
 // LogPolar remaps an image to semilog-polar coordinates space.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaec3a0b126a85b5ca2c667b16e0ae022d
 func (rt *GoCVResourceTracker) LogPolar(src *Mat, dst *Mat, center image.Point, m float64, flags InterpolationFlags) {
-origin.LogPolar(src.coreElem(), dst.coreElemPtr(), center, m, flags)
+	origin.LogPolar(src.coreElem(), dst.coreElemPtr(), center, m, flags)
 }
 
-
 // Log calculates the natural logarithm of every array element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga937ecdce4679a77168730830a955bea7
 func (rt *GoCVResourceTracker) Log(src *Mat, dst *Mat) {
-origin.Log(src.coreElem(), dst.coreElemPtr())
+	origin.Log(src.coreElem(), dst.coreElemPtr())
 }
 
-
 // LinearPolar remaps an image to polar coordinates space.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaa38a6884ac8b6e0b9bed47939b5362f3
 func (rt *GoCVResourceTracker) LinearPolar(src *Mat, dst *Mat, center image.Point, maxRadius float64, flags InterpolationFlags) {
-origin.LinearPolar(src.coreElem(), dst.coreElemPtr(), center, maxRadius, flags)
+	origin.LinearPolar(src.coreElem(), dst.coreElemPtr(), center, maxRadius, flags)
 }
 
-
 // Line draws a line segment connecting two points.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2
 func (rt *GoCVResourceTracker) Line(img *Mat, pt1 image.Point, pt2 image.Point, c color.RGBA, thickness int) {
-origin.Line(img.coreElemPtr(), pt1, pt2, c, thickness)
+	origin.Line(img.coreElemPtr(), pt1, pt2, c, thickness)
 }
 
-
 // Laplacian calculates the Laplacian of an image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gad78703e4c8fe703d479c1860d76429e6
 func (rt *GoCVResourceTracker) Laplacian(src *Mat, dst *Mat, dDepth MatType, size int, scale float64, delta float64, borderType BorderType) {
-origin.Laplacian(src.coreElem(), dst.coreElemPtr(), dDepth, size, scale, delta, borderType)
+	origin.Laplacian(src.coreElem(), dst.coreElemPtr(), dDepth, size, scale, delta, borderType)
 }
 
-
 // LUT performs a look-up table transform of an array.
-// 
+//
 // The function LUT fills the output array with values from the look-up table.
 // Indices of the entries are taken from the input array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f
 func (rt *GoCVResourceTracker) LUT(src *Mat, wbLUT *Mat, dst *Mat) {
-origin.LUT(src.coreElem(), wbLUT.coreElem(), dst.coreElemPtr())
+	origin.LUT(src.coreElem(), wbLUT.coreElem(), dst.coreElemPtr())
 }
 
-
 // KMeansPoints finds centers of clusters and groups input samples around the clusters.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88
 func (rt *GoCVResourceTracker) KMeansPoints(points *PointVector, k int, bestLabels *Mat, criteria TermCriteria, attempts int, flags KMeansFlags, centers *Mat) float64 {
@@ -5774,7 +6017,7 @@ func (rt *GoCVResourceTracker) KMeansPoints(points *PointVector, k int, bestLabe
 }
 
 // KMeans finds centers of clusters and groups input samples around the clusters.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88
 func (rt *GoCVResourceTracker) KMeans(data *Mat, k int, bestLabels *Mat, criteria TermCriteria, attempts int, flags KMeansFlags, centers *Mat) float64 {
@@ -5782,14 +6025,12 @@ func (rt *GoCVResourceTracker) KMeans(data *Mat, k int, bestLabels *Mat, criteri
 	return _ov1
 }
 
-
 func (rt *GoCVResourceTracker) InvertAffineTransform(src *Mat, dst *Mat) {
-origin.InvertAffineTransform(src.coreElem(), dst.coreElemPtr())
+	origin.InvertAffineTransform(src.coreElem(), dst.coreElemPtr())
 }
 
-
 // Invert finds the inverse or pseudo-inverse of a matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gad278044679d4ecf20f7622cc151aaaa2
 func (rt *GoCVResourceTracker) Invert(src *Mat, dst *Mat, flags SolveDecompositionFlags) float64 {
@@ -5801,56 +6042,50 @@ func (rt *GoCVResourceTracker) Invert(src *Mat, dst *Mat, flags SolveDecompositi
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga97b87bec26908237e8ba0f6e96d23e28
 func (rt *GoCVResourceTracker) Integral(src *Mat, sum *Mat, sqsum *Mat, tilted *Mat) {
-origin.Integral(src.coreElem(), sum.coreElemPtr(), sqsum.coreElemPtr(), tilted.coreElemPtr())
+	origin.Integral(src.coreElem(), sum.coreElemPtr(), sqsum.coreElemPtr(), tilted.coreElemPtr())
 }
-
 
 // InsertChannel inserts a single channel to dst (coi is 0-based index)
 // (it replaces channel i with another in dst).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga1d4bd886d35b00ec0b764cb4ce6eb515
 func (rt *GoCVResourceTracker) InsertChannel(src *Mat, dst *Mat, coi int) {
-origin.InsertChannel(src.coreElem(), dst.coreElemPtr(), coi)
+	origin.InsertChannel(src.coreElem(), dst.coreElemPtr(), coi)
 }
 
-
 // InitUndistortRectifyMap computes the joint undistortion and rectification transformation and represents the result in the form of maps for remap
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga7dfb72c9cf9780a347fbe3d1c47e5d5a
 func (rt *GoCVResourceTracker) InitUndistortRectifyMap(cameraMatrix *Mat, distCoeffs *Mat, r *Mat, newCameraMatrix *Mat, size image.Point, m1type int, map1 *Mat, map2 *Mat) {
-origin.InitUndistortRectifyMap(cameraMatrix.coreElem(), distCoeffs.coreElem(), r.coreElem(), newCameraMatrix.coreElem(), size, m1type, map1.coreElem(), map2.coreElem())
+	origin.InitUndistortRectifyMap(cameraMatrix.coreElem(), distCoeffs.coreElem(), r.coreElem(), newCameraMatrix.coreElem(), size, m1type, map1.coreElem(), map2.coreElem())
 }
 
-
 // InRangeWithScalar checks if array elements lie between the elements of two Scalars
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981
 func (rt *GoCVResourceTracker) InRangeWithScalar(src *Mat, lb Scalar, ub Scalar, dst *Mat) {
-origin.InRangeWithScalar(src.coreElem(), lb, ub, dst.coreElemPtr())
+	origin.InRangeWithScalar(src.coreElem(), lb, ub, dst.coreElemPtr())
 }
 
-
 // InRange checks if array elements lie between the elements of two Mat arrays.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981
 func (rt *GoCVResourceTracker) InRange(src *Mat, lb *Mat, ub *Mat, dst *Mat) {
-origin.InRange(src.coreElem(), lb.coreElem(), ub.coreElem(), dst.coreElemPtr())
+	origin.InRange(src.coreElem(), lb.coreElem(), ub.coreElem(), dst.coreElemPtr())
 }
-
 
 // ImagesFromBlob Parse a 4D blob and output the images it contains as
 // 2D arrays through a simpler data structure (std::vector<cv::Mat>).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga4051b5fa2ed5f54b76c059a8625df9f5
 func (rt *GoCVResourceTracker) ImagesFromBlob(blob *Mat, imgs []*Mat) {
-origin.ImagesFromBlob(blob.coreElem(), SliceToGoCVCloser(imgs))
+	origin.ImagesFromBlob(blob.coreElem(), SliceToGoCVCloser(imgs))
 }
-
 
 // ImageToMatRGBA converts image.Image to gocv.Mat,
 // which represents RGBA image having 8bit for each component.
@@ -5877,17 +6112,16 @@ func (rt *GoCVResourceTracker) ImageGrayToMatGray(img *image.Gray) (*Mat, error)
 }
 
 // IlluminationChange modifies locally the apparent illumination of an image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/da0/group__photo__clone.html#gac5025767cf2febd8029d474278e886c7
 func (rt *GoCVResourceTracker) IlluminationChange(src *Mat, mask *Mat, dst *Mat, alpha float32, beta float32) {
-origin.IlluminationChange(src.coreElem(), mask.coreElem(), dst.coreElemPtr(), alpha, beta)
+	origin.IlluminationChange(src.coreElem(), mask.coreElem(), dst.coreElemPtr(), alpha, beta)
 }
-
 
 // IMWriteWithParams writes a Mat to an image file. With that func you can
 // pass compression parameters.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce
 func (rt *GoCVResourceTracker) IMWriteWithParams(name string, img *Mat, params []int) bool {
@@ -5896,7 +6130,7 @@ func (rt *GoCVResourceTracker) IMWriteWithParams(name string, img *Mat, params [
 }
 
 // IMWrite writes a Mat to an image file.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce
 func (rt *GoCVResourceTracker) IMWrite(name string, img *Mat) bool {
@@ -5908,7 +6142,7 @@ func (rt *GoCVResourceTracker) IMWrite(name string, img *Mat) bool {
 // The flags param is one of the IMReadFlag flags.
 // If the image cannot be read (because of missing file, improper permissions,
 // unsupported or invalid format), the function returns an empty Mat.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56
 func (rt *GoCVResourceTracker) IMRead(name string, flags IMReadFlag) *Mat {
@@ -5919,10 +6153,10 @@ func (rt *GoCVResourceTracker) IMRead(name string, flags IMReadFlag) *Mat {
 // IMEncodeWithParams encodes an image Mat into a memory buffer.
 // This function compresses the image and stores it in the returned memory buffer,
 // using the image format passed in in the form of a file extension string.
-// 
+//
 // Usage example:
 // buffer, err := gocv.IMEncodeWithParams(gocv.JPEGFileExt, img, []int{gocv.IMWriteJpegQuality, quality})
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga461f9ac09887e47797a54567df3b8b63
 func (rt *GoCVResourceTracker) IMEncodeWithParams(fileExt FileExt, img *Mat, params []int) (*NativeByteBuffer, error) {
@@ -5933,7 +6167,7 @@ func (rt *GoCVResourceTracker) IMEncodeWithParams(fileExt FileExt, img *Mat, par
 // IMEncode encodes an image Mat into a memory buffer.
 // This function compresses the image and stores it in the returned memory buffer,
 // using the image format passed in in the form of a file extension string.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga461f9ac09887e47797a54567df3b8b63
 func (rt *GoCVResourceTracker) IMEncode(fileExt FileExt, img *Mat) (*NativeByteBuffer, error) {
@@ -5945,7 +6179,7 @@ func (rt *GoCVResourceTracker) IMEncode(fileExt FileExt, img *Mat) (*NativeByteB
 // The function IMDecode reads an image from the specified buffer in memory.
 // If the buffer is too short or contains invalid data, the function
 // returns an empty matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga26a67788faa58ade337f8d28ba0eb19e
 func (rt *GoCVResourceTracker) IMDecode(buf []byte, flags IMReadFlag) (*Mat, error) {
@@ -5954,94 +6188,84 @@ func (rt *GoCVResourceTracker) IMDecode(buf []byte, flags IMReadFlag) (*Mat, err
 }
 
 // IDFT calculates the inverse Discrete Fourier Transform of a 1D or 2D array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaa708aa2d2e57a508f968eb0f69aa5ff1
 func (rt *GoCVResourceTracker) IDFT(src *Mat, dst *Mat, flags int, nonzeroRows int) {
-origin.IDFT(src.coreElem(), dst.coreElemPtr(), flags, nonzeroRows)
+	origin.IDFT(src.coreElem(), dst.coreElemPtr(), flags, nonzeroRows)
 }
 
-
 // IDCT calculates the inverse Discrete Cosine Transform of a 1D or 2D array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga77b168d84e564c50228b69730a227ef2
 func (rt *GoCVResourceTracker) IDCT(src *Mat, dst *Mat, flags int) {
-origin.IDCT(src.coreElem(), dst.coreElemPtr(), flags)
+	origin.IDCT(src.coreElem(), dst.coreElemPtr(), flags)
 }
-
 
 // HoughLinesPointSet implements the Hough transform algorithm for line
 // detection on a set of points. For a good explanation of Hough transform, see:
 // http://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga2858ef61b4e47d1919facac2152a160e
 func (rt *GoCVResourceTracker) HoughLinesPointSet(points *Mat, lines *Mat, linesMax int, threshold int, minRho float32, maxRho float32, rhoStep float32, minTheta float32, maxTheta float32, thetaStep float32) {
-origin.HoughLinesPointSet(points.coreElem(), lines.coreElemPtr(), linesMax, threshold, minRho, maxRho, rhoStep, minTheta, maxTheta, thetaStep)
+	origin.HoughLinesPointSet(points.coreElem(), lines.coreElemPtr(), linesMax, threshold, minRho, maxRho, rhoStep, minTheta, maxTheta, thetaStep)
 }
-
-
 
 func (rt *GoCVResourceTracker) HoughLinesPWithParams(src *Mat, lines *Mat, rho float32, theta float32, threshold int, minLineLength float32, maxLineGap float32) {
-origin.HoughLinesPWithParams(src.coreElem(), lines.coreElemPtr(), rho, theta, threshold, minLineLength, maxLineGap)
+	origin.HoughLinesPWithParams(src.coreElem(), lines.coreElemPtr(), rho, theta, threshold, minLineLength, maxLineGap)
 }
-
 
 // HoughLinesP implements the probabilistic Hough transform
 // algorithm for line detection. For a good explanation of Hough transform, see:
 // http://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb
 func (rt *GoCVResourceTracker) HoughLinesP(src *Mat, lines *Mat, rho float32, theta float32, threshold int) {
-origin.HoughLinesP(src.coreElem(), lines.coreElemPtr(), rho, theta, threshold)
+	origin.HoughLinesP(src.coreElem(), lines.coreElemPtr(), rho, theta, threshold)
 }
-
 
 // HoughLines implements the standard or standard multi-scale Hough transform
 // algorithm for line detection. For a good explanation of Hough transform, see:
 // http://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a
 func (rt *GoCVResourceTracker) HoughLines(src *Mat, lines *Mat, rho float32, theta float32, threshold int) {
-origin.HoughLines(src.coreElem(), lines.coreElemPtr(), rho, theta, threshold)
+	origin.HoughLines(src.coreElem(), lines.coreElemPtr(), rho, theta, threshold)
 }
-
 
 // HoughCirclesWithParams finds circles in a grayscale image using the Hough
 // transform. The only "method" currently supported is HoughGradient.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
 func (rt *GoCVResourceTracker) HoughCirclesWithParams(src *Mat, circles *Mat, method HoughMode, dp float64, minDist float64, param1 float64, param2 float64, minRadius int, maxRadius int) {
-origin.HoughCirclesWithParams(src.coreElem(), circles.coreElemPtr(), method, dp, minDist, param1, param2, minRadius, maxRadius)
+	origin.HoughCirclesWithParams(src.coreElem(), circles.coreElemPtr(), method, dp, minDist, param1, param2, minRadius, maxRadius)
 }
-
 
 // HoughCircles finds circles in a grayscale image using the Hough transform.
 // The only "method" currently supported is HoughGradient. If you want to pass
 // more parameters, please see `HoughCirclesWithParams`.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
 func (rt *GoCVResourceTracker) HoughCircles(src *Mat, circles *Mat, method HoughMode, dp float64, minDist float64) {
-origin.HoughCircles(src.coreElem(), circles.coreElemPtr(), method, dp, minDist)
+	origin.HoughCircles(src.coreElem(), circles.coreElemPtr(), method, dp, minDist)
 }
 
-
 // Hconcat applies horizontal concatenation to given matrices.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaab5ceee39e0580f879df645a872c6bf7
 func (rt *GoCVResourceTracker) Hconcat(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Hconcat(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Hconcat(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // HOGDefaultPeopleDetector returns a new Mat with the HOG DefaultPeopleDetector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a660e5cd036fd5ddf0f5767b352acd948
 func (rt *GoCVResourceTracker) HOGDefaultPeopleDetector() *Mat {
@@ -6050,7 +6274,7 @@ func (rt *GoCVResourceTracker) HOGDefaultPeopleDetector() *Mat {
 }
 
 // GroupRectangles groups the object candidate rectangles.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d5/d54/group__objdetect.html#ga3dba897ade8aa8227edda66508e16ab9
 func (rt *GoCVResourceTracker) GroupRectangles(rects []image.Rectangle, groupThreshold int, eps float64) []image.Rectangle {
@@ -6063,22 +6287,20 @@ func (rt *GoCVResourceTracker) GroupRectangles(rects []image.Rectangle, groupThr
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga909c1dda50efcbeaa3ce126be862b37f
 func (rt *GoCVResourceTracker) GrabCut(img *Mat, mask *Mat, r image.Rectangle, bgdModel *Mat, fgdModel *Mat, iterCount int, mode GrabCutMode) {
-origin.GrabCut(img.coreElem(), mask.coreElemPtr(), r, bgdModel.coreElemPtr(), fgdModel.coreElemPtr(), iterCount, mode)
+	origin.GrabCut(img.coreElem(), mask.coreElemPtr(), r, bgdModel.coreElemPtr(), fgdModel.coreElemPtr(), iterCount, mode)
 }
-
 
 // GoodFeaturesToTrack determines strong corners on an image. The function
 // finds the most prominent corners in the image or in the specified image region.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga1d6bb77486c8f92d79c8793ad995d541
 func (rt *GoCVResourceTracker) GoodFeaturesToTrack(img *Mat, corners *Mat, maxCorners int, quality float64, minDist float64) {
-origin.GoodFeaturesToTrack(img.coreElem(), corners.coreElemPtr(), maxCorners, quality, minDist)
+	origin.GoodFeaturesToTrack(img.coreElem(), corners.coreElemPtr(), maxCorners, quality, minDist)
 }
 
-
 // GetTickFrequency returns the number of ticks per second.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/de0/group__core__utils.html#ga705441a9ef01f47acdc55d87fbe5090c
 func (rt *GoCVResourceTracker) GetTickFrequency() float64 {
@@ -6087,7 +6309,7 @@ func (rt *GoCVResourceTracker) GetTickFrequency() float64 {
 }
 
 // GetTickCount returns the number of ticks.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/de0/group__core__utils.html#gae73f58000611a1af25dd36d496bf4487
 func (rt *GoCVResourceTracker) GetTickCount() float64 {
@@ -6098,7 +6320,7 @@ func (rt *GoCVResourceTracker) GetTickCount() float64 {
 // GetTextSizeWithBaseline calculates the width and height of a text string including the basline of the text.
 // It returns an image.Point with the size required to draw text using
 // a specific font face, scale, and thickness as well as its baseline.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga3d2abfcb995fd2db908c8288199dba82
 func (rt *GoCVResourceTracker) GetTextSizeWithBaseline(text string, fontFace HersheyFont, fontScale float64, thickness int) (image.Point, int) {
@@ -6109,7 +6331,7 @@ func (rt *GoCVResourceTracker) GetTextSizeWithBaseline(text string, fontFace Her
 // GetTextSize calculates the width and height of a text string.
 // It returns an image.Point with the size required to draw text using
 // a specific font face, scale, and thickness.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga3d2abfcb995fd2db908c8288199dba82
 func (rt *GoCVResourceTracker) GetTextSize(text string, fontFace HersheyFont, fontScale float64, thickness int) image.Point {
@@ -6119,7 +6341,7 @@ func (rt *GoCVResourceTracker) GetTextSize(text string, fontFace HersheyFont, fo
 
 // GetStructuringElement returns a structuring element of the specified size
 // and shape for morphological operations.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gac342a1bb6eabf6f55c803b09268e36dc
 func (rt *GoCVResourceTracker) GetStructuringElement(shape MorphShape, ksize image.Point) *Mat {
@@ -6128,7 +6350,7 @@ func (rt *GoCVResourceTracker) GetStructuringElement(shape MorphShape, ksize ima
 }
 
 // GetRotationMatrix2D calculates an affine matrix of 2D rotation.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gafbbc470ce83812914a70abfb604f4326
 func (rt *GoCVResourceTracker) GetRotationMatrix2D(center image.Point, angle float64, scale float64) *Mat {
@@ -6137,17 +6359,16 @@ func (rt *GoCVResourceTracker) GetRotationMatrix2D(center image.Point, angle flo
 }
 
 // GetRectSubPix retrieves a pixel rectangle from an image with sub-pixel accuracy.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga77576d06075c1a4b6ba1a608850cd614
 func (rt *GoCVResourceTracker) GetRectSubPix(src *Mat, patchSize image.Point, center image.Point, dst *Mat) {
-origin.GetRectSubPix(src.coreElem(), patchSize, center, dst.coreElemPtr())
+	origin.GetRectSubPix(src.coreElem(), patchSize, center, dst.coreElemPtr())
 }
-
 
 // GetPerspectiveTransform2f returns 3x3 perspective transformation for the
 // corresponding 4 point pairs as gocv.Point2f.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga8c1ae0e3589a9d77fffc962c49b22043
 func (rt *GoCVResourceTracker) GetPerspectiveTransform2f(src *Point2fVector, dst *Point2fVector) *Mat {
@@ -6157,7 +6378,7 @@ func (rt *GoCVResourceTracker) GetPerspectiveTransform2f(src *Point2fVector, dst
 
 // GetPerspectiveTransform returns 3x3 perspective transformation for the
 // corresponding 4 point pairs as image.Point.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga8c1ae0e3589a9d77fffc962c49b22043
 func (rt *GoCVResourceTracker) GetPerspectiveTransform(src *PointVector, dst *PointVector) *Mat {
@@ -6166,7 +6387,7 @@ func (rt *GoCVResourceTracker) GetPerspectiveTransform(src *PointVector, dst *Po
 }
 
 // GetOptimalNewCameraMatrixWithParams computes and returns the optimal new camera matrix based on the free scaling parameter.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga7a6c4e032c97f03ba747966e6ad862b1
 func (rt *GoCVResourceTracker) GetOptimalNewCameraMatrixWithParams(cameraMatrix *Mat, distCoeffs *Mat, imageSize image.Point, alpha float64, newImgSize image.Point, centerPrincipalPoint bool) (*Mat, image.Rectangle) {
@@ -6176,7 +6397,7 @@ func (rt *GoCVResourceTracker) GetOptimalNewCameraMatrixWithParams(cameraMatrix 
 
 // GetOptimalDFTSize returns the optimal Discrete Fourier Transform (DFT) size
 // for a given vector size.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6577a2e59968936ae02eb2edde5de299
 func (rt *GoCVResourceTracker) GetOptimalDFTSize(vecsize int) int {
@@ -6185,7 +6406,7 @@ func (rt *GoCVResourceTracker) GetOptimalDFTSize(vecsize int) int {
 }
 
 // GetGaussianKernelWithParams returns Gaussian filter coefficients.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gac05a120c1ae92a6060dd0db190a61afa
 func (rt *GoCVResourceTracker) GetGaussianKernelWithParams(ksize int, sigma float64, ktype MatType) *Mat {
@@ -6194,7 +6415,7 @@ func (rt *GoCVResourceTracker) GetGaussianKernelWithParams(ksize int, sigma floa
 }
 
 // GetGaussianKernel returns Gaussian filter coefficients.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gac05a120c1ae92a6060dd0db190a61afa
 func (rt *GoCVResourceTracker) GetGaussianKernel(ksize int, sigma float64) *Mat {
@@ -6218,7 +6439,7 @@ func (rt *GoCVResourceTracker) GetBlobChannel(blob *Mat, imgidx int, chnidx int)
 
 // GetAffineTransform2f returns a 2x3 affine transformation matrix for the
 // corresponding 3 point pairs as gocv.Point2f.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga8f6d378f9f8eebb5cb55cd3ae295a999
 func (rt *GoCVResourceTracker) GetAffineTransform2f(src *Point2fVector, dst *Point2fVector) *Mat {
@@ -6228,7 +6449,7 @@ func (rt *GoCVResourceTracker) GetAffineTransform2f(src *Point2fVector, dst *Poi
 
 // GetAffineTransform returns a 2x3 affine transformation matrix for the
 // corresponding 3 point pairs as image.Point.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga8f6d378f9f8eebb5cb55cd3ae295a999
 func (rt *GoCVResourceTracker) GetAffineTransform(src *PointVector, dst *PointVector) *Mat {
@@ -6237,45 +6458,41 @@ func (rt *GoCVResourceTracker) GetAffineTransform(src *PointVector, dst *PointVe
 }
 
 // Gemm performs generalized matrix multiplication.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacb6e64071dffe36434e1e7ee79e7cb35
 func (rt *GoCVResourceTracker) Gemm(src1 *Mat, src2 *Mat, alpha float64, src3 *Mat, beta float64, dst *Mat, flags int) {
-origin.Gemm(src1.coreElem(), src2.coreElem(), alpha, src3.coreElem(), beta, dst.coreElemPtr(), flags)
+	origin.Gemm(src1.coreElem(), src2.coreElem(), alpha, src3.coreElem(), beta, dst.coreElemPtr(), flags)
 }
-
 
 // GaussianBlur blurs an image Mat using a Gaussian filter.
 // The function convolves the src Mat image into the dst Mat using
 // the specified Gaussian kernel params.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
 func (rt *GoCVResourceTracker) GaussianBlur(src *Mat, dst *Mat, ksize image.Point, sigmaX float64, sigmaY float64, borderType BorderType) {
-origin.GaussianBlur(src.coreElem(), dst.coreElemPtr(), ksize, sigmaX, sigmaY, borderType)
+	origin.GaussianBlur(src.coreElem(), dst.coreElemPtr(), ksize, sigmaX, sigmaY, borderType)
 }
 
-
 // Flip flips a 2D array around horizontal(0), vertical(1), or both axes(-1).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaca7be533e3dac7feb70fc60635adf441
 func (rt *GoCVResourceTracker) Flip(src *Mat, dst *Mat, flipCode int) {
-origin.Flip(src.coreElem(), dst.coreElemPtr(), flipCode)
+	origin.Flip(src.coreElem(), dst.coreElemPtr(), flipCode)
 }
 
-
 // FitLine fits a line to a 2D or 3D point set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaf849da1fdafa67ee84b1e9a23b93f91f
 func (rt *GoCVResourceTracker) FitLine(pts *PointVector, line *Mat, distType DistanceTypes, param float64, reps float64, aeps float64) {
-origin.FitLine(pts.coreElem(), line.coreElemPtr(), distType, param, reps, aeps)
+	origin.FitLine(pts.coreElem(), line.coreElemPtr(), distType, param, reps, aeps)
 }
 
-
 // FitEllipse Fits an ellipse around a set of 2D points.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaf259efaad93098103d6c27b9e4900ffa
 func (rt *GoCVResourceTracker) FitEllipse(pts *PointVector) RotatedRect {
@@ -6284,28 +6501,25 @@ func (rt *GoCVResourceTracker) FitEllipse(pts *PointVector) RotatedRect {
 }
 
 // FisheyeUndistortPoints transforms points to compensate for fisheye lens distortion
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d58/group__calib3d__fisheye.html#gab738cdf90ceee97b2b52b0d0e7511541
 func (rt *GoCVResourceTracker) FisheyeUndistortPoints(distorted *Mat, undistorted *Mat, k *Mat, d *Mat, r *Mat, p *Mat) {
-origin.FisheyeUndistortPoints(distorted.coreElem(), undistorted.coreElemPtr(), k.coreElem(), d.coreElem(), r.coreElem(), p.coreElem())
+	origin.FisheyeUndistortPoints(distorted.coreElem(), undistorted.coreElemPtr(), k.coreElem(), d.coreElem(), r.coreElem(), p.coreElem())
 }
-
 
 // FisheyeUndistortImageWithParams transforms an image to compensate for fisheye lens distortion with Knew matrix
 func (rt *GoCVResourceTracker) FisheyeUndistortImageWithParams(distorted *Mat, undistorted *Mat, k *Mat, d *Mat, knew *Mat, size image.Point) {
-origin.FisheyeUndistortImageWithParams(distorted.coreElem(), undistorted.coreElemPtr(), k.coreElem(), d.coreElem(), knew.coreElem(), size)
+	origin.FisheyeUndistortImageWithParams(distorted.coreElem(), undistorted.coreElemPtr(), k.coreElem(), d.coreElem(), knew.coreElem(), size)
 }
-
 
 // FisheyeUndistortImage transforms an image to compensate for fisheye lens distortion
 func (rt *GoCVResourceTracker) FisheyeUndistortImage(distorted *Mat, undistorted *Mat, k *Mat, d *Mat) {
-origin.FisheyeUndistortImage(distorted.coreElem(), undistorted.coreElemPtr(), k.coreElem(), d.coreElem())
+	origin.FisheyeUndistortImage(distorted.coreElem(), undistorted.coreElemPtr(), k.coreElem(), d.coreElem())
 }
 
-
 // FindTransformECC finds the geometric transform (warp) between two images in terms of the ECC criterion.
-// 
+//
 // For futther details, please see:
 // https://docs.opencv.org/4.x/dc/d6b/group__video__track.html#ga1aa357007eaec11e9ed03500ecbcbe47
 func (rt *GoCVResourceTracker) FindTransformECC(templateImage *Mat, inputImage *Mat, warpMatrix *Mat, motionType int, criteria TermCriteria, inputMask *Mat, gaussFiltSize int) float64 {
@@ -6314,16 +6528,15 @@ func (rt *GoCVResourceTracker) FindTransformECC(templateImage *Mat, inputImage *
 }
 
 // FindNonZero returns the list of locations of non-zero pixels.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaed7df59a3539b4cc0fe5c9c8d7586190
 func (rt *GoCVResourceTracker) FindNonZero(src *Mat, idx *Mat) {
-origin.FindNonZero(src.coreElem(), idx.coreElemPtr())
+	origin.FindNonZero(src.coreElem(), idx.coreElemPtr())
 }
 
-
 // FindHomography finds an optimal homography matrix using 4 or more point pairs (as opposed to GetPerspectiveTransform, which uses exactly 4)
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga4abc2ece9fab9398f2e560d53c8c9780
 func (rt *GoCVResourceTracker) FindHomography(srcPoints *Mat, dstPoints *Mat, method HomographyMethod, ransacReprojThreshold float64, mask *Mat, maxIters int, confidence float64) *Mat {
@@ -6332,7 +6545,7 @@ func (rt *GoCVResourceTracker) FindHomography(srcPoints *Mat, dstPoints *Mat, me
 }
 
 // FindContoursWithParams finds contours in a binary image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga17ed9f5d79ae97bd4c7cf18403e1689a
 func (rt *GoCVResourceTracker) FindContoursWithParams(src *Mat, hierarchy *Mat, mode RetrievalMode, method ContourApproximationMode) *PointsVector {
@@ -6341,7 +6554,7 @@ func (rt *GoCVResourceTracker) FindContoursWithParams(src *Mat, hierarchy *Mat, 
 }
 
 // FindContours finds contours in a binary image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga95f5b48d01abc7c2e0732db24689837b
 func (rt *GoCVResourceTracker) FindContours(src *Mat, mode RetrievalMode, method ContourApproximationMode) *PointsVector {
@@ -6350,7 +6563,7 @@ func (rt *GoCVResourceTracker) FindContours(src *Mat, mode RetrievalMode, method
 }
 
 // FindChessboardCornersSBWithMeta finds the positions of internal corners of the chessboard using a sector based approach.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga93efa9b0aa890de240ca32b11253dd4a
 func (rt *GoCVResourceTracker) FindChessboardCornersSBWithMeta(image *Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag, meta *Mat) bool {
@@ -6359,7 +6572,7 @@ func (rt *GoCVResourceTracker) FindChessboardCornersSBWithMeta(image *Mat, patte
 }
 
 // FindChessboardCorners finds the positions of internal corners of the chessboard using a sector based approach.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#gadc5bcb05cb21cf1e50963df26986d7c9
 func (rt *GoCVResourceTracker) FindChessboardCornersSB(image *Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag) bool {
@@ -6368,7 +6581,7 @@ func (rt *GoCVResourceTracker) FindChessboardCornersSB(image *Mat, patternSize i
 }
 
 // FindChessboardCorners finds the positions of internal corners of the chessboard.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga93efa9b0aa890de240ca32b11253dd4a
 func (rt *GoCVResourceTracker) FindChessboardCorners(image *Mat, patternSize image.Point, corners *Mat, flags CalibCBFlag) bool {
@@ -6377,87 +6590,78 @@ func (rt *GoCVResourceTracker) FindChessboardCorners(image *Mat, patternSize ima
 }
 
 // Filter2D applies an arbitrary linear filter to an image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04
 func (rt *GoCVResourceTracker) Filter2D(src *Mat, dst *Mat, ddepth MatType, kernel *Mat, anchor image.Point, delta float64, borderType BorderType) {
-origin.Filter2D(src.coreElem(), dst.coreElemPtr(), ddepth, kernel.coreElem(), anchor, delta, borderType)
+	origin.Filter2D(src.coreElem(), dst.coreElemPtr(), ddepth, kernel.coreElem(), anchor, delta, borderType)
 }
 
-
 // FillPolyWithParams fills the area bounded by one or more polygons.
-// 
+//
 // For more information, see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf30888828337aa4c6b56782b5dfbd4b7
 func (rt *GoCVResourceTracker) FillPolyWithParams(img *Mat, pts *PointsVector, c color.RGBA, lineType LineType, shift int, offset image.Point) {
-origin.FillPolyWithParams(img.coreElemPtr(), pts.coreElem(), c, lineType, shift, offset)
+	origin.FillPolyWithParams(img.coreElemPtr(), pts.coreElem(), c, lineType, shift, offset)
 }
 
-
 // FillPoly fills the area bounded by one or more polygons.
-// 
+//
 // For more information, see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf30888828337aa4c6b56782b5dfbd4b7
 func (rt *GoCVResourceTracker) FillPoly(img *Mat, pts *PointsVector, c color.RGBA) {
-origin.FillPoly(img.coreElemPtr(), pts.coreElem(), c)
+	origin.FillPoly(img.coreElemPtr(), pts.coreElem(), c)
 }
-
 
 // FastNlMeansDenoisingWithParams performs image denoising using Non-local Means Denoising algorithm
 // http://www.ipol.im/pub/algo/bcm_non_local_means_denoising/
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/d1/d79/group__photo__denoise.html#ga4c6b0031f56ea3f98f768881279ffe93
 func (rt *GoCVResourceTracker) FastNlMeansDenoisingWithParams(src *Mat, dst *Mat, h float32, templateWindowSize int, searchWindowSize int) {
-origin.FastNlMeansDenoisingWithParams(src.coreElem(), dst.coreElemPtr(), h, templateWindowSize, searchWindowSize)
+	origin.FastNlMeansDenoisingWithParams(src.coreElem(), dst.coreElemPtr(), h, templateWindowSize, searchWindowSize)
 }
 
-
 // FastNlMeansDenoisingColoredWithParams is a modification of fastNlMeansDenoising function for colored images.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/d1/d79/group__photo__denoise.html#ga21abc1c8b0e15f78cd3eff672cb6c476
 func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredWithParams(src *Mat, dst *Mat, h float32, hColor float32, templateWindowSize int, searchWindowSize int) {
-origin.FastNlMeansDenoisingColoredWithParams(src.coreElem(), dst.coreElemPtr(), h, hColor, templateWindowSize, searchWindowSize)
+	origin.FastNlMeansDenoisingColoredWithParams(src.coreElem(), dst.coreElemPtr(), h, hColor, templateWindowSize, searchWindowSize)
 }
 
-
 // FastNlMeansDenoisingColoredMulti denoises the selected images.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d1/d79/group__photo__denoise.html#gaa501e71f52fb2dc17ff8ca5e7d2d3619
 func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredMultiWithParams(src []*Mat, dst *Mat, imgToDenoiseIndex int, temporalWindowSize int, h float32, hColor float32, templateWindowSize int, searchWindowSize int) {
-origin.FastNlMeansDenoisingColoredMultiWithParams(SliceToGoCVCloser(src), dst.coreElemPtr(), imgToDenoiseIndex, temporalWindowSize, h, hColor, templateWindowSize, searchWindowSize)
+	origin.FastNlMeansDenoisingColoredMultiWithParams(SliceToGoCVCloser(src), dst.coreElemPtr(), imgToDenoiseIndex, temporalWindowSize, h, hColor, templateWindowSize, searchWindowSize)
 }
 
-
 // FastNlMeansDenoisingColoredMulti denoises the selected images.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d1/d79/group__photo__denoise.html#gaa501e71f52fb2dc17ff8ca5e7d2d3619
 func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredMulti(src []*Mat, dst *Mat, imgToDenoiseIndex int, temporalWindowSize int) {
-origin.FastNlMeansDenoisingColoredMulti(SliceToGoCVCloser(src), dst.coreElemPtr(), imgToDenoiseIndex, temporalWindowSize)
+	origin.FastNlMeansDenoisingColoredMulti(SliceToGoCVCloser(src), dst.coreElemPtr(), imgToDenoiseIndex, temporalWindowSize)
 }
 
-
 // FastNlMeansDenoisingColored is a modification of fastNlMeansDenoising function for colored images.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/d1/d79/group__photo__denoise.html#ga21abc1c8b0e15f78cd3eff672cb6c476
 func (rt *GoCVResourceTracker) FastNlMeansDenoisingColored(src *Mat, dst *Mat) {
-origin.FastNlMeansDenoisingColored(src.coreElem(), dst.coreElemPtr())
+	origin.FastNlMeansDenoisingColored(src.coreElem(), dst.coreElemPtr())
 }
-
 
 // FastNlMeansDenoising performs image denoising using Non-local Means Denoising algorithm
 // http://www.ipol.im/pub/algo/bcm_non_local_means_denoising/
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/d1/d79/group__photo__denoise.html#ga4c6b0031f56ea3f98f768881279ffe93
 func (rt *GoCVResourceTracker) FastNlMeansDenoising(src *Mat, dst *Mat) {
-origin.FastNlMeansDenoising(src.coreElem(), dst.coreElemPtr())
+	origin.FastNlMeansDenoising(src.coreElem(), dst.coreElemPtr())
 }
-
 
 // FP16BlobFromImage is an extended helper function to convert an Image to a half-float blob, as used by
 // the Movidius Neural Compute Stick.
@@ -6467,7 +6671,7 @@ func (rt *GoCVResourceTracker) FP16BlobFromImage(img *Mat, scaleFactor float32, 
 }
 
 // Returns an identity matrix of the specified size and type.
-// 
+//
 // The method returns a Matlab-style identity matrix initializer, similarly to Mat::zeros. Similarly to Mat::ones.
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a2cf9b9acde7a9852542bbc20ef851ed2
@@ -6477,35 +6681,32 @@ func (rt *GoCVResourceTracker) Eye(rows int, cols int, mt MatType) *Mat {
 }
 
 // ExtractChannel extracts a single channel from src (coi is 0-based index).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacc6158574aa1f0281878c955bcf35642
 func (rt *GoCVResourceTracker) ExtractChannel(src *Mat, dst *Mat, coi int) {
-origin.ExtractChannel(src.coreElem(), dst.coreElemPtr(), coi)
+	origin.ExtractChannel(src.coreElem(), dst.coreElemPtr(), coi)
 }
 
-
 // Exp calculates the exponent of every array element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3e10108e2162c338f1b848af619f39e5
 func (rt *GoCVResourceTracker) Exp(src *Mat, dst *Mat) {
-origin.Exp(src.coreElem(), dst.coreElemPtr())
+	origin.Exp(src.coreElem(), dst.coreElemPtr())
 }
 
-
 // EstimateNewCameraMatrixForUndistortRectify estimates new camera matrix for undistortion or rectification.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/db/d58/group__calib3d__fisheye.html#ga384940fdf04c03e362e94b6eb9b673c9
 func (rt *GoCVResourceTracker) EstimateNewCameraMatrixForUndistortRectify(k *Mat, d *Mat, imgSize image.Point, r *Mat, p *Mat, balance float64, newSize image.Point, fovScale float64) {
-origin.EstimateNewCameraMatrixForUndistortRectify(k.coreElem(), d.coreElem(), imgSize, r.coreElem(), p.coreElemPtr(), balance, newSize, fovScale)
+	origin.EstimateNewCameraMatrixForUndistortRectify(k.coreElem(), d.coreElem(), imgSize, r.coreElem(), p.coreElemPtr(), balance, newSize, fovScale)
 }
-
 
 // EstimateAffinePartial2D computes an optimal limited affine transformation
 // with 4 degrees of freedom between two 2D point sets.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#gad767faff73e9cbd8b9d92b955b50062d
 func (rt *GoCVResourceTracker) EstimateAffinePartial2D(from *Point2fVector, to *Point2fVector) *Mat {
@@ -6515,7 +6716,7 @@ func (rt *GoCVResourceTracker) EstimateAffinePartial2D(from *Point2fVector, to *
 
 // EstimateAffine2DWithParams Computes an optimal affine transformation between two 2D point sets
 // with additional optional parameters.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.0.0/d9/d0c/group__calib3d.html#ga27865b1d26bac9ce91efaee83e94d4dd
 func (rt *GoCVResourceTracker) EstimateAffine2DWithParams(from *Point2fVector, to *Point2fVector, inliers *Mat, method int, ransacReprojThreshold float64, maxIters uint, confidence float64, refineIters uint) *Mat {
@@ -6524,7 +6725,7 @@ func (rt *GoCVResourceTracker) EstimateAffine2DWithParams(from *Point2fVector, t
 }
 
 // EstimateAffine2D Computes an optimal affine transformation between two 2D point sets.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.0.0/d9/d0c/group__calib3d.html#ga27865b1d26bac9ce91efaee83e94d4dd
 func (rt *GoCVResourceTracker) EstimateAffine2D(from *Point2fVector, to *Point2fVector) *Mat {
@@ -6533,61 +6734,55 @@ func (rt *GoCVResourceTracker) EstimateAffine2D(from *Point2fVector, to *Point2f
 }
 
 // ErodeWithParams erodes an image by using a specific structuring element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
 func (rt *GoCVResourceTracker) ErodeWithParams(src *Mat, dst *Mat, kernel *Mat, anchor image.Point, iterations int, borderType int) {
-origin.ErodeWithParams(src.coreElem(), dst.coreElemPtr(), kernel.coreElem(), anchor, iterations, borderType)
+	origin.ErodeWithParams(src.coreElem(), dst.coreElemPtr(), kernel.coreElem(), anchor, iterations, borderType)
 }
 
-
 // Erode erodes an image by using a specific structuring element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
 func (rt *GoCVResourceTracker) Erode(src *Mat, dst *Mat, kernel *Mat) {
-origin.Erode(src.coreElem(), dst.coreElemPtr(), kernel.coreElem())
+	origin.Erode(src.coreElem(), dst.coreElemPtr(), kernel.coreElem())
 }
 
-
 // EqualizeHist normalizes the brightness and increases the contrast of the image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e
 func (rt *GoCVResourceTracker) EqualizeHist(src *Mat, dst *Mat) {
-origin.EqualizeHist(src.coreElem(), dst.coreElemPtr())
+	origin.EqualizeHist(src.coreElem(), dst.coreElemPtr())
 }
 
-
 // Ellipse draws a simple or thick elliptic arc or fills an ellipse sector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga28b2267d35786f5f890ca167236cbc69
 func (rt *GoCVResourceTracker) EllipseWithParams(img *Mat, center image.Point, axes image.Point, angle float64, startAngle float64, endAngle float64, c color.RGBA, thickness int, lineType LineType, shift int) {
-origin.EllipseWithParams(img.coreElemPtr(), center, axes, angle, startAngle, endAngle, c, thickness, lineType, shift)
+	origin.EllipseWithParams(img.coreElemPtr(), center, axes, angle, startAngle, endAngle, c, thickness, lineType, shift)
 }
 
-
 // Ellipse draws a simple or thick elliptic arc or fills an ellipse sector.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga28b2267d35786f5f890ca167236cbc69
 func (rt *GoCVResourceTracker) Ellipse(img *Mat, center image.Point, axes image.Point, angle float64, startAngle float64, endAngle float64, c color.RGBA, thickness int) {
-origin.Ellipse(img.coreElemPtr(), center, axes, angle, startAngle, endAngle, c, thickness)
+	origin.Ellipse(img.coreElemPtr(), center, axes, angle, startAngle, endAngle, c, thickness)
 }
 
-
 // EigenNonSymmetric calculates eigenvalues and eigenvectors of a non-symmetric matrix (real eigenvalues only).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf51987e03cac8d171fbd2b327cf966f6
 func (rt *GoCVResourceTracker) EigenNonSymmetric(src *Mat, eigenvalues *Mat, eigenvectors *Mat) {
-origin.EigenNonSymmetric(src.coreElem(), eigenvalues.coreElemPtr(), eigenvectors.coreElemPtr())
+	origin.EigenNonSymmetric(src.coreElem(), eigenvalues.coreElemPtr(), eigenvectors.coreElemPtr())
 }
 
-
 // Eigen calculates eigenvalues and eigenvectors of a symmetric matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9fa0d58657f60eaa6c71f6fbb40456e3
 func (rt *GoCVResourceTracker) Eigen(src *Mat, eigenvalues *Mat, eigenvectors *Mat) bool {
@@ -6597,98 +6792,88 @@ func (rt *GoCVResourceTracker) Eigen(src *Mat, eigenvalues *Mat, eigenvectors *M
 
 // EdgePreservingFilter filtering is the fundamental operation in image and video processing.
 // Edge-preserving smoothing filters are used in many different applications.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gafaee2977597029bc8e35da6e67bd31f7
 func (rt *GoCVResourceTracker) EdgePreservingFilter(src *Mat, dst *Mat, filter EdgeFilter, sigma_s float32, sigma_r float32) {
-origin.EdgePreservingFilter(src.coreElem(), dst.coreElemPtr(), filter, sigma_s, sigma_r)
+	origin.EdgePreservingFilter(src.coreElem(), dst.coreElemPtr(), filter, sigma_s, sigma_r)
 }
 
-
 // DrawMatches draws matches on combined train and querry images.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d5d/group__features2d__draw.html#gad8f463ccaf0dc6f61083abd8717c261a
 func (rt *GoCVResourceTracker) DrawMatches(img1 *Mat, kp1 []KeyPoint, img2 *Mat, kp2 []KeyPoint, matches1to2 []DMatch, outImg *Mat, matchColor color.RGBA, singlePointColor color.RGBA, matchesMask []byte, flags DrawMatchesFlag) {
-origin.DrawMatches(img1.coreElem(), kp1, img2.coreElem(), kp2, matches1to2, outImg.coreElemPtr(), matchColor, singlePointColor, matchesMask, flags)
+	origin.DrawMatches(img1.coreElem(), kp1, img2.coreElem(), kp2, matches1to2, outImg.coreElemPtr(), matchColor, singlePointColor, matchesMask, flags)
 }
 
-
 // DrawKeyPoints draws keypoints
-// 
+//
 // For further details please see:
 // https://docs.opencv.org/master/d4/d5d/group__features2d__draw.html#gab958f8900dd10f14316521c149a60433
 func (rt *GoCVResourceTracker) DrawKeyPoints(src *Mat, keyPoints []KeyPoint, dst *Mat, color color.RGBA, flag DrawMatchesFlag) {
-origin.DrawKeyPoints(src.coreElem(), keyPoints, dst.coreElemPtr(), color, flag)
+	origin.DrawKeyPoints(src.coreElem(), keyPoints, dst.coreElemPtr(), color, flag)
 }
 
-
 // DrawContoursWithParams draws contours outlines or filled contours.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga746c0625f1781f1ffc9056259103edbc
 func (rt *GoCVResourceTracker) DrawContoursWithParams(img *Mat, contours *PointsVector, contourIdx int, c color.RGBA, thickness int, lineType LineType, hierarchy *Mat, maxLevel int, offset image.Point) {
-origin.DrawContoursWithParams(img.coreElemPtr(), contours.coreElem(), contourIdx, c, thickness, lineType, hierarchy.coreElem(), maxLevel, offset)
+	origin.DrawContoursWithParams(img.coreElemPtr(), contours.coreElem(), contourIdx, c, thickness, lineType, hierarchy.coreElem(), maxLevel, offset)
 }
 
-
 // DrawContours draws contours outlines or filled contours.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga746c0625f1781f1ffc9056259103edbc
 func (rt *GoCVResourceTracker) DrawContours(img *Mat, contours *PointsVector, contourIdx int, c color.RGBA, thickness int) {
-origin.DrawContours(img.coreElemPtr(), contours.coreElem(), contourIdx, c, thickness)
+	origin.DrawContours(img.coreElemPtr(), contours.coreElem(), contourIdx, c, thickness)
 }
 
-
 // DrawChessboardCorners renders the detected chessboard corners.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga6a10b0bb120c4907e5eabbcd22319022
 func (rt *GoCVResourceTracker) DrawChessboardCorners(image *Mat, patternSize image.Point, corners *Mat, patternWasFound bool) {
-origin.DrawChessboardCorners(image.coreElemPtr(), patternSize, corners.coreElem(), patternWasFound)
+	origin.DrawChessboardCorners(image.coreElemPtr(), patternSize, corners.coreElem(), patternWasFound)
 }
-
 
 // Divide performs the per-element division
 // on two arrays or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6db555d30115642fedae0cda05604874
 func (rt *GoCVResourceTracker) Divide(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Divide(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Divide(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // DistanceTransform Calculates the distance to the closest zero pixel for each pixel of the source image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042
 func (rt *GoCVResourceTracker) DistanceTransform(src *Mat, dst *Mat, labels *Mat, distType DistanceTypes, maskSize DistanceTransformMasks, labelType DistanceTransformLabelTypes) {
-origin.DistanceTransform(src.coreElem(), dst.coreElemPtr(), labels.coreElemPtr(), distType, maskSize, labelType)
+	origin.DistanceTransform(src.coreElem(), dst.coreElemPtr(), labels.coreElemPtr(), distType, maskSize, labelType)
 }
 
-
 // DilateWithParams dilates an image by using a specific structuring element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c
 func (rt *GoCVResourceTracker) DilateWithParams(src *Mat, dst *Mat, kernel *Mat, anchor image.Point, iterations BorderType, borderType BorderType, borderValue color.RGBA) {
-origin.DilateWithParams(src.coreElem(), dst.coreElemPtr(), kernel.coreElem(), anchor, iterations, borderType, borderValue)
+	origin.DilateWithParams(src.coreElem(), dst.coreElemPtr(), kernel.coreElem(), anchor, iterations, borderType, borderValue)
 }
 
-
 // Dilate dilates an image by using a specific structuring element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c
 func (rt *GoCVResourceTracker) Dilate(src *Mat, dst *Mat, kernel *Mat) {
-origin.Dilate(src.coreElem(), dst.coreElemPtr(), kernel.coreElem())
+	origin.Dilate(src.coreElem(), dst.coreElemPtr(), kernel.coreElem())
 }
 
-
 // Determinant returns the determinant of a square floating-point matrix.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf802bd9ca3e07b8b6170645ef0611d0c
 func (rt *GoCVResourceTracker) Determinant(src *Mat) float64 {
@@ -6697,46 +6882,42 @@ func (rt *GoCVResourceTracker) Determinant(src *Mat) float64 {
 }
 
 // DetailEnhance filter enhances the details of a particular image
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gae5930dd822c713b36f8529b21ddebd0c
 func (rt *GoCVResourceTracker) DetailEnhance(src *Mat, dst *Mat, sigma_s float32, sigma_r float32) {
-origin.DetailEnhance(src.coreElem(), dst.coreElemPtr(), sigma_s, sigma_r)
+	origin.DetailEnhance(src.coreElem(), dst.coreElemPtr(), sigma_s, sigma_r)
 }
-
 
 // DFT performs a forward or inverse Discrete Fourier Transform (DFT)
 // of a 1D or 2D floating-point array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
 func (rt *GoCVResourceTracker) DFT(src *Mat, dst *Mat, flags DftFlags) {
-origin.DFT(src.coreElem(), dst.coreElemPtr(), flags)
+	origin.DFT(src.coreElem(), dst.coreElemPtr(), flags)
 }
 
-
 // DCT performs a forward or inverse discrete Cosine transform of 1D or 2D array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga85aad4d668c01fbd64825f589e3696d4
 func (rt *GoCVResourceTracker) DCT(src *Mat, dst *Mat, flags DftFlags) {
-origin.DCT(src.coreElem(), dst.coreElemPtr(), flags)
+	origin.DCT(src.coreElem(), dst.coreElemPtr(), flags)
 }
-
 
 // CvtColor converts an image from one color space to another.
 // It converts the src Mat image to the dst Mat using the
 // code param containing the desired ColorConversionCode color space.
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0
 func (rt *GoCVResourceTracker) CvtColor(src *Mat, dst *Mat, code ColorConversionCode) {
-origin.CvtColor(src.coreElem(), dst.coreElemPtr(), code)
+	origin.CvtColor(src.coreElem(), dst.coreElemPtr(), code)
 }
 
-
 // CountNonZero counts non-zero array elements.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaa4b89393263bb4d604e0fe5986723914
 func (rt *GoCVResourceTracker) CountNonZero(src *Mat) int {
@@ -6746,52 +6927,47 @@ func (rt *GoCVResourceTracker) CountNonZero(src *Mat) int {
 
 // CornerSubPix Refines the corner locations. The function iterates to find
 // the sub-pixel accurate location of corners or radial saddle points.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga354e0d7c86d0d9da75de9b9701a9a87e
 func (rt *GoCVResourceTracker) CornerSubPix(img *Mat, corners *Mat, winSize image.Point, zeroZone image.Point, criteria TermCriteria) {
-origin.CornerSubPix(img.coreElem(), corners.coreElemPtr(), winSize, zeroZone, criteria)
+	origin.CornerSubPix(img.coreElem(), corners.coreElemPtr(), winSize, zeroZone, criteria)
 }
 
-
 // CopyMakeBorder forms a border around an image (applies padding).
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga2ac1049c2c3dd25c2b41bffe17658a36
 func (rt *GoCVResourceTracker) CopyMakeBorder(src *Mat, dst *Mat, top int, bottom int, left int, right int, bt BorderType, value color.RGBA) {
-origin.CopyMakeBorder(src.coreElem(), dst.coreElemPtr(), top, bottom, left, right, bt, value)
+	origin.CopyMakeBorder(src.coreElem(), dst.coreElemPtr(), top, bottom, left, right, bt, value)
 }
 
-
 // ConvexityDefects finds the convexity defects of a contour.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gada4437098113fd8683c932e0567f47ba
 func (rt *GoCVResourceTracker) ConvexityDefects(contour *PointVector, hull *Mat, result *Mat) {
-origin.ConvexityDefects(contour.coreElem(), hull.coreElem(), result.coreElemPtr())
+	origin.ConvexityDefects(contour.coreElem(), hull.coreElem(), result.coreElemPtr())
 }
 
-
 // ConvexHull finds the convex hull of a point set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656
 func (rt *GoCVResourceTracker) ConvexHull(points *PointVector, hull *Mat, clockwise bool, returnPoints bool) {
-origin.ConvexHull(points.coreElem(), hull.coreElemPtr(), clockwise, returnPoints)
+	origin.ConvexHull(points.coreElem(), hull.coreElemPtr(), clockwise, returnPoints)
 }
 
-
 // ConvertScaleAbs scales, calculates absolute values, and converts the result to 8-bit.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3460e9c9f37b563ab9dd550c4d8c4e7d
 func (rt *GoCVResourceTracker) ConvertScaleAbs(src *Mat, dst *Mat, alpha float64, beta float64) {
-origin.ConvertScaleAbs(src.coreElem(), dst.coreElemPtr(), alpha, beta)
+	origin.ConvertScaleAbs(src.coreElem(), dst.coreElemPtr(), alpha, beta)
 }
 
-
 // ContourArea calculates a contour area.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/3.3.0/d3/dc0/group__imgproc__shape.html#ga2c759ed9f497d4a618048a2f56dc97f1
 func (rt *GoCVResourceTracker) ContourArea(contour *PointVector) float64 {
@@ -6801,7 +6977,7 @@ func (rt *GoCVResourceTracker) ContourArea(contour *PointVector) float64 {
 
 // ConnectedComponentsWithStats computes the connected components labeled image of boolean
 // image and also produces a statistics output for each label.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga107a78bf7cd25dec05fb4dfc5c9e765f
 func (rt *GoCVResourceTracker) ConnectedComponentsWithStatsWithParams(src *Mat, labels *Mat, stats *Mat, centroids *Mat, conn int, ltype MatType, ccltype ConnectedComponentsAlgorithmType) int {
@@ -6811,7 +6987,7 @@ func (rt *GoCVResourceTracker) ConnectedComponentsWithStatsWithParams(src *Mat, 
 
 // ConnectedComponentsWithStats computes the connected components labeled image of boolean
 // image and also produces a statistics output for each label.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga107a78bf7cd25dec05fb4dfc5c9e765f
 func (rt *GoCVResourceTracker) ConnectedComponentsWithStats(src *Mat, labels *Mat, stats *Mat, centroids *Mat) int {
@@ -6820,7 +6996,7 @@ func (rt *GoCVResourceTracker) ConnectedComponentsWithStats(src *Mat, labels *Ma
 }
 
 // ConnectedComponents computes the connected components labeled image of boolean image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5
 func (rt *GoCVResourceTracker) ConnectedComponentsWithParams(src *Mat, labels *Mat, conn int, ltype MatType, ccltype ConnectedComponentsAlgorithmType) int {
@@ -6829,7 +7005,7 @@ func (rt *GoCVResourceTracker) ConnectedComponentsWithParams(src *Mat, labels *M
 }
 
 // ConnectedComponents computes the connected components labeled image of boolean image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5
 func (rt *GoCVResourceTracker) ConnectedComponents(src *Mat, labels *Mat) int {
@@ -6838,16 +7014,15 @@ func (rt *GoCVResourceTracker) ConnectedComponents(src *Mat, labels *Mat) int {
 }
 
 // CompleteSymm copies the lower or the upper half of a square matrix to its another half.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaa9d88dcd0e54b6d1af38d41f2a3e3d25
 func (rt *GoCVResourceTracker) CompleteSymm(m *Mat, lowerToUpper bool) {
-origin.CompleteSymm(m.coreElem(), lowerToUpper)
+	origin.CompleteSymm(m.coreElem(), lowerToUpper)
 }
 
-
 // CompareHist Compares two histograms.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd
 func (rt *GoCVResourceTracker) CompareHist(hist1 *Mat, hist2 *Mat, method HistCompMethod) float32 {
@@ -6857,22 +7032,20 @@ func (rt *GoCVResourceTracker) CompareHist(hist1 *Mat, hist2 *Mat, method HistCo
 
 // Compare performs the per-element comparison of two arrays
 // or an array and scalar value.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga303cfb72acf8cbb36d884650c09a3a97
 func (rt *GoCVResourceTracker) Compare(src1 *Mat, src2 *Mat, dst *Mat, ct CompareType) {
-origin.Compare(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), ct)
+	origin.Compare(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), ct)
 }
 
-
 // ColorChange mix two differently colored versions of an image seamlessly.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/df/da0/group__photo__clone.html#ga6684f35dc669ff6196a7c340dc73b98e
 func (rt *GoCVResourceTracker) ColorChange(src *Mat, mask *Mat, dst *Mat, red_mul float32, green_mul float32, blue_mul float32) {
-origin.ColorChange(src.coreElem(), mask.coreElem(), dst.coreElemPtr(), red_mul, green_mul, blue_mul)
+	origin.ColorChange(src.coreElem(), mask.coreElem(), dst.coreElemPtr(), red_mul, green_mul, blue_mul)
 }
-
 
 // ClipLine clips the line against the image rectangle.
 // For further details, please see:
@@ -6883,25 +7056,23 @@ func (rt *GoCVResourceTracker) ClipLine(imgSize image.Point, pt1 image.Point, pt
 }
 
 // CircleWithParams draws a circle.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670
 func (rt *GoCVResourceTracker) CircleWithParams(img *Mat, center image.Point, radius int, c color.RGBA, thickness int, lineType LineType, shift int) {
-origin.CircleWithParams(img.coreElemPtr(), center, radius, c, thickness, lineType, shift)
+	origin.CircleWithParams(img.coreElemPtr(), center, radius, c, thickness, lineType, shift)
 }
 
-
 // Circle draws a circle.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670
 func (rt *GoCVResourceTracker) Circle(img *Mat, center image.Point, radius int, c color.RGBA, thickness int) {
-origin.Circle(img.coreElemPtr(), center, radius, c, thickness)
+	origin.Circle(img.coreElemPtr(), center, radius, c, thickness)
 }
 
-
 // CheckRange checks every element of an input array for invalid values.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga2bd19d89cae59361416736f87e3c7a64
 func (rt *GoCVResourceTracker) CheckRange(src *Mat) bool {
@@ -6910,13 +7081,12 @@ func (rt *GoCVResourceTracker) CheckRange(src *Mat) bool {
 }
 
 // CartToPolar calculates the magnitude and angle of 2D vectors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gac5f92f48ec32cacf5275969c33ee837d
 func (rt *GoCVResourceTracker) CartToPolar(x *Mat, y *Mat, magnitude *Mat, angle *Mat, angleInDegrees bool) {
-origin.CartToPolar(x.coreElem(), y.coreElem(), magnitude.coreElemPtr(), angle.coreElemPtr(), angleInDegrees)
+	origin.CartToPolar(x.coreElem(), y.coreElem(), magnitude.coreElemPtr(), angle.coreElemPtr(), angleInDegrees)
 }
-
 
 // Canny finds edges in an image using the Canny algorithm.
 // The function finds edges in the input image image and marks
@@ -6925,16 +7095,15 @@ origin.CartToPolar(x.coreElem(), y.coreElem(), magnitude.coreElemPtr(), angle.co
 // for edge linking. The largest value is used to
 // find initial segments of strong edges.
 // See http://en.wikipedia.org/wiki/Canny_edge_detector
-// 
+//
 // For further details, please see:
 // http://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga04723e007ed888ddf11d9ba04e2232de
 func (rt *GoCVResourceTracker) Canny(src *Mat, edges *Mat, t1 float32, t2 float32) {
-origin.Canny(src.coreElem(), edges.coreElemPtr(), t1, t2)
+	origin.Canny(src.coreElem(), edges.coreElemPtr(), t1, t2)
 }
 
-
 // CalibrateCamera finds the camera intrinsic and extrinsic parameters from several views of a calibration pattern.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga3207604e4b1a1758aa66acb6ed5aa65d
 func (rt *GoCVResourceTracker) CalibrateCamera(objectPoints *Points3fVector, imagePoints *Points2fVector, imageSize image.Point, cameraMatrix *Mat, distCoeffs *Mat, rvecs *Mat, tvecs *Mat, calibFlag CalibFlag) float64 {
@@ -6944,81 +7113,73 @@ func (rt *GoCVResourceTracker) CalibrateCamera(objectPoints *Points3fVector, ima
 
 // CalcOpticalFlowPyrLKWithParams calculates an optical flow for a sparse feature set using
 // the iterative Lucas-Kanade method with pyramids.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dc/d6b/group__video__track.html#ga473e4b886d0bcc6b65831eb88ed93323
 func (rt *GoCVResourceTracker) CalcOpticalFlowPyrLKWithParams(prevImg *Mat, nextImg *Mat, prevPts *Mat, nextPts *Mat, status *Mat, err *Mat, winSize image.Point, maxLevel int, criteria TermCriteria, flags int, minEigThreshold float64) {
-origin.CalcOpticalFlowPyrLKWithParams(prevImg.coreElem(), nextImg.coreElem(), prevPts.coreElem(), nextPts.coreElem(), status.coreElemPtr(), err.coreElemPtr(), winSize, maxLevel, criteria, flags, minEigThreshold)
+	origin.CalcOpticalFlowPyrLKWithParams(prevImg.coreElem(), nextImg.coreElem(), prevPts.coreElem(), nextPts.coreElem(), status.coreElemPtr(), err.coreElemPtr(), winSize, maxLevel, criteria, flags, minEigThreshold)
 }
-
 
 // CalcOpticalFlowPyrLK calculates an optical flow for a sparse feature set using
 // the iterative Lucas-Kanade method with pyramids.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dc/d6b/group__video__track.html#ga473e4b886d0bcc6b65831eb88ed93323
 func (rt *GoCVResourceTracker) CalcOpticalFlowPyrLK(prevImg *Mat, nextImg *Mat, prevPts *Mat, nextPts *Mat, status *Mat, err *Mat) {
-origin.CalcOpticalFlowPyrLK(prevImg.coreElem(), nextImg.coreElem(), prevPts.coreElem(), nextPts.coreElem(), status.coreElemPtr(), err.coreElemPtr())
+	origin.CalcOpticalFlowPyrLK(prevImg.coreElem(), nextImg.coreElem(), prevPts.coreElem(), nextPts.coreElem(), status.coreElemPtr(), err.coreElemPtr())
 }
-
 
 // CalcOpticalFlowFarneback computes a dense optical flow using
 // Gunnar Farneback's algorithm.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/dc/d6b/group__video__track.html#ga5d10ebbd59fe09c5f650289ec0ece5af
 func (rt *GoCVResourceTracker) CalcOpticalFlowFarneback(prevImg *Mat, nextImg *Mat, flow *Mat, pyrScale float64, levels int, winsize int, iterations int, polyN int, polySigma float64, flags int) {
-origin.CalcOpticalFlowFarneback(prevImg.coreElem(), nextImg.coreElem(), flow.coreElemPtr(), pyrScale, levels, winsize, iterations, polyN, polySigma, flags)
+	origin.CalcOpticalFlowFarneback(prevImg.coreElem(), nextImg.coreElem(), flow.coreElemPtr(), pyrScale, levels, winsize, iterations, polyN, polySigma, flags)
 }
 
-
 // CalcHist Calculates a histogram of a set of images
-// 
+//
 // For futher details, please see:
 // https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga6ca1876785483836f72a77ced8ea759a
 func (rt *GoCVResourceTracker) CalcHist(src []*Mat, channels []int, mask *Mat, hist *Mat, size []int, ranges []float64, acc bool) {
-origin.CalcHist(SliceToGoCVCloser(src), channels, mask.coreElem(), hist.coreElemPtr(), size, ranges, acc)
+	origin.CalcHist(SliceToGoCVCloser(src), channels, mask.coreElem(), hist.coreElemPtr(), size, ranges, acc)
 }
 
-
 // CalcCovarMatrix calculates the covariance matrix of a set of vectors.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga017122d912af19d7d0d2cccc2d63819f
 func (rt *GoCVResourceTracker) CalcCovarMatrix(samples *Mat, covar *Mat, mean *Mat, flags CovarFlags, ctype MatType) {
-origin.CalcCovarMatrix(samples.coreElem(), covar.coreElemPtr(), mean.coreElemPtr(), flags, ctype)
+	origin.CalcCovarMatrix(samples.coreElem(), covar.coreElemPtr(), mean.coreElemPtr(), flags, ctype)
 }
 
-
 // CalcBackProject calculates the back projection of a histogram.
-// 
+//
 // For futher details, please see:
 // https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga3a0af640716b456c3d14af8aee12e3ca
 func (rt *GoCVResourceTracker) CalcBackProject(src []*Mat, channels []int, hist *Mat, backProject *Mat, ranges []float64, uniform bool) {
-origin.CalcBackProject(SliceToGoCVCloser(src), channels, hist.coreElem(), backProject.coreElemPtr(), ranges, uniform)
+	origin.CalcBackProject(SliceToGoCVCloser(src), channels, hist.coreElem(), backProject.coreElemPtr(), ranges, uniform)
 }
 
-
 // BoxPoints finds the four vertices of a rotated rect. Useful to draw the rotated rectangle.
-// 
+//
 // For further Details, please see:
 // https://docs.opencv.org/3.3.0/d3/dc0/group__imgproc__shape.html#gaf78d467e024b4d7936cf9397185d2f5c
 func (rt *GoCVResourceTracker) BoxPoints(rect RotatedRect, pts *Mat) {
-origin.BoxPoints(rect, pts.coreElemPtr())
+	origin.BoxPoints(rect, pts.coreElemPtr())
 }
 
-
 // BoxFilter blurs an image using the box filter.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gad533230ebf2d42509547d514f7d3fbc3
 func (rt *GoCVResourceTracker) BoxFilter(src *Mat, dst *Mat, depth int, ksize image.Point) {
-origin.BoxFilter(src.coreElem(), dst.coreElemPtr(), depth, ksize)
+	origin.BoxFilter(src.coreElem(), dst.coreElemPtr(), depth, ksize)
 }
 
-
 // BoundingRect calculates the up-right bounding rectangle of a point set.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/3.3.0/d3/dc0/group__imgproc__shape.html#gacb413ddce8e48ff3ca61ed7cf626a366
 func (rt *GoCVResourceTracker) BoundingRect(contour *PointVector) image.Rectangle {
@@ -7027,7 +7188,7 @@ func (rt *GoCVResourceTracker) BoundingRect(contour *PointVector) image.Rectangl
 }
 
 // BorderInterpolate computes the source location of an extrapolated pixel.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga247f571aa6244827d3d798f13892da58
 func (rt *GoCVResourceTracker) BorderInterpolate(p int, len int, borderType CovarFlags) int {
@@ -7036,29 +7197,27 @@ func (rt *GoCVResourceTracker) BorderInterpolate(p int, len int, borderType Cova
 }
 
 // Blur blurs an image Mat using a normalized box filter.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga8c45db9afe636703801b0b2e440fce37
 func (rt *GoCVResourceTracker) Blur(src *Mat, dst *Mat, ksize image.Point) {
-origin.Blur(src.coreElem(), dst.coreElemPtr(), ksize)
+	origin.Blur(src.coreElem(), dst.coreElemPtr(), ksize)
 }
-
 
 // BlobFromImages Creates 4-dimensional blob from series of images.
 // Optionally resizes and crops images from center, subtract mean values,
 // scales values by scalefactor, swap Blue and Red channels.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga2b89ed84432e4395f5a1412c2926293c
 func (rt *GoCVResourceTracker) BlobFromImages(imgs []*Mat, blob *Mat, scaleFactor float64, size image.Point, mean Scalar, swapRB bool, crop bool, ddepth MatType) {
-origin.BlobFromImages(SliceToGoCVCloser(imgs), blob.coreElemPtr(), scaleFactor, size, mean, swapRB, crop, ddepth)
+	origin.BlobFromImages(SliceToGoCVCloser(imgs), blob.coreElemPtr(), scaleFactor, size, mean, swapRB, crop, ddepth)
 }
-
 
 // BlobFromImage creates 4-dimensional blob from image. Optionally resizes and crops
 // image from center, subtract mean values, scales values by scalefactor,
 // swap Blue and Red channels.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/trunk/d6/d0f/group__dnn.html#ga152367f253c81b53fe6862b299f5c5cd
 func (rt *GoCVResourceTracker) BlobFromImage(img *Mat, scaleFactor float64, size image.Point, mean Scalar, swapRB bool, crop bool) *Mat {
@@ -7068,122 +7227,111 @@ func (rt *GoCVResourceTracker) BlobFromImage(img *Mat, scaleFactor float64, size
 
 // BitwiseXorWithMask calculates the per-element bit-wise "exclusive or" operation
 // on two arrays or an array and a scalar. It has an additional parameter for a mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga84b2d8188ce506593dcc3f8cd00e8e2c
 func (rt *GoCVResourceTracker) BitwiseXorWithMask(src1 *Mat, src2 *Mat, dst *Mat, mask *Mat) {
-origin.BitwiseXorWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.BitwiseXorWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
-
 
 // BitwiseXor calculates the per-element bit-wise "exclusive or" operation
 // on two arrays or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga84b2d8188ce506593dcc3f8cd00e8e2c
 func (rt *GoCVResourceTracker) BitwiseXor(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.BitwiseXor(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.BitwiseXor(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
-
 
 // BitwiseOrWithMask calculates the per-element bit-wise disjunction of two arrays
 // or an array and a scalar. It has an additional parameter for a mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gab85523db362a4e26ff0c703793a719b4
 func (rt *GoCVResourceTracker) BitwiseOrWithMask(src1 *Mat, src2 *Mat, dst *Mat, mask *Mat) {
-origin.BitwiseOrWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.BitwiseOrWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
-
 
 // BitwiseOr calculates the per-element bit-wise disjunction of two arrays
 // or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gab85523db362a4e26ff0c703793a719b4
 func (rt *GoCVResourceTracker) BitwiseOr(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.BitwiseOr(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.BitwiseOr(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // BitwiseNotWithMask inverts every bit of an array. It has an additional parameter for a mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga0002cf8b418479f4cb49a75442baee2f
 func (rt *GoCVResourceTracker) BitwiseNotWithMask(src1 *Mat, dst *Mat, mask *Mat) {
-origin.BitwiseNotWithMask(src1.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.BitwiseNotWithMask(src1.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
 
-
 // BitwiseNot inverts every bit of an array.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga0002cf8b418479f4cb49a75442baee2f
 func (rt *GoCVResourceTracker) BitwiseNot(src1 *Mat, dst *Mat) {
-origin.BitwiseNot(src1.coreElem(), dst.coreElemPtr())
+	origin.BitwiseNot(src1.coreElem(), dst.coreElemPtr())
 }
-
 
 // BitwiseAndWithMask computes bitwise conjunction of the two arrays (dst = src1 & src2).
 // Calculates the per-element bit-wise conjunction of two arrays
 // or an array and a scalar. It has an additional parameter for a mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14
 func (rt *GoCVResourceTracker) BitwiseAndWithMask(src1 *Mat, src2 *Mat, dst *Mat, mask *Mat) {
-origin.BitwiseAndWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.BitwiseAndWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
-
 
 // BitwiseAnd computes bitwise conjunction of the two arrays (dst = src1 & src2).
 // Calculates the per-element bit-wise conjunction of two arrays
 // or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14
 func (rt *GoCVResourceTracker) BitwiseAnd(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.BitwiseAnd(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.BitwiseAnd(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // BilateralFilter applies a bilateral filter to an image.
-// 
+//
 // Bilateral filtering is described here:
 // http://www.dai.ed.ac.uk/CVonline/LOCAL_COPIES/MANDUCHI1/Bilateral_Filtering.html
-// 
+//
 // BilateralFilter can reduce unwanted noise very well while keeping edges
 // fairly sharp. However, it is very slow compared to most filters.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga9d7064d478c95d60003cf839430737ed
 func (rt *GoCVResourceTracker) BilateralFilter(src *Mat, dst *Mat, diameter int, sigmaColor float64, sigmaSpace float64) {
-origin.BilateralFilter(src.coreElem(), dst.coreElemPtr(), diameter, sigmaColor, sigmaSpace)
+	origin.BilateralFilter(src.coreElem(), dst.coreElemPtr(), diameter, sigmaColor, sigmaSpace)
 }
 
-
 // BatchDistance is a naive nearest neighbor finder.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga4ba778a1c57f83233b1d851c83f5a622
 func (rt *GoCVResourceTracker) BatchDistance(src1 *Mat, src2 *Mat, dist *Mat, dtype MatType, nidx *Mat, normType NormType, K int, mask *Mat, update int, crosscheck bool) {
-origin.BatchDistance(src1.coreElem(), src2.coreElem(), dist.coreElem(), dtype, nidx.coreElem(), normType, K, mask.coreElem(), update, crosscheck)
+	origin.BatchDistance(src1.coreElem(), src2.coreElem(), dist.coreElem(), dtype, nidx.coreElem(), normType, K, mask.coreElem(), update, crosscheck)
 }
-
 
 // ArrowedLine draws a arrow segment pointing from the first point
 // to the second one.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga0a165a3ca093fd488ac709fdf10c05b2
 func (rt *GoCVResourceTracker) ArrowedLine(img *Mat, pt1 image.Point, pt2 image.Point, c color.RGBA, thickness int) {
-origin.ArrowedLine(img.coreElemPtr(), pt1, pt2, c, thickness)
+	origin.ArrowedLine(img.coreElemPtr(), pt1, pt2, c, thickness)
 }
 
-
 // ArcLength calculates a contour perimeter or a curve length.
-// 
+//
 // For further details, please see:
-// 
+//
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga8d26483c636be6b35c3ec6335798a47c
 func (rt *GoCVResourceTracker) ArcLength(curve *PointVector, isClosed bool) float64 {
 	_ov1 := origin.ArcLength(curve.coreElem(), isClosed)
@@ -7191,9 +7339,9 @@ func (rt *GoCVResourceTracker) ArcLength(curve *PointVector, isClosed bool) floa
 }
 
 // ApproxPolyDP approximates a polygonal curve(s) with the specified precision.
-// 
+//
 // For further details, please see:
-// 
+//
 // https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c
 func (rt *GoCVResourceTracker) ApproxPolyDP(curve *PointVector, epsilon float64, closed bool) *PointVector {
 	_ov1 := origin.ApproxPolyDP(curve.coreElem(), epsilon, closed)
@@ -7201,129 +7349,110 @@ func (rt *GoCVResourceTracker) ApproxPolyDP(curve *PointVector, epsilon float64,
 }
 
 // ApplyCustomColorMap applies a custom defined colormap on a given image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html#gacb22288ddccc55f9bd9e6d492b409cae
 func (rt *GoCVResourceTracker) ApplyCustomColorMap(src *Mat, dst *Mat, customColormap *Mat) {
-origin.ApplyCustomColorMap(src.coreElem(), dst.coreElemPtr(), customColormap.coreElem())
+	origin.ApplyCustomColorMap(src.coreElem(), dst.coreElemPtr(), customColormap.coreElem())
 }
 
-
 // ApplyColorMap applies a GNU Octave/MATLAB equivalent colormap on a given image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html#gadf478a5e5ff49d8aa24e726ea6f65d15
 func (rt *GoCVResourceTracker) ApplyColorMap(src *Mat, dst *Mat, colormapType ColormapTypes) {
-origin.ApplyColorMap(src.coreElem(), dst.coreElemPtr(), colormapType)
+	origin.ApplyColorMap(src.coreElem(), dst.coreElemPtr(), colormapType)
 }
 
-
 // AddWeighted calculates the weighted sum of two arrays.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19
 func (rt *GoCVResourceTracker) AddWeighted(src1 *Mat, alpha float64, src2 *Mat, beta float64, gamma float64, dst *Mat) {
-origin.AddWeighted(src1.coreElem(), alpha, src2.coreElem(), beta, gamma, dst.coreElemPtr())
+	origin.AddWeighted(src1.coreElem(), alpha, src2.coreElem(), beta, gamma, dst.coreElemPtr())
 }
 
-
 // Add calculates the per-element sum of two arrays or an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga10ac1bfb180e2cfda1701d06c24fdbd6
 func (rt *GoCVResourceTracker) Add(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.Add(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.Add(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
 
-
 // AdaptiveThreshold applies a fixed-level threshold to each array element.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga72b913f352e4a1b1b397736707afcde3
 func (rt *GoCVResourceTracker) AdaptiveThreshold(src *Mat, dst *Mat, maxValue float32, adaptiveTyp AdaptiveThresholdType, typ ThresholdType, blockSize int, c float32) {
-origin.AdaptiveThreshold(src.coreElem(), dst.coreElemPtr(), maxValue, adaptiveTyp, typ, blockSize, c)
+	origin.AdaptiveThreshold(src.coreElem(), dst.coreElemPtr(), maxValue, adaptiveTyp, typ, blockSize, c)
 }
 
-
 // Updates a running average with mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga4f9552b541187f61f6818e8d2d826bc7
 func (rt *GoCVResourceTracker) AccumulatedWeightedWithMask(src *Mat, dst *Mat, alpha float64, mask *Mat) {
-origin.AccumulatedWeightedWithMask(src.coreElem(), dst.coreElemPtr(), alpha, mask.coreElem())
+	origin.AccumulatedWeightedWithMask(src.coreElem(), dst.coreElemPtr(), alpha, mask.coreElem())
 }
 
-
 // Updates a running average.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga4f9552b541187f61f6818e8d2d826bc7
 func (rt *GoCVResourceTracker) AccumulatedWeighted(src *Mat, dst *Mat, alpha float64) {
-origin.AccumulatedWeighted(src.coreElem(), dst.coreElemPtr(), alpha)
+	origin.AccumulatedWeighted(src.coreElem(), dst.coreElemPtr(), alpha)
 }
 
-
 // Adds an image to the accumulator image with mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga1a567a79901513811ff3b9976923b199
 func (rt *GoCVResourceTracker) AccumulateWithMask(src *Mat, dst *Mat, mask *Mat) {
-origin.AccumulateWithMask(src.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.AccumulateWithMask(src.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
 
-
 // Adds the square of a source image to the accumulator image with mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#gacb75e7ffb573227088cef9ceaf80be8c
 func (rt *GoCVResourceTracker) AccumulateSquareWithMask(src *Mat, dst *Mat, mask *Mat) {
-origin.AccumulateSquareWithMask(src.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.AccumulateSquareWithMask(src.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
 
-
 // Adds the square of a source image to the accumulator image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#gacb75e7ffb573227088cef9ceaf80be8c
 func (rt *GoCVResourceTracker) AccumulateSquare(src *Mat, dst *Mat) {
-origin.AccumulateSquare(src.coreElem(), dst.coreElemPtr())
+	origin.AccumulateSquare(src.coreElem(), dst.coreElemPtr())
 }
 
-
 // Adds the per-element product of two input images to the accumulator image with mask.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga82518a940ecfda49460f66117ac82520
 func (rt *GoCVResourceTracker) AccumulateProductWithMask(src1 *Mat, src2 *Mat, dst *Mat, mask *Mat) {
-origin.AccumulateProductWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
+	origin.AccumulateProductWithMask(src1.coreElem(), src2.coreElem(), dst.coreElemPtr(), mask.coreElem())
 }
 
-
 // Adds the per-element product of two input images to the accumulator image.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga82518a940ecfda49460f66117ac82520
 func (rt *GoCVResourceTracker) AccumulateProduct(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.AccumulateProduct(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.AccumulateProduct(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
-
-
 
 func (rt *GoCVResourceTracker) Accumulate(src *Mat, dst *Mat) {
-origin.Accumulate(src.coreElem(), dst.coreElemPtr())
+	origin.Accumulate(src.coreElem(), dst.coreElemPtr())
 }
-
 
 // AbsDiff calculates the per-element absolute difference between two arrays
 // or between an array and a scalar.
-// 
+//
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6fef31bc8c4071cbc114a758a2b79c14
 func (rt *GoCVResourceTracker) AbsDiff(src1 *Mat, src2 *Mat, dst *Mat) {
-origin.AbsDiff(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
+	origin.AbsDiff(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 }
-
-
-
-
-

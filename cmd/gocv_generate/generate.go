@@ -174,6 +174,8 @@ func NewType(one gotype.Type) *Type {
 				}
 			}
 
+			hasCloserInOrOut = true
+
 			if hasCloserInOrOut {
 				t.MethodsReturnsCloser = append(t.MethodsReturnsCloser, method)
 			}
