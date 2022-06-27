@@ -13,39 +13,5 @@
 
 # Dependency directories (remove the comment below to include it)
 
-*.jpg
-*.png
-*.bmp
-*.tiff
-*.json
-*.toml
-*.zip
-*
-!*.go
-!*.mod
-!.gitignore
-!glass_check_ui.manifest
-!glass_check_ui.syso
-!*.c
-!*.cpp
-!*.h
-!*.hpp
-!*/*.go
-!*/*/*.go
-!funcfitter/
-!gige/
-!*/
-vendor/
-.idea/
-
-!*.manifest
-!*.syso
-
-!lib/*.lib
-!lib/*.h
-!image/second_screen.png
-build
-cmake-build-debug
-
-!*.md
-generate/gocv_tracker
+vendor
+.idea
