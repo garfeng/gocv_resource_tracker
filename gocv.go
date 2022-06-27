@@ -4,7 +4,6 @@
 
 package gocv_resource_tracker
 
-import "C"
 import (
 	"image"
 	"image/color"
@@ -808,11 +807,6 @@ func (ptr *PointsVector) Size() int {
 	return _ov1
 }
 
-func (ptr *PointsVector) P() C.PointsVector {
-	_ov1 := ptr.PointsVector.P()
-	return _ov1
-}
-
 // IsNil checks the CGo pointer in the PointsVector.
 func (ptr *PointsVector) IsNil() bool {
 	_ov1 := ptr.PointsVector.IsNil()
@@ -970,11 +964,6 @@ func (ptr *Points2fVector) ToPoints() [][]Point2f {
 // Size returns how many vectors of Points are in the Points2fVector.
 func (ptr *Points2fVector) Size() int {
 	_ov1 := ptr.Points2fVector.Size()
-	return _ov1
-}
-
-func (ptr *Points2fVector) P() C.Points2fVector {
-	_ov1 := ptr.Points2fVector.P()
 	return _ov1
 }
 
@@ -1825,12 +1814,6 @@ func (ptr *Mat) Reshape(cn int, rows int) *Mat {
 func (ptr *Mat) Region(rio image.Rectangle) *Mat {
 	_ov1 := ptr.Mat.Region(rio)
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
-}
-
-// Ptr returns the Mat's underlying object pointer.
-func (ptr *Mat) Ptr() C.Mat {
-	_ov1 := ptr.Mat.Ptr()
-	return _ov1
 }
 
 // PatchNaNs converts NaN's to zeros.

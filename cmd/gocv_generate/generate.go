@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go/ast"
 	"path/filepath"
 	"strings"
@@ -52,6 +53,8 @@ func (i *Importer) Import() error {
 	}
 
 	num := pkgInfo.NumChild()
+
+	fmt.Println("Import", num, "children")
 
 	for id := 0; id < num; id++ {
 		v := pkgInfo.Child(id)
@@ -161,20 +164,28 @@ func NewType(one gotype.Type) *Type {
 			method.ReceverTypeName = one.Name()
 			t.Methods = append(t.Methods, method)
 
-			hasCloserInOrOut := false
-
+			hasCloserInOrOut := true
 			for _, v := range method.Outs {
-				if v.IsCloser() || v.IsRealElemCloser() {
-					hasCloserInOrOut = true
-				}
-			}
-			for _, v := range method.Ins {
-				if v.IsCloser() || v.IsRealElemCloser() {
-					hasCloserInOrOut = true
-				}
-			}
 
-			hasCloserInOrOut = true
+				if strings.Index(strings.TrimSpace(v.TypeName), "C.") == 0 {
+					hasCloserInOrOut = false
+				}
+			}
+			/*
+				for _, v := range method.Outs {
+					if v.IsCloser() || v.IsRealElemCloser() {
+						hasCloserInOrOut = true
+					}
+				}
+				for _, v := range method.Ins {
+					if v.IsCloser() || v.IsRealElemCloser() {
+						hasCloserInOrOut = true
+					}
+				}
+
+			*/
+
+			//hasCloserInOrOut = true
 
 			if hasCloserInOrOut {
 				t.MethodsReturnsCloser = append(t.MethodsReturnsCloser, method)
