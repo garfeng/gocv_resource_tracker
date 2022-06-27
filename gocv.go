@@ -108,6 +108,45 @@ func newWindowFromElemNoTracker(rt *GoCVResourceTracker, core origin.Window) *Wi
 // 所有返回值有Close的函数
 
 
+// SelectROIs selects multiple Regions Of Interest (ROI) on the given image.
+// It creates a window and allows user to select ROIs using mouse.
+// 
+// Controls:
+// use space or enter to finish current selection and start a new one
+// use esc to terminate multiple ROI selection process
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga0f11fad74a6432b8055fb21621a0f893
+func (ptr *Window) SelectROIs(img *Mat) []image.Rectangle {
+	_ov1 := ptr.Window.SelectROIs(img.coreElem())
+	return _ov1
+}
+
+// SelectROI selects a Region Of Interest (ROI) on the given image.
+// It creates a window and allows user to select a ROI using mouse.
+// 
+// Controls:
+// use space or enter to finish selection,
+// use key c to cancel selection (function will return a zero Rect).
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga8daf4730d3adf7035b6de9be4c469af5
+func (ptr *Window) SelectROI(img *Mat) image.Rectangle {
+	_ov1 := ptr.Window.SelectROI(img.coreElem())
+	return _ov1
+}
+
+// IMShow displays an image Mat in the specified window.
+// This function should be followed by the WaitKey function which displays
+// the image for specified milliseconds. Otherwise, it won't display the image.
+// 
+// For further details, please see:
+// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563
+func (ptr *Window) IMShow(img *Mat) {
+ptr.Window.IMShow(img.coreElem())
+}
+
+
 
 
 // VideoWriter is a wrapper around the OpenCV VideoWriter`class.
@@ -162,6 +201,15 @@ func newVideoWriterFromElemNoTracker(rt *GoCVResourceTracker, core origin.VideoW
 // 所有返回值有Close的函数
 
 
+// Write the next video frame from the Mat image to the open VideoWriter.
+// 
+// For further details, please see:
+// http://docs.opencv.org/master/dd/d9e/classcv_1_1VideoWriter.html#a3115b679d612a6a0b5864a0c88ed4b39
+func (ptr *VideoWriter) Write(img *Mat) error {
+	_ov1 := ptr.VideoWriter.Write(img.coreElem())
+	return _ov1
+}
+
 
 
 // VideoCapture is a wrapper around the OpenCV VideoCapture class.
@@ -215,6 +263,13 @@ func newVideoCaptureFromElemNoTracker(rt *GoCVResourceTracker, core origin.Video
 
 // 所有返回值有Close的函数
 
+
+// Read reads the next frame from the VideoCapture to the Mat passed in
+// as the param. It returns false if the VideoCapture cannot read frame.
+func (ptr *VideoCapture) Read(m *Mat) bool {
+	_ov1 := ptr.VideoCapture.Read(m.coreElemPtr())
+	return _ov1
+}
 
 
 
@@ -272,6 +327,18 @@ func newTrackerMILFromElemNoTracker(rt *GoCVResourceTracker, core origin.Tracker
 // 所有返回值有Close的函数
 
 
+// Update updates the TrackerMIL.
+func (ptr *TrackerMIL) Update(img *Mat) (image.Rectangle, bool) {
+	_ov1, _ov2 := ptr.TrackerMIL.Update(img.coreElem())
+	return _ov1, _ov2
+}
+
+// Init initializes the TrackerMIL.
+func (ptr *TrackerMIL) Init(img *Mat, boundingBox image.Rectangle) bool {
+	_ov1 := ptr.TrackerMIL.Init(img.coreElem(), boundingBox)
+	return _ov1
+}
+
 
 
 // Tracker is the base interface for object tracking.
@@ -301,6 +368,24 @@ func newTrackerFromElem(rt *GoCVResourceTracker, core origin.Tracker) *Tracker {
 
 // 所有返回值有Close的函数
 
+
+// Update updates the tracker, returns a new bounding box and a boolean determining whether the tracker lost the target.
+// 
+// see: https://docs.opencv.org/master/d0/d0a/classcv_1_1Tracker.html#a549159bd0553e6a8de356f3866df1f18
+func (ptr *Tracker) Update(image *Mat) (image.Rectangle, bool) {
+	_ov1, _ov2 := ptr.Tracker.Update(image.coreElem())
+	return _ov1, _ov2
+}
+
+// Init initializes the tracker with a known bounding box that surrounded the target.
+// Note: this can only be called once. If you lose the object, you have to Close() the instance,
+// create a new one, and call Init() on it again.
+// 
+// see: https://docs.opencv.org/master/d0/d0a/classcv_1_1Tracker.html#a4d285747589b1bdd16d2e4f00c3255dc
+func (ptr *Tracker) Init(image *Mat, boundingBox image.Rectangle) bool {
+	_ov1 := ptr.Tracker.Init(image.coreElem(), boundingBox)
+	return _ov1
+}
 
 
 
@@ -352,6 +437,15 @@ func newSimpleBlobDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin
 
 // 所有返回值有Close的函数
 
+
+// Detect keypoints in an image using SimpleBlobDetector.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *SimpleBlobDetector) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.SimpleBlobDetector.Detect(src.coreElem())
+	return _ov1
+}
 
 
 
@@ -414,6 +508,15 @@ func (ptr *SIFT) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 	return _ov1, newMatFromElem(ptr.ResourceTracker, _ov2)
 }
 
+// Detect keypoints in an image using SIFT.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *SIFT) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.SIFT.Detect(src.coreElem())
+	return _ov1
+}
+
 
 
 // QRCodeDetector groups the object candidate rectangles.
@@ -467,6 +570,58 @@ func newQRCodeDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.QRC
 
 // 所有返回值有Close的函数
 
+
+// Detects QR codes in image and finds of the quadrangles containing the codes.
+// 
+// Each quadrangle would be returned as a row in the `points` Mat and each point is a Vecf.
+// Returns true if QR code was detected
+// For usage please see TestQRCodeDetector
+// For further details, please see:
+// https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#aaf2b6b2115b8e8fbc9acf3a8f68872b6
+func (ptr *QRCodeDetector) DetectMulti(input *Mat, points *Mat) bool {
+	_ov1 := ptr.QRCodeDetector.DetectMulti(input.coreElem(), points.coreElemPtr())
+	return _ov1
+}
+
+// Detects QR codes in image and finds of the quadrangles containing the codes and decode the decode the QRCodes to strings.
+// 
+// Each quadrangle would be returned as a row in the `points` Mat and each point is a Vecf.
+// Returns true as long as some QR code was detected even in case where the decoding failed
+// For usage please see TestQRCodeDetector
+// For further details, please see:
+// https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a188b63ffa17922b2c65d8a0ab7b70775
+func (ptr *QRCodeDetector) DetectAndDecodeMulti(input *Mat, decoded *[]string, points *Mat, qrCodes []*Mat) bool {
+	_ov1 := ptr.QRCodeDetector.DetectAndDecodeMulti(input.coreElem(), decoded, points.coreElemPtr(), SliceToGoCVCloserPtr(qrCodes))
+	return _ov1
+}
+
+// DetectAndDecode Both detects and decodes QR code.
+// 
+// Returns true as long as some QR code was detected even in case where the decoding failed
+// For further details, please see:
+// https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a7290bd6a5d59b14a37979c3a14fbf394
+func (ptr *QRCodeDetector) DetectAndDecode(input *Mat, points *Mat, straight_qrcode *Mat) string {
+	_ov1 := ptr.QRCodeDetector.DetectAndDecode(input.coreElem(), points.coreElemPtr(), straight_qrcode.coreElemPtr())
+	return _ov1
+}
+
+// Detect detects QR code in image and returns the quadrangle containing the code.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a64373f7d877d27473f64fe04bb57d22b
+func (ptr *QRCodeDetector) Detect(input *Mat, points *Mat) bool {
+	_ov1 := ptr.QRCodeDetector.Detect(input.coreElem(), points.coreElemPtr())
+	return _ov1
+}
+
+// Decode decodes QR code in image once it's found by the detect() method. Returns UTF8-encoded output string or empty string if the code cannot be decoded.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/de/dc3/classcv_1_1QRCodeDetector.html#a4172c2eb4825c844fb1b0ae67202d329
+func (ptr *QRCodeDetector) Decode(input *Mat, points *Mat, straight_qrcode *Mat) string {
+	_ov1 := ptr.QRCodeDetector.Decode(input.coreElem(), points.coreElem(), straight_qrcode.coreElemPtr())
+	return _ov1
+}
 
 
 
@@ -525,6 +680,12 @@ func (ptr *PointsVector) At(idx int) *PointVector {
 	return newPointVectorFromElemNoTracker(ptr.ResourceTracker, _ov1)
 }
 
+// Append appends a PointVector at end of the PointsVector.
+func (ptr *PointsVector) Append(pv *PointVector) {
+ptr.PointsVector.Append(pv.coreElem())
+}
+
+
 
 
 // Points3fVector is a wrapper around a std::vector< std::vector< cv::Point3f > >*
@@ -582,6 +743,12 @@ func (ptr *Points3fVector) At(idx int) *Point3fVector {
 	return newPoint3fVectorFromElemNoTracker(ptr.ResourceTracker, _ov1)
 }
 
+// Append appends a Point3fVector at end of the Points3fVector.
+func (ptr *Points3fVector) Append(pv *Point3fVector) {
+ptr.Points3fVector.Append(pv.coreElem())
+}
+
+
 
 
 // Points2fVector is a wrapper around a std::vector< std::vector< cv::Point2f > >*
@@ -638,6 +805,12 @@ func (ptr *Points2fVector) At(idx int) *Point2fVector {
 	_ov1 := ptr.Points2fVector.At(idx)
 	return newPoint2fVectorFromElemNoTracker(ptr.ResourceTracker, _ov1)
 }
+
+// Append appends a Point2fVector at end of the Points2fVector.
+func (ptr *Points2fVector) Append(pv *Point2fVector) {
+ptr.Points2fVector.Append(pv.coreElem())
+}
+
 
 
 
@@ -854,6 +1027,15 @@ func (ptr *ORB) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 	return _ov1, newMatFromElem(ptr.ResourceTracker, _ov2)
 }
 
+// Detect keypoints in an image using ORB.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *ORB) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.ORB.Detect(src.coreElem())
+	return _ov1
+}
+
 
 
 // Net allows you to create and manipulate comprehensive artificial neural networks.
@@ -908,6 +1090,15 @@ func newNetFromElemNoTracker(rt *GoCVResourceTracker, core origin.Net) *Net {
 // 所有返回值有Close的函数
 
 
+// SetInput sets the new value for the layer output blob.
+// 
+// For further details, please see:
+// https://docs.opencv.org/trunk/db/d30/classcv_1_1dnn_1_1Net.html#a672a08ae76444d75d05d7bfea3e4a328
+func (ptr *Net) SetInput(blob *Mat, name string) {
+ptr.Net.SetInput(blob.coreElem(), name)
+}
+
+
 // GetLayer returns pointer to layer with specified id from the network.
 // 
 // For further details, please see:
@@ -921,7 +1112,7 @@ func (ptr *Net) GetLayer(layer int) *Layer {
 // 
 // For further details, please see:
 // https://docs.opencv.org/3.4.1/db/d30/classcv_1_1dnn_1_1Net.html#adb34d7650e555264c7da3b47d967311b
-func (ptr *Net) ForwardLayers(outBlobNames []string) []Mat {
+func (ptr *Net) ForwardLayers(outBlobNames []string) []*Mat {
 	_ov1 := ptr.Net.ForwardLayers(outBlobNames)
 	return GoCVCloserToSlice(_ov1, ptr.ResourceTracker)
 }
@@ -1037,6 +1228,15 @@ func newMergeMertensFromElemNoTracker(rt *GoCVResourceTracker, core origin.Merge
 // 所有返回值有Close的函数
 
 
+// BalanceWhite computes merge LDR images using the current MergeMertens.
+// Return a image MAT : 8bits 3 channel image ( RGB 8 bits )
+// For further details, please see:
+// https://docs.opencv.org/master/d7/dd6/classcv_1_1MergeMertens.html#a2d2254b2aab722c16954de13a663644d
+func (ptr *MergeMertens) Process(src []*Mat, dst *Mat) {
+ptr.MergeMertens.Process(SliceToGoCVCloser(src), dst.coreElemPtr())
+}
+
+
 
 
 // Mat represents an n-dimensional dense numerical single-channel
@@ -1142,11 +1342,52 @@ func (ptr *Mat) MultiplyMatrix(x *Mat) *Mat {
 	return newMatFromElem(ptr.ResourceTracker, _ov1)
 }
 
+// MeanWithMask calculates the mean value M of array elements,independently for each channel,
+// and returns it as Scalar vector while applying the mask.
+// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga191389f8a0e58180bb13a727782cd461
+func (ptr *Mat) MeanWithMask(mask *Mat) Scalar {
+	_ov1 := ptr.Mat.MeanWithMask(mask.coreElem())
+	return _ov1
+}
+
 // FromPtr returns a new Mat with a specific size and type, initialized from a Mat Ptr.
 func (ptr *Mat) FromPtr(rows int, cols int, mt MatType, prow int, pcol int) (*Mat, error) {
 	_ov1, _ov2 := ptr.Mat.FromPtr(rows, cols, mt, prow, pcol)
 	return newMatFromElem(ptr.ResourceTracker, _ov1), _ov2
 }
+
+// CopyToWithMask copies Mat into destination Mat after applying the mask Mat.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a626fe5f96d02525e2604d2ad46dd574f
+func (ptr *Mat) CopyToWithMask(dst *Mat, mask *Mat) {
+ptr.Mat.CopyToWithMask(dst.coreElemPtr(), mask.coreElem())
+}
+
+
+// CopyTo copies Mat into destination Mat.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a33fd5d125b4c302b0c9aa86980791a77
+func (ptr *Mat) CopyTo(dst *Mat) {
+ptr.Mat.CopyTo(dst.coreElemPtr())
+}
+
+
+
+func (ptr *Mat) ConvertToWithParams(dst *Mat, mt MatType, alpha float32, beta float32) {
+ptr.Mat.ConvertToWithParams(dst.coreElemPtr(), mt, alpha, beta)
+}
+
+
+// ConvertTo converts Mat into destination Mat.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#adf88c60c5b4980e05bb556080916978b
+func (ptr *Mat) ConvertTo(dst *Mat, mt MatType) {
+ptr.Mat.ConvertTo(dst.coreElemPtr(), mt)
+}
+
 
 // ConvertFp16 converts a Mat to half-precision floating point.
 // 
@@ -1222,6 +1463,15 @@ func newMSERFromElemNoTracker(rt *GoCVResourceTracker, core origin.MSER) *MSER {
 
 // 所有返回值有Close的函数
 
+
+// Detect keypoints in an image using MSER.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *MSER) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.MSER.Detect(src.coreElem())
+	return _ov1
+}
 
 
 
@@ -1334,6 +1584,15 @@ func (ptr *KAZE) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 	return _ov1, newMatFromElem(ptr.ResourceTracker, _ov2)
 }
 
+// Detect keypoints in an image using KAZE.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *KAZE) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.KAZE.Detect(src.coreElem())
+	return _ov1
+}
+
 
 
 // HOGDescriptor is a Histogram Of Gradiants (HOG) for object detection.
@@ -1388,6 +1647,35 @@ func newHOGDescriptorFromElemNoTracker(rt *GoCVResourceTracker, core origin.HOGD
 // 所有返回值有Close的函数
 
 
+// SetSVMDetector sets the data for the HOGDescriptor.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a09e354ad701f56f9c550dc0385dc36f1
+func (ptr *HOGDescriptor) SetSVMDetector(det *Mat) error {
+	_ov1 := ptr.HOGDescriptor.SetSVMDetector(det.coreElem())
+	return _ov1
+}
+
+// DetectMultiScaleWithParams calls DetectMultiScale but allows setting parameters
+// to values other than just the defaults.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a660e5cd036fd5ddf0f5767b352acd948
+func (ptr *HOGDescriptor) DetectMultiScaleWithParams(img *Mat, hitThresh float64, winStride image.Point, padding image.Point, scale float64, finalThreshold float64, useMeanshiftGrouping bool) []image.Rectangle {
+	_ov1 := ptr.HOGDescriptor.DetectMultiScaleWithParams(img.coreElem(), hitThresh, winStride, padding, scale, finalThreshold, useMeanshiftGrouping)
+	return _ov1
+}
+
+// DetectMultiScale detects objects in the input Mat image.
+// The detected objects are returned as a slice of image.Rectangle structs.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d5/d33/structcv_1_1HOGDescriptor.html#a660e5cd036fd5ddf0f5767b352acd948
+func (ptr *HOGDescriptor) DetectMultiScale(img *Mat) []image.Rectangle {
+	_ov1 := ptr.HOGDescriptor.DetectMultiScale(img.coreElem())
+	return _ov1
+}
+
 
 
 // GFTTDetector is a wrapper around the cv::GFTTDetector algorithm.
@@ -1438,6 +1726,15 @@ func newGFTTDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origin.GFTTD
 
 // 所有返回值有Close的函数
 
+
+// Detect keypoints in an image using GFTTDetector.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *GFTTDetector) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.GFTTDetector.Detect(src.coreElem())
+	return _ov1
+}
 
 
 
@@ -1490,6 +1787,15 @@ func newFlannBasedMatcherFromElemNoTracker(rt *GoCVResourceTracker, core origin.
 // 所有返回值有Close的函数
 
 
+// KnnMatch Finds the k best matches for each descriptor from a query set.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/db/d39/classcv_1_1DescriptorMatcher.html#aa880f9353cdf185ccf3013e08210483a
+func (ptr *FlannBasedMatcher) KnnMatch(query *Mat, train *Mat, k int) [][]DMatch {
+	_ov1 := ptr.FlannBasedMatcher.KnnMatch(query.coreElem(), train.coreElem(), k)
+	return _ov1
+}
+
 
 
 // FastFeatureDetector is a wrapper around the cv::FastFeatureDetector.
@@ -1540,6 +1846,15 @@ func newFastFeatureDetectorFromElemNoTracker(rt *GoCVResourceTracker, core origi
 
 // 所有返回值有Close的函数
 
+
+// Detect keypoints in an image using FastFeatureDetector.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *FastFeatureDetector) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.FastFeatureDetector.Detect(src.coreElem())
+	return _ov1
+}
 
 
 
@@ -1595,6 +1910,26 @@ func newCascadeClassifierFromElemNoTracker(rt *GoCVResourceTracker, core origin.
 // 所有返回值有Close的函数
 
 
+// DetectMultiScaleWithParams calls DetectMultiScale but allows setting parameters
+// to values other than just the defaults.
+// 
+// For further details, please see:
+// http://docs.opencv.org/master/d1/de5/classcv_1_1CascadeClassifier.html#aaf8181cb63968136476ec4204ffca498
+func (ptr *CascadeClassifier) DetectMultiScaleWithParams(img *Mat, scale float64, minNeighbors int, flags int, minSize image.Point, maxSize image.Point) []image.Rectangle {
+	_ov1 := ptr.CascadeClassifier.DetectMultiScaleWithParams(img.coreElem(), scale, minNeighbors, flags, minSize, maxSize)
+	return _ov1
+}
+
+// DetectMultiScale detects objects of different sizes in the input Mat image.
+// The detected objects are returned as a slice of image.Rectangle structs.
+// 
+// For further details, please see:
+// http://docs.opencv.org/master/d1/de5/classcv_1_1CascadeClassifier.html#aaf8181cb63968136476ec4204ffca498
+func (ptr *CascadeClassifier) DetectMultiScale(img *Mat) []image.Rectangle {
+	_ov1 := ptr.CascadeClassifier.DetectMultiScale(img.coreElem())
+	return _ov1
+}
+
 
 
 // CLAHE is a wrapper around the cv::CLAHE algorithm.
@@ -1644,6 +1979,15 @@ func newCLAHEFromElemNoTracker(rt *GoCVResourceTracker, core origin.CLAHE) *CLAH
  // Is Interface
 
 // 所有返回值有Close的函数
+
+
+// Apply CLAHE.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d6/db6/classcv_1_1CLAHE.html#a4e92e0e427de21be8d1fae8dcd862c5e
+func (ptr *CLAHE) Apply(src *Mat, dst *Mat) {
+ptr.CLAHE.Apply(src.coreElem(), dst.coreElemPtr())
+}
 
 
 
@@ -1697,6 +2041,15 @@ func newBackgroundSubtractorMOG2FromElemNoTracker(rt *GoCVResourceTracker, core 
 // 所有返回值有Close的函数
 
 
+// Apply computes a foreground mask using the current BackgroundSubtractorMOG2.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d7/df6/classcv_1_1BackgroundSubtractor.html#aa735e76f7069b3fa9c3f32395f9ccd21
+func (ptr *BackgroundSubtractorMOG2) Apply(src *Mat, dst *Mat) {
+ptr.BackgroundSubtractorMOG2.Apply(src.coreElem(), dst.coreElemPtr())
+}
+
+
 
 
 // BackgroundSubtractorKNN is a wrapper around the cv::BackgroundSubtractorKNN.
@@ -1746,6 +2099,15 @@ func newBackgroundSubtractorKNNFromElemNoTracker(rt *GoCVResourceTracker, core o
  // Is Interface
 
 // 所有返回值有Close的函数
+
+
+// Apply computes a foreground mask using the current BackgroundSubtractorKNN.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d7/df6/classcv_1_1BackgroundSubtractor.html#aa735e76f7069b3fa9c3f32395f9ccd21
+func (ptr *BackgroundSubtractorKNN) Apply(src *Mat, dst *Mat) {
+ptr.BackgroundSubtractorKNN.Apply(src.coreElem(), dst.coreElemPtr())
+}
 
 
 
@@ -1808,6 +2170,15 @@ func (ptr *BRISK) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 	return _ov1, newMatFromElem(ptr.ResourceTracker, _ov2)
 }
 
+// Detect keypoints in an image using BRISK.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *BRISK) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.BRISK.Detect(src.coreElem())
+	return _ov1
+}
+
 
 
 // BFMatcher is a wrapper around the the cv::BFMatcher algorithm
@@ -1858,6 +2229,15 @@ func newBFMatcherFromElemNoTracker(rt *GoCVResourceTracker, core origin.BFMatche
 
 // 所有返回值有Close的函数
 
+
+// KnnMatch Finds the k best matches for each descriptor from a query set.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/db/d39/classcv_1_1DescriptorMatcher.html#aa880f9353cdf185ccf3013e08210483a
+func (ptr *BFMatcher) KnnMatch(query *Mat, train *Mat, k int) [][]DMatch {
+	_ov1 := ptr.BFMatcher.KnnMatch(query.coreElem(), train.coreElem(), k)
+	return _ov1
+}
 
 
 
@@ -1910,6 +2290,15 @@ func newAlignMTBFromElemNoTracker(rt *GoCVResourceTracker, core origin.AlignMTB)
 // 所有返回值有Close的函数
 
 
+// Process computes an alignment using the current AlignMTB.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d7/db6/classcv_1_1AlignMTB.html#a37b3417d844f362d781f34155cbcb201
+func (ptr *AlignMTB) Process(src []*Mat, dst []*Mat) {
+ptr.AlignMTB.Process(SliceToGoCVCloser(src), SliceToGoCVCloserPtr(dst))
+}
+
+
 
 
 // AgastFeatureDetector is a wrapper around the cv::AgastFeatureDetector.
@@ -1960,6 +2349,15 @@ func newAgastFeatureDetectorFromElemNoTracker(rt *GoCVResourceTracker, core orig
 
 // 所有返回值有Close的函数
 
+
+// Detect keypoints in an image using AgastFeatureDetector.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *AgastFeatureDetector) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.AgastFeatureDetector.Detect(src.coreElem())
+	return _ov1
+}
 
 
 
@@ -2019,6 +2417,15 @@ func newAKAZEFromElemNoTracker(rt *GoCVResourceTracker, core origin.AKAZE) *AKAZ
 func (ptr *AKAZE) DetectAndCompute(src *Mat, mask *Mat) ([]KeyPoint, *Mat) {
 	_ov1, _ov2 := ptr.AKAZE.DetectAndCompute(src.coreElem(), mask.coreElem())
 	return _ov1, newMatFromElem(ptr.ResourceTracker, _ov2)
+}
+
+// Detect keypoints in an image using AKAZE.
+// 
+// For further details, please see:
+// https://docs.opencv.org/master/d0/d13/classcv_1_1Feature2D.html#aa4e9a7082ec61ebc108806704fbd7887
+func (ptr *AKAZE) Detect(src *Mat) []KeyPoint {
+	_ov1 := ptr.AKAZE.Detect(src.coreElem())
+	return _ov1
 }
 
 
@@ -4112,7 +4519,7 @@ origin.SqBoxFilter(src.coreElem(), dst.coreElemPtr(), depth, ksize)
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga0547c7fed86152d7e9d0096029c8518a
-func (rt *GoCVResourceTracker) Split(src *Mat) []Mat {
+func (rt *GoCVResourceTracker) Split(src *Mat) []*Mat {
 	_ov1 := origin.Split(src.coreElem())
 	return GoCVCloserToSlice(_ov1, rt)
 }
@@ -5196,7 +5603,7 @@ func (rt *GoCVResourceTracker) Moments(src *Mat, binaryImage bool) map[string]fl
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga51d768c270a1cdd3497255017c4504be
-func (rt *GoCVResourceTracker) MixChannels(src []Mat, dst []Mat, fromTo []int) {
+func (rt *GoCVResourceTracker) MixChannels(src []*Mat, dst []*Mat, fromTo []int) {
 origin.MixChannels(SliceToGoCVCloser(src), SliceToGoCVCloser(dst), fromTo)
 }
 
@@ -5250,7 +5657,7 @@ origin.Min(src1.coreElem(), src2.coreElem(), dst.coreElemPtr())
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7d7b4d6c6ee504b30a20b1680029c7b4
-func (rt *GoCVResourceTracker) Merge(mv []Mat, dst *Mat) {
+func (rt *GoCVResourceTracker) Merge(mv []*Mat, dst *Mat) {
 origin.Merge(SliceToGoCVCloser(mv), dst.coreElemPtr())
 }
 
@@ -5440,7 +5847,7 @@ origin.InRange(src.coreElem(), lb.coreElem(), ub.coreElem(), dst.coreElemPtr())
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga4051b5fa2ed5f54b76c059a8625df9f5
-func (rt *GoCVResourceTracker) ImagesFromBlob(blob *Mat, imgs []Mat) {
+func (rt *GoCVResourceTracker) ImagesFromBlob(blob *Mat, imgs []*Mat) {
 origin.ImagesFromBlob(blob.coreElem(), SliceToGoCVCloser(imgs))
 }
 
@@ -6019,7 +6426,7 @@ origin.FastNlMeansDenoisingColoredWithParams(src.coreElem(), dst.coreElemPtr(), 
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d1/d79/group__photo__denoise.html#gaa501e71f52fb2dc17ff8ca5e7d2d3619
-func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredMultiWithParams(src []Mat, dst *Mat, imgToDenoiseIndex int, temporalWindowSize int, h float32, hColor float32, templateWindowSize int, searchWindowSize int) {
+func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredMultiWithParams(src []*Mat, dst *Mat, imgToDenoiseIndex int, temporalWindowSize int, h float32, hColor float32, templateWindowSize int, searchWindowSize int) {
 origin.FastNlMeansDenoisingColoredMultiWithParams(SliceToGoCVCloser(src), dst.coreElemPtr(), imgToDenoiseIndex, temporalWindowSize, h, hColor, templateWindowSize, searchWindowSize)
 }
 
@@ -6028,7 +6435,7 @@ origin.FastNlMeansDenoisingColoredMultiWithParams(SliceToGoCVCloser(src), dst.co
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d1/d79/group__photo__denoise.html#gaa501e71f52fb2dc17ff8ca5e7d2d3619
-func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredMulti(src []Mat, dst *Mat, imgToDenoiseIndex int, temporalWindowSize int) {
+func (rt *GoCVResourceTracker) FastNlMeansDenoisingColoredMulti(src []*Mat, dst *Mat, imgToDenoiseIndex int, temporalWindowSize int) {
 origin.FastNlMeansDenoisingColoredMulti(SliceToGoCVCloser(src), dst.coreElemPtr(), imgToDenoiseIndex, temporalWindowSize)
 }
 
@@ -6569,7 +6976,7 @@ origin.CalcOpticalFlowFarneback(prevImg.coreElem(), nextImg.coreElem(), flow.cor
 // 
 // For futher details, please see:
 // https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga6ca1876785483836f72a77ced8ea759a
-func (rt *GoCVResourceTracker) CalcHist(src []Mat, channels []int, mask *Mat, hist *Mat, size []int, ranges []float64, acc bool) {
+func (rt *GoCVResourceTracker) CalcHist(src []*Mat, channels []int, mask *Mat, hist *Mat, size []int, ranges []float64, acc bool) {
 origin.CalcHist(SliceToGoCVCloser(src), channels, mask.coreElem(), hist.coreElemPtr(), size, ranges, acc)
 }
 
@@ -6587,7 +6994,7 @@ origin.CalcCovarMatrix(samples.coreElem(), covar.coreElemPtr(), mean.coreElemPtr
 // 
 // For futher details, please see:
 // https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga3a0af640716b456c3d14af8aee12e3ca
-func (rt *GoCVResourceTracker) CalcBackProject(src []Mat, channels []int, hist *Mat, backProject *Mat, ranges []float64, uniform bool) {
+func (rt *GoCVResourceTracker) CalcBackProject(src []*Mat, channels []int, hist *Mat, backProject *Mat, ranges []float64, uniform bool) {
 origin.CalcBackProject(SliceToGoCVCloser(src), channels, hist.coreElem(), backProject.coreElemPtr(), ranges, uniform)
 }
 
@@ -6643,7 +7050,7 @@ origin.Blur(src.coreElem(), dst.coreElemPtr(), ksize)
 // 
 // For further details, please see:
 // https://docs.opencv.org/master/d6/d0f/group__dnn.html#ga2b89ed84432e4395f5a1412c2926293c
-func (rt *GoCVResourceTracker) BlobFromImages(imgs []Mat, blob *Mat, scaleFactor float64, size image.Point, mean Scalar, swapRB bool, crop bool, ddepth MatType) {
+func (rt *GoCVResourceTracker) BlobFromImages(imgs []*Mat, blob *Mat, scaleFactor float64, size image.Point, mean Scalar, swapRB bool, crop bool, ddepth MatType) {
 origin.BlobFromImages(SliceToGoCVCloser(imgs), blob.coreElemPtr(), scaleFactor, size, mean, swapRB, crop, ddepth)
 }
 

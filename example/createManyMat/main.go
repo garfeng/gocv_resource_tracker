@@ -16,7 +16,7 @@ func createOnce() {
 
 	mat := tr.NewMatWithSize(5000, 5000, gocv.MatTypeCV64FC3)
 
-	tr.Rectangle(&mat, image.Rect(40, 40, 60, 60), color.RGBA{
+	tr.Rectangle(mat, image.Rect(40, 40, 60, 60), color.RGBA{
 		R: 100,
 		G: 100,
 		B: 100,

@@ -24,7 +24,7 @@ type Mat struct {
 }
 */
 
-func SliceToGoCVCloser(slice []Mat) []gocv.Mat {
+func SliceToGoCVCloser(slice []*Mat) []gocv.Mat {
 	res := make([]gocv.Mat, len(slice))
 
 	for i, v := range slice {
@@ -33,13 +33,18 @@ func SliceToGoCVCloser(slice []Mat) []gocv.Mat {
 	return res
 }
 
-func GoCVCloserToSlice(slice []gocv.Mat, g *GoCVResourceTracker) []Mat {
-	res := make([]Mat, len(slice))
+func SliceToGoCVCloserPtr(slice []*Mat) *[]gocv.Mat {
+	v := SliceToGoCVCloser(slice)
+	return &v
+}
+
+func GoCVCloserToSlice(slice []gocv.Mat, g *GoCVResourceTracker) []*Mat {
+	res := make([]*Mat, len(slice))
 
 	for i := range slice {
 		ptr := &slice[i]
 		g.TrackCloseError(ptr)
-		res[i] = Mat{
+		res[i] = &Mat{
 			Mat:             ptr,
 			ResourceTracker: g,
 		}

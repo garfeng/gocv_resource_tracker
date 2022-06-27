@@ -55,23 +55,35 @@ func GoFuncFormat(m *Method, isTypeMethod bool) string {
 	outValuesToReturn := []string{}
 
 	for _, v := range m.Ins {
-		if v.IsCloser() && (!v.IsPtr()) {
-			ins = append(ins, fmt.Sprintf("%s *%s", v.Name, v.TypeName))
-		} else {
-			ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
-		}
-
-		if v.IsCloser() || v.IsRealElemCloser() {
+		if v.IsCloser() {
 			if v.IsPtr() {
+				ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
 				inValues = append(inValues, v.Name+".coreElemPtr()")
 			} else {
-				if !v.IsSlice() {
-					inValues = append(inValues, v.Name+".coreElem()")
+				ins = append(ins, fmt.Sprintf("%s *%s", v.Name, v.TypeName))
+				inValues = append(inValues, v.Name+".coreElem()")
+			}
+		} else if v.IsRealElemCloser() {
+			if v.IsSlice() {
+				ins = append(ins, fmt.Sprintf("%s %s", v.Name, "[]*"+GetRealElement(v.Type).String()))
+				inValues = append(inValues, fmt.Sprintf("SliceToGoCVCloser(%s)", v.Name))
+			} else if v.IsPtr() {
+				v2 := v.Type.Elem()
+
+				if v2.Kind() == gotype.Slice {
+					ins = append(ins, fmt.Sprintf("%s %s", v.Name, "[]*"+GetRealElement(v.Type).String()))
+					inValues = append(inValues, fmt.Sprintf("SliceToGoCVCloserPtr(%s)", v.Name))
 				} else {
-					inValues = append(inValues, fmt.Sprintf("SliceToGoCVCloser(%s)", v.Name))
+					panic("TODO: known in type")
 				}
+
+			} else {
+				ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
+				inValues = append(inValues, v.Name+".coreElem()")
+
 			}
 		} else {
+			ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
 			inValues = append(inValues, v.Name)
 		}
 	}
@@ -79,8 +91,17 @@ func GoFuncFormat(m *Method, isTypeMethod bool) string {
 		if v.IsCloser() && (!v.IsPtr()) {
 			outs = append(outs, "*"+v.TypeName)
 		} else {
-			outs = append(outs, v.TypeName)
+			if v.IsRealElemCloser() {
+				if v.IsSlice() {
+					outs = append(outs, "[]*"+GetRealElement(v.Type).String())
+				} else {
+					outs = append(outs, v.TypeName)
+				}
+			} else {
+				outs = append(outs, v.TypeName)
+			}
 		}
+
 		name := fmt.Sprintf("_ov%d", i+1)
 		outValues = append(outValues, name)
 
