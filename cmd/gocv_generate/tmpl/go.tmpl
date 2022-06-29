@@ -57,7 +57,7 @@ func (p *{{.Name}}) coreElemPtr() *origin.{{.Name}} {
 func new{{.Name}}FromPtr(rt *GoCVResourceTracker, core *origin.{{.Name}}) *{{.Name}} {
     {{if .IsCloserError}}
     rt.TrackCloseError(core)
-    {{else}}
+    {{else if .IsCloser}}
     rt.TrackCloser(core)
     {{end}}
     return &{{.Name}}{
@@ -69,7 +69,7 @@ func new{{.Name}}FromPtr(rt *GoCVResourceTracker, core *origin.{{.Name}}) *{{.Na
 func new{{.Name}}FromElem(rt *GoCVResourceTracker, core origin.{{.Name}}) *{{.Name}} {
     {{if .IsCloserError}}
     rt.TrackCloseError(&core)
-    {{else}}
+    {{else if .IsCloser}}
     rt.TrackCloser(&core)
     {{end}}
     return &{{.Name}}{
@@ -91,7 +91,7 @@ func new{{.Name}}FromElemNoTracker(rt *GoCVResourceTracker, core origin.{{.Name}
 
 {{range .MethodsReturnsCloser}}
 {{.Doc}}
-func (ptr *{{.ReceverTypeName}}) {{GoFuncFormat . true}}
+func (ptr *{{.ReceverTypeName}}) {{GoFuncFormat . $ true}}
 {{end}}
 
 {{end}}  // range .WithCloseTypes
@@ -126,7 +126,7 @@ var (
 {{if .Methods}}
 {{range .Methods}}
 {{.Doc}}
-func (rt *GoCVResourceTracker) {{GoFuncFormat . false}}
+func (rt *GoCVResourceTracker) {{GoFuncFormat . $ false}}
 {{end}}
 {{end}}
 

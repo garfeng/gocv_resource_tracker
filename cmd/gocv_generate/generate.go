@@ -19,6 +19,8 @@ type Importer struct {
 
 	SrcPath    string
 	GoFilename string
+
+	RewriteTypes map[string]bool
 }
 
 var (
@@ -40,6 +42,7 @@ func NewImporter(srcPath string, dstPath string) *Importer {
 		ToPtrTypes:     []*Type{},
 		WithCloseTypes: []*Type{},
 		SrcPath:        srcPath,
+		RewriteTypes:   map[string]bool{},
 		GoFilename:     dst,
 	}
 }
@@ -234,7 +237,12 @@ func (i *Importer) ImportType(v gotype.Type) {
 				}
 			}
 		}
-		if hasClose {
+
+		if !hasClose && len(tp.Methods) > 0 && tp.Methods[0].Name != "String" {
+			tp.IsNotCloserButShouldGroup = true
+		}
+
+		if hasClose || tp.IsNotCloserButShouldGroup {
 			i.WithCloseTypes = append(i.WithCloseTypes, tp)
 
 		} else {
@@ -244,6 +252,9 @@ func (i *Importer) ImportType(v gotype.Type) {
 		i.SameTypes = append(i.SameTypes, tp)
 	}
 
+	if tp.IsNotCloserButShouldGroup {
+		i.RewriteTypes[tp.Name] = true
+	}
 }
 
 func (i *Importer) ImportValue(v gotype.Type) {
@@ -277,9 +288,10 @@ type Method struct {
 type Type struct {
 	BaseDef
 
-	Kind          string
-	IsCloser      bool
-	IsCloserError bool
+	Kind                      string
+	IsCloser                  bool
+	IsCloserError             bool
+	IsNotCloserButShouldGroup bool
 
 	Fields               []*Value
 	Methods              []*Method

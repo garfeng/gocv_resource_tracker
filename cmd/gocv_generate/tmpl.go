@@ -3,10 +3,11 @@ package main
 import (
 	"embed"
 	"fmt"
-	"github.com/wzshiming/gotype"
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/wzshiming/gotype"
 )
 
 //go:embed tmpl
@@ -47,7 +48,7 @@ func (v *Value) RealTypeName() string {
 	return v2.String()
 }
 
-func GoFuncFormat(m *Method, isTypeMethod bool) string {
+func GoFuncFormat(m *Method, imp *Importer, isTypeMethod bool) string {
 	ins := []string{}
 	inValues := []string{}
 	outs := []string{}
@@ -55,7 +56,8 @@ func GoFuncFormat(m *Method, isTypeMethod bool) string {
 	outValuesToReturn := []string{}
 
 	for _, v := range m.Ins {
-		if v.IsCloser() {
+		rt := GetRealElement(v.Type)
+		if v.IsCloser() || imp.RewriteTypes[rt.Name()] {
 			if v.IsPtr() {
 				ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
 				inValues = append(inValues, v.Name+".coreElemPtr()")
@@ -80,7 +82,6 @@ func GoFuncFormat(m *Method, isTypeMethod bool) string {
 			} else {
 				ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
 				inValues = append(inValues, v.Name+".coreElem()")
-
 			}
 		} else {
 			ins = append(ins, fmt.Sprintf("%s %s", v.Name, v.TypeName))
@@ -88,19 +89,7 @@ func GoFuncFormat(m *Method, isTypeMethod bool) string {
 		}
 	}
 	for i, v := range m.Outs {
-		if v.IsCloser() && (!v.IsPtr()) {
-			outs = append(outs, "*"+v.TypeName)
-		} else {
-			if v.IsRealElemCloser() {
-				if v.IsSlice() {
-					outs = append(outs, "[]*"+GetRealElement(v.Type).String())
-				} else {
-					outs = append(outs, v.TypeName)
-				}
-			} else {
-				outs = append(outs, v.TypeName)
-			}
-		}
+		rt := GetRealElement(v.Type)
 
 		name := fmt.Sprintf("_ov%d", i+1)
 		outValues = append(outValues, name)
@@ -109,25 +98,48 @@ func GoFuncFormat(m *Method, isTypeMethod bool) string {
 		if isTypeMethod {
 			resourceTrackerName = "ptr.ResourceTracker"
 		}
+		rtName := v.RealTypeName()
+		if v.IsCloser() || imp.RewriteTypes[rt.Name()] {
 
-		if v.IsCloser() || v.IsRealElemCloser() {
-			rtName := v.RealTypeName()
 			if v.IsPtr() {
+				outs = append(outs, v.TypeName)
 				outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromPtr(%s, %s)", rtName, resourceTrackerName, name))
 			} else {
-				if !v.IsSlice() {
-					if !ShouldNotTrackerMethod[m.Name] {
-						outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElem(%s, %s)", rtName, resourceTrackerName, name))
-					} else {
-						outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElemNoTracker(%s, %s)", rtName, resourceTrackerName, name))
-					}
+				outs = append(outs, "*"+v.TypeName)
+				outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElem(%s, %s)", rtName, resourceTrackerName, name))
+			}
+		} else if v.IsRealElemCloser() {
+			if v.IsSlice() {
+				outs = append(outs, "[]*"+GetRealElement(v.Type).String())
+				outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("GoCVCloserToSlice(%s, %s)", name, resourceTrackerName))
+			} else if v.IsPtr() {
+				outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromPtr(%s, %s)", rtName, resourceTrackerName, name))
+
+				v2 := v.Type.Elem()
+
+				if v2.Kind() == gotype.Slice {
+					outs = append(outs, fmt.Sprintf("%s", "[]*"+GetRealElement(v.Type).String()))
 				} else {
-					outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("GoCVCloserToSlice(%s, %s)", name, resourceTrackerName))
+					panic("TODO: known in type")
 				}
+
+				if !ShouldNotTrackerMethod[m.Name] {
+					outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElem(%s, %s)", rtName, resourceTrackerName, name))
+				} else {
+					outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElemNoTracker(%s, %s)", rtName, resourceTrackerName, name))
+				}
+
+			} else {
+				outs = append(outs, v.TypeName)
+				outValuesToReturn = append(outValuesToReturn, name)
+
 			}
 		} else {
+			outs = append(outs, v.TypeName)
 			outValuesToReturn = append(outValuesToReturn, name)
+
 		}
+
 	}
 
 	inStr := strings.Join(ins, ", ")
@@ -163,7 +175,7 @@ var (
 	goTmpl = template.New("go")
 )
 
-func (i Importer) Encode(w io.Writer) error {
+func (i *Importer) Encode(w io.Writer) error {
 	return goTmpl.Execute(w, i)
 }
 
