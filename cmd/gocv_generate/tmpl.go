@@ -24,6 +24,7 @@ func (v *Value) IsCloser() bool {
 	}
 	return find
 }
+
 func (v *Value) IsRealElemCloser() bool {
 	v2 := GetRealElement(v.Type)
 
@@ -100,13 +101,16 @@ func GoFuncFormat(m *Method, imp *Importer, isTypeMethod bool) string {
 		}
 		rtName := v.RealTypeName()
 		if v.IsCloser() || imp.RewriteTypes[rt.Name()] {
-
 			if v.IsPtr() {
 				outs = append(outs, v.TypeName)
 				outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromPtr(%s, %s)", rtName, resourceTrackerName, name))
 			} else {
 				outs = append(outs, "*"+v.TypeName)
-				outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElem(%s, %s)", rtName, resourceTrackerName, name))
+				if !ShouldNotTrackerMethod[m.Name] {
+					outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElem(%s, %s)", rtName, resourceTrackerName, name))
+				} else {
+					outValuesToReturn = append(outValuesToReturn, fmt.Sprintf("new%sFromElemNoTracker(%s, %s)", rtName, resourceTrackerName, name))
+				}
 			}
 		} else if v.IsRealElemCloser() {
 			if v.IsSlice() {
@@ -171,9 +175,7 @@ func GoFuncFormat(m *Method, imp *Importer, isTypeMethod bool) string {
 	}
 }
 
-var (
-	goTmpl = template.New("go")
-)
+var goTmpl = template.New("go")
 
 func (i *Importer) Encode(w io.Writer) error {
 	return goTmpl.Execute(w, i)

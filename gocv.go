@@ -1320,7 +1320,7 @@ ptr.PointsVector.Close()
 // At returns the PointVector at that index of the PointsVector.
 func (ptr *PointsVector) At(idx int) *PointVector {
 	_ov1 := ptr.PointsVector.At(idx)
-	return newPointVectorFromElem(ptr.ResourceTracker, _ov1)
+	return newPointVectorFromElemNoTracker(ptr.ResourceTracker, _ov1)
 }
 
 // Append appends a PointVector at end of the PointsVector.
@@ -1407,7 +1407,7 @@ ptr.Points3fVector.Close()
 // At returns the Point3fVector at that index of the Points3fVector.
 func (ptr *Points3fVector) At(idx int) *Point3fVector {
 	_ov1 := ptr.Points3fVector.At(idx)
-	return newPoint3fVectorFromElem(ptr.ResourceTracker, _ov1)
+	return newPoint3fVectorFromElemNoTracker(ptr.ResourceTracker, _ov1)
 }
 
 // Append appends a Point3fVector at end of the Points3fVector.
@@ -1494,7 +1494,7 @@ ptr.Points2fVector.Close()
 // At returns the Point2fVector at that index of the Points2fVector.
 func (ptr *Points2fVector) At(idx int) *Point2fVector {
 	_ov1 := ptr.Points2fVector.At(idx)
-	return newPoint2fVectorFromElem(ptr.ResourceTracker, _ov1)
+	return newPoint2fVectorFromElemNoTracker(ptr.ResourceTracker, _ov1)
 }
 
 // Append appends a Point2fVector at end of the Points2fVector.
